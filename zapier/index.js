@@ -8,7 +8,7 @@ const executeWorkflow = require('./creates/executeWorkflow');
 const authentication = {
   type: 'custom',
   test: {
-    url: process.env.API_BASE_URL + '/models',
+    url: process.env.API_BASE_URL + '/organizations/me',
   },
   // If you need any fields upfront, put them here
   fields: [
@@ -25,6 +25,7 @@ const authentication = {
       helpText: 'App client secret'
     },
   ],
+  connectionLabel: '{{bundle.inputData.name}}', 
 };
 
 const addAuthorization = async (request, z, bundle) => {
