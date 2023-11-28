@@ -34,6 +34,7 @@ describe('triggers', () => {
       App.triggers.listTrainings.operation.perform,
       bundle
     );
+    expect(results)
   });
 
 

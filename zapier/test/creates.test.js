@@ -15,7 +15,7 @@ describe('creates', () => {
   test('postPrediction', async () => {
     const bundle = {
       inputData: {
-        // in production, this will be an hydration URL to the selected file's data
+        // in production, this will be a hydration URL to the selected file's data
         file: FILE_URL,
         modelId: process.env.TEST_MODEL_ID,
       },
@@ -36,7 +36,7 @@ describe('creates', () => {
   test('executeWorkflow', async () => {
     const bundle = {
       inputData: {
-        // in production, this will be an hydration URL to the selected file's data
+        // in production, this will be a hydration URL to the selected file's data
         file: FILE_URL,
         workflowId: process.env.TEST_WORKFLOW_ID,
       },
