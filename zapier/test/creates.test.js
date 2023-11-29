@@ -7,8 +7,7 @@ const appTester = zapier.createAppTester(App);
 zapier.tools.env.inject();
 
 
-const FILE_URL =
-  'https://cdn.zapier.com/storage/files/f6679cf77afeaf6b8426de8d7b9642fc.pdf';
+const TEST_FILE_URL = 'https://cdn.zapier.com/storage/files/f6679cf77afeaf6b8426de8d7b9642fc.pdf';
 
 
 describe('creates', () => {
@@ -16,7 +15,7 @@ describe('creates', () => {
     const bundle = {
       inputData: {
         // in production, this will be a hydration URL to the selected file's data
-        file: FILE_URL,
+        file: TEST_FILE_URL,
         modelId: process.env.TEST_MODEL_ID,
       },
       authData: {
@@ -37,7 +36,7 @@ describe('creates', () => {
     const bundle = {
       inputData: {
         // in production, this will be a hydration URL to the selected file's data
-        file: FILE_URL,
+        file: TEST_FILE_URL,
         fileName: 'test.pdf',
         workflowId: process.env.TEST_WORKFLOW_ID,
       },
