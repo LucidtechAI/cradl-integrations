@@ -10,8 +10,8 @@ module.exports = {
   key: 'postPrediction',
   noun: 'File',
   display: {
-    label: 'postPrediction',
-    description: 'Post a prediction to an existing model',
+    label: 'Post Document to Model',
+    description: 'Use a model to extract data from a document',
   },
   operation: {
     inputFields: [

@@ -2,16 +2,16 @@ const cradlApi = require('../cradlApi')
 
 const perform = async (z, bundle) => {
   const documentId = await cradlApi.createDocument(z, bundle.inputData.file)
-  const executeWorkflowResponse = await cradlApi.executeWorkflow(z, documentId, bundle.inputData.workflowId)
+  const executeWorkflowResponse = await cradlApi.executeWorkflow(z, documentId, bundle.inputData.fileName, bundle.inputData.workflowId)
   return executeWorkflowResponse.data;
 };
 
 module.exports = {
   key: 'executeWorkflow',
-  noun: 'file',
+  noun: 'File',
   display: {
-    label: 'executeWorkflow',
-    description: 'Post a document to an existing workflow',
+    label: 'Upload Document to Flow',
+    description: 'Post a document to an existing workflow for human-in-the-loop processing',
   },
   operation: {
     inputFields: [
