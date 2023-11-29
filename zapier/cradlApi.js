@@ -34,7 +34,7 @@ async function putToFileServer(z, url, content) {
 
 async function createDocument(z, inputFileUrl) {
   const postDocumentsResponse = await makePostRequest(z, '/documents', {})
-  // bundle.inputData.file will be a URL where the file data can be downloaded
+  // bundle.inputData.file will be a URL from which we download the file
   fileResponse = await downloadFile(inputFileUrl, z)
   const fileServerResponse = await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())
   return postDocumentsResponse.json.documentId
@@ -58,7 +58,7 @@ async function executeWorkflow(z, documentId, title, workflowId){
 }
 
 async function listModels(z) {
-    return makeGetRequest(z, '/models')
+  return makeGetRequest(z, '/models')
 }
 
 async function listTrainings(z, modelId) {
@@ -66,14 +66,14 @@ async function listTrainings(z, modelId) {
 }
 
 async function listWorkflows(z) {
-    return makeGetRequest(z, '/workflows')
+  return makeGetRequest(z, '/workflows')
 }
 
 module.exports = {
-    createDocument, 
-    createPrediction,
-    executeWorkflow,
-    listModels,
-    listTrainings,
-    listWorkflows,
+  createDocument, 
+  createPrediction,
+  executeWorkflow,
+  listModels,
+  listTrainings,
+  listWorkflows,
 }

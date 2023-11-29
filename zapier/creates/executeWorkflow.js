@@ -19,18 +19,18 @@ module.exports = {
         key: 'file', 
         required: true, 
         type: 'file', 
-        label: 'File' 
+        label: 'File' ,
       },
       { 
         key: 'fileName', 
         type: 'string', 
-        label: 'Filename' 
+        label: 'Filename' ,
       },
       { 
         key: 'workflowId', 
         required: true, 
         label: 'Workflow ID',
-        dynamic: 'listWorkflows.id.name'
+        dynamic: 'listWorkflows.id.name',
       },
     ],
     perform,

@@ -37,7 +37,6 @@ describe('triggers', () => {
     expect(results)
   });
 
-
   test('listWorkflows', async () => {
     const bundle = {
       authData: {

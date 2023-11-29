@@ -1,16 +1,15 @@
+const executeWorkflow = require('./creates/executeWorkflow');
 const hydrators = require('./hydrators');
 const listModels = require('./triggers/listModels');
 const listTrainings = require('./triggers/listTrainings');
 const listWorkflows = require('./triggers/listWorkflows');
 const postPrediction = require('./creates/postPrediction');
-const executeWorkflow = require('./creates/executeWorkflow');
 
 const authentication = {
   type: 'custom',
   test: {
     url: process.env.API_BASE_URL + '/organizations/me',
   },
-  // If you need any fields upfront, put them here
   fields: [
     { 
       key: 'app_client_id', 
@@ -47,14 +46,11 @@ const addAuthorization = async (request, z, bundle) => {
 };
 
 module.exports = {
-  // This is just shorthand to reference the installed dependencies you have.
-  // Zapier will need to know these before we can upload.
   version: require('./package.json').version,
   platformVersion: require('zapier-platform-core').version,
 
   authentication,
   beforeRequest: [addAuthorization],
-  // Any hydrators go here
   hydrators,
 
   triggers: {
