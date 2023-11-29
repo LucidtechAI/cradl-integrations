@@ -22,6 +22,11 @@ module.exports = {
         label: 'File' 
       },
       { 
+        key: 'fileName', 
+        type: 'string', 
+        label: 'Filename' 
+      },
+      { 
         key: 'workflowId', 
         required: true, 
         label: 'Workflow ID',

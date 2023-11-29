@@ -48,10 +48,11 @@ async function createPrediction(z, documentId, modelId, trainingId){
   });
 }
 
-async function executeWorkflow(z, documentId, workflowId){
+async function executeWorkflow(z, documentId, title, workflowId){
   return makePostRequest(z, '/workflows/' + workflowId + '/executions', {
     input: {
       documentId: documentId,
+      title: title,
     }
   });
 }

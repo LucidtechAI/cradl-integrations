@@ -38,6 +38,7 @@ describe('creates', () => {
       inputData: {
         // in production, this will be a hydration URL to the selected file's data
         file: FILE_URL,
+        fileName: 'test.pdf',
         workflowId: process.env.TEST_WORKFLOW_ID,
       },
       authData: {
