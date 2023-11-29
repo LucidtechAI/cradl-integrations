@@ -29,7 +29,7 @@ module.exports = {
       { 
         key: 'workflowId', 
         required: true, 
-        label: 'Workflow ID',
+        label: 'Workflow',
         dynamic: 'listWorkflows.id.name',
       },
     ],

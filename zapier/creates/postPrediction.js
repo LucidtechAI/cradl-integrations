@@ -24,13 +24,13 @@ module.exports = {
       { 
         key: 'modelId', 
         required: true, 
-        label: 'Model ID',
+        label: 'Model',
         dynamic: 'listModels.id.name',
       },
       { 
         key: 'trainingId', 
         required: false, 
-        label: 'Training ID',
+        label: 'Training',
         dynamic: 'listTrainings.id.name',
       },
     ],
