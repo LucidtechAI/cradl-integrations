@@ -11,6 +11,7 @@ function pickIdAndName(model) {
 const perform = async (z, bundle) => {
   listModelsResponse = await cradlApi.listModels(z)
   models = listModelsResponse.data.models
+  models.sort((a, b) => Date.parse(a.updatedTime) - Date.parse(b.updatedTime)).reverse()
   models = models.map(pickIdAndName)
   return models
 };

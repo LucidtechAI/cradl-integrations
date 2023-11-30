@@ -15,6 +15,7 @@ const perform = async (z, bundle) => {
     // Get trainings for the model
     listTrainingsResponse = await cradlApi.listTrainings(z, bundle.inputData.modelId)
     trainings = listTrainingsResponse.data.trainings
+    trainings.sort((a, b) => Date.parse(a.updatedTime) - Date.parse(b.updatedTime)).reverse()
     trainings = trainings.map(pickIdAndName)
   }
   return trainings
