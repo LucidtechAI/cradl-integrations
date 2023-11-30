@@ -1,4 +1,6 @@
 const http = require('https'); // require('http') if your URL is not https
+CRADL_ORGANIZATION_ID = 'las:organization:cradl'
+
 
 const downloadFile = async (url, z) => {
   const getResponse = await z.request({
@@ -60,8 +62,8 @@ async function listModels(z) {
   return makeGetRequest(z, '/models?owner=me&owner=las:organization:cradl')
 }
 
-async function listTrainings(z, modelId) {
-  return makeGetRequest(z, '/models/' + modelId + '/trainings')
+async function listTrainings(z, modelId, status) {
+  return makeGetRequest(z, '/models/' + modelId + '/trainings?status=succeeded')
 }
 
 async function executeWorkflow(z, documentId, title, workflowId){
@@ -103,6 +105,7 @@ async function getSuccessfulWorkflowExecutions(z, workflowId) {
 
 
 module.exports = {
+  CRADL_ORGANIZATION_ID,
   createDocument, 
   createPrediction,
   executeWorkflow,

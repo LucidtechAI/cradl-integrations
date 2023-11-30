@@ -6,6 +6,24 @@ const perform = async (z, bundle) => {
   return createPredictionResponse.data;
 };
 
+const trainingField = async (z, bundle) => {
+  if (bundle.inputData.modelId) {
+    listModelsResponse = await cradlApi.listModels(z)
+    models = listModelsResponse.data.models
+    modelId = bundle.inputData.modelId.replace(cradlApi.CRADL_ORGANIZATION_ID + '/', '')
+    model = models.find((m) => m.modelId == modelId)
+    if (model.trainingId) {
+      return [{ 
+        key: 'trainingId', 
+        required: false, 
+        label: 'Training',
+        dynamic: 'listTrainings.id.name',
+      }] 
+    }
+  } 
+  return []
+}
+
 module.exports = {
   key: 'postPrediction',
   noun: 'File',
@@ -19,20 +37,16 @@ module.exports = {
         key: 'file', 
         required: true, 
         type: 'file', 
-        label: 'File',
+        label: 'Document',
       },
       { 
         key: 'modelId', 
         required: true, 
         label: 'Model',
         dynamic: 'listModels.id.name',
+        altersDynamicFields: true,
       },
-      { 
-        key: 'trainingId', 
-        required: false, 
-        label: 'Training',
-        dynamic: 'listTrainings.id.name',
-      },
+      trainingField,
     ],
     perform,
     sample: {

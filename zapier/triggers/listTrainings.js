@@ -8,9 +8,15 @@ function pickIdAndName(training) {
 }
 
 const perform = async (z, bundle) => {
-  listTrainingsResponse = await cradlApi.listTrainings(z, bundle.inputData.modelId)
-  trainings = listTrainingsResponse.data.trainings
-  trainings = trainings.map(pickIdAndName)
+  if (bundle.inputData.modelId.startsWith(cradlApi.CRADL_ORGANIZATION_ID)) {
+    // Pretrained models have no trainings and their trainings cannot be queried
+    return []
+  } else {
+    // Get trainings for the model
+    listTrainingsResponse = await cradlApi.listTrainings(z, bundle.inputData.modelId)
+    trainings = listTrainingsResponse.data.trainings
+    trainings = trainings.map(pickIdAndName)
+  }
   return trainings
 };
 
