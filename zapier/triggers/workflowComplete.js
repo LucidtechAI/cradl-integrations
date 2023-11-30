@@ -56,6 +56,25 @@ const setWebhookUrl = async(z, bundle) => {
         },
       ],
       type: 'hook',
+      sample: {
+        datasetId: 'las:dataset:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        documentId: 'las:document:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+        values: {
+          field_1: 'ACME INC',
+          field_2: '1234.00',
+          field_3: '2020-01-01',
+          line_items_field: [
+            {
+              line_items_field_1: 'LINE 1 DESCRIPTION',
+              line_items_field_2: '616.00',
+            },
+            {
+              line_items_field_1: 'LINE 2 DESCRIPTION',
+              line_items_field_2: '618.00',
+            },
+          ]
+        }
+      },
       performSubscribe: setWebhookUrl,
       performUnsubscribe: deleteWebhookUrl,
       perform: processWebhookPayload,
