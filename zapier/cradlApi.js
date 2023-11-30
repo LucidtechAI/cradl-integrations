@@ -55,6 +55,13 @@ async function createPrediction(z, documentId, modelId, trainingId){
     documentId: documentId,
     modelId: modelId,
     trainingId: trainingId,
+    postprocessConfig: {
+      parameters: {
+        n: 3
+      },
+      strategy: 'BEST_N_PAGES',
+      outputFormat: 'v2',
+    }
   });
 }
 
