@@ -50,14 +50,13 @@ async function createDocument(z, inputFileUrl) {
   return postDocumentsResponse.json.documentId
 }
 
-async function createPrediction(z, documentId, modelId, trainingId){
+async function createPrediction(z, documentId, modelId){
   return makePostRequest(z, '/predictions', {
     documentId: documentId,
     modelId: modelId,
-    trainingId: trainingId,
     postprocessConfig: {
       parameters: {
-        n: 3
+        n: 3,
       },
       strategy: 'BEST_N_PAGES',
       outputFormat: 'v2',
@@ -67,10 +66,6 @@ async function createPrediction(z, documentId, modelId, trainingId){
 
 async function listModels(z) {
   return makeGetRequest(z, '/models?owner=me&owner=las:organization:cradl')
-}
-
-async function listTrainings(z, modelId, status) {
-  return makeGetRequest(z, '/models/' + modelId + '/trainings?status=succeeded')
 }
 
 async function executeWorkflow(z, documentId, title, workflowId){

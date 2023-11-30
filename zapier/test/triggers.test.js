@@ -20,23 +20,6 @@ describe('triggers', () => {
     expect(results.length).toBeGreaterThan(0);
   });
 
-  test('listTrainings', async () => {
-    const bundle = {
-      inputData: {
-        modelId: process.env.TEST_MODEL_ID,
-      },
-      authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
-      },
-    };
-    const results = await appTester(
-      App.triggers.listTrainings.operation.perform,
-      bundle,
-    );
-    expect(results)
-  });
-
   test('listWorkflows', async () => {
     const bundle = {
       authData: {

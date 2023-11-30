@@ -2,7 +2,6 @@ const auth = require('./auth');
 const executeWorkflow = require('./creates/executeWorkflow');
 const hydrators = require('./hydrators');
 const listModels = require('./triggers/listModels');
-const listTrainings = require('./triggers/listTrainings');
 const listWorkflows = require('./triggers/listWorkflows');
 const postPrediction = require('./creates/postPrediction');
 const workflowComplete = require('./triggers/workflowComplete')
@@ -17,7 +16,6 @@ module.exports = {
 
   triggers: {
     [listModels.key]: listModels,
-    [listTrainings.key]: listTrainings,
     [listWorkflows.key]: listWorkflows,
     [workflowComplete.key]: workflowComplete,
   },
