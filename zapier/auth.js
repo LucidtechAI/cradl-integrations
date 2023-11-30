@@ -4,8 +4,12 @@ const AUTH_SCOPES = [
   'api.lucidtech.ai/organizations.read',
   'api.lucidtech.ai/predictions.write',
   'api.lucidtech.ai/trainings.read',
+  'api.lucidtech.ai/transitions.read',
+  'api.lucidtech.ai/transitions.write',
+  'api.lucidtech.ai/workflows.executions.read',
   'api.lucidtech.ai/workflows.executions.write',
   'api.lucidtech.ai/workflows.read',
+  'api.lucidtech.ai/workflows.write',
 ]
 
 const addAuthorization = async (request, z, bundle) => {

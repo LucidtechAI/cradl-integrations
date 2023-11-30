@@ -5,6 +5,7 @@ const listModels = require('./triggers/listModels');
 const listTrainings = require('./triggers/listTrainings');
 const listWorkflows = require('./triggers/listWorkflows');
 const postPrediction = require('./creates/postPrediction');
+const workflowComplete = require('./triggers/workflowComplete')
 
 module.exports = {
   version: require('./package.json').version,
@@ -18,6 +19,7 @@ module.exports = {
     [listModels.key]: listModels,
     [listTrainings.key]: listTrainings,
     [listWorkflows.key]: listWorkflows,
+    [workflowComplete.key]: workflowComplete,
   },
 
   creates: {

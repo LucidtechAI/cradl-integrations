@@ -16,6 +16,14 @@ async function makePostRequest(z, endpoint, body) {
   });
 }
 
+async function makePatchRequest(z, endpoint, body) {
+  return z.request({
+    url: process.env.API_BASE_URL + endpoint,
+    method: 'PATCH',
+    body: body,
+  });
+}
+
 async function makeGetRequest(z, endpoint) {
   return z.request({
     url: process.env.API_BASE_URL + endpoint,
@@ -48,14 +56,7 @@ async function createPrediction(z, documentId, modelId, trainingId){
   });
 }
 
-async function executeWorkflow(z, documentId, title, workflowId){
-  return makePostRequest(z, '/workflows/' + workflowId + '/executions', {
-    input: {
-      documentId: documentId,
-      title: title,
-    }
-  });
-}
+
 
 async function listModels(z) {
   return makeGetRequest(z, '/models')
@@ -65,15 +66,54 @@ async function listTrainings(z, modelId) {
   return makeGetRequest(z, '/models/' + modelId + '/trainings')
 }
 
+async function executeWorkflow(z, documentId, title, workflowId){
+  return makePostRequest(z, '/workflows/' + workflowId + '/executions', {
+    input: {
+      documentId: documentId,
+      title: title,
+    }
+  });
+}
+
+async function getWorkflow(z, workflowId) {
+  return makeGetRequest(z, '/workflows/' + workflowId)
+}
+
 async function listWorkflows(z) {
   return makeGetRequest(z, '/workflows')
 }
+
+async function updateWorkflow(z, workflowId, metadata) {
+  return makePatchRequest(z, '/workflows/' + workflowId, {
+    metadata: metadata,
+  })
+}
+
+async function getTransition(z, transitionId) {
+  return makeGetRequest(z, '/transitions/' + transitionId)
+}
+
+async function updateTransition(z, transitionId, parameters) {
+  return makePatchRequest(z, '/transitions/' + transitionId, {
+    parameters: parameters,
+  })
+}
+
+async function getSuccessfulWorkflowExecutions(z, workflowId) {
+  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded')
+}
+
 
 module.exports = {
   createDocument, 
   createPrediction,
   executeWorkflow,
+  getSuccessfulWorkflowExecutions,
+  getTransition,
+  getWorkflow,
   listModels,
   listTrainings,
   listWorkflows,
+  updateWorkflow,
+  updateTransition,
 }

@@ -14,7 +14,7 @@ describe('triggers', () => {
     };
     const results = await appTester(
       App.triggers.listModels.operation.perform,
-      bundle
+      bundle,
     );
 
     expect(results.length).toBeGreaterThan(0);
@@ -32,7 +32,7 @@ describe('triggers', () => {
     };
     const results = await appTester(
       App.triggers.listTrainings.operation.perform,
-      bundle
+      bundle,
     );
     expect(results)
   });
@@ -46,9 +46,39 @@ describe('triggers', () => {
     };
     const results = await appTester(
       App.triggers.listWorkflows.operation.perform,
-      bundle
+      bundle,
     );
 
     expect(results.length).toBeGreaterThan(0);
   });
+
+  test('workflowComplete', async () => {
+    const bundle = {
+      authData: {
+        app_client_id: process.env.app_client_id,
+        app_client_secret: process.env.app_client_secret,
+      },
+      targetUrl: 'https://example.com',
+      inputData: {
+        workflowId: process.env.TEST_WORKFLOW_ID,
+      }
+    };
+    const subscribeResults = await appTester(
+      App.triggers.workflowComplete.operation.performSubscribe,
+      bundle,
+    )
+
+    bundle.subscribeData = subscribeResults
+
+    const unsubscribeResults = await appTester(
+      App.triggers.workflowComplete.operation.performUnsubscribe,
+      bundle,
+    )
+
+    const performListResults = await appTester(
+      App.triggers.workflowComplete.operation.performList,
+      bundle,
+    )
+    console.log(performListResults)
+  }, 60000)
 });
