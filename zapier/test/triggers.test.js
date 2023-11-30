@@ -79,6 +79,5 @@ describe('triggers', () => {
       App.triggers.workflowComplete.operation.performList,
       bundle,
     )
-    console.log(performListResults)
   }, 60000)
 });

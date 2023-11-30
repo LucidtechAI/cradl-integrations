@@ -56,10 +56,8 @@ async function createPrediction(z, documentId, modelId, trainingId){
   });
 }
 
-
-
 async function listModels(z) {
-  return makeGetRequest(z, '/models')
+  return makeGetRequest(z, '/models?owner=me&owner=las:organization:cradl')
 }
 
 async function listTrainings(z, modelId) {

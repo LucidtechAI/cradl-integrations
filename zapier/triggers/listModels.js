@@ -1,8 +1,11 @@
 const cradlApi = require('../cradlApi')
 
+CRADL_ORGANIZATION_ID = 'las:organization:cradl'
+
 function pickIdAndName(model) {
+  const modelId = (model.organizationId == CRADL_ORGANIZATION_ID) ? CRADL_ORGANIZATION_ID + '/' + model.modelId : model.modelId
   return {
-    id: model.modelId,
+    id: modelId,
     name: model.name,
   }
 }
