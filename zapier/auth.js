@@ -28,6 +28,14 @@ const addAuthorization = async (request, z, bundle) => {
       scope: AUTH_SCOPES,
     }
   });
+  if (response.status === 400) {
+    throw new z.errors.Error(
+      // This message is surfaced to the user
+      'Your API credentials are incorrect. Find credentials at the Cradl app clients page: https://app.cradl.ai/appclients',
+      'AuthenticationError',
+      response.status
+    );
+  }
   data = await response.json()
   request.headers.Authorization = `Bearer ${data.access_token}`;
   return request;
