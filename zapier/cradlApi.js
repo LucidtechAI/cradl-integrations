@@ -115,7 +115,6 @@ module.exports = {
   getTransition,
   getWorkflow,
   listModels,
-  listTrainings,
   listWorkflows,
   updateWorkflow,
   updateTransition,
