@@ -40,19 +40,19 @@ const setWebhookUrl = async(z, bundle) => {
   
   module.exports = {
     key: 'workflowComplete',
-    noun: 'Item',
+    noun: 'Document',
     display: {
-      label: 'Workflow item completed',
-      description: 'Trigger when a workflow item has been completed.',
+      label: 'Document parsing completed',
+      description: 'Triggers when a document processing flow has has been processed.',
     },
     operation: {
       inputFields: [
         {
           key: 'workflowId', 
           required: true, 
-          label: 'Workflow',
+          label: 'Flow',
           dynamic: 'listWorkflows.id.name',
-          helpText: 'The workflow you want to connect.',
+          helpText: 'The flow you want to receive processed documents from.',
         },
       ],
       type: 'hook',

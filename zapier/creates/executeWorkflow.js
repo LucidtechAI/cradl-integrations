@@ -8,10 +8,10 @@ const perform = async (z, bundle) => {
 
 module.exports = {
   key: 'executeWorkflow',
-  noun: 'File',
+  noun: 'Document',
   display: {
-    label: 'Upload Document to Flow',
-    description: 'Post a document to an existing workflow for human-in-the-loop processing',
+    label: 'Parse Document with Human-in-the-Loop',
+    description: 'Post a document to an existing flow for human-in-the-loop processing',
   },
   operation: {
     inputFields: [
@@ -19,7 +19,7 @@ module.exports = {
         key: 'file', 
         required: true, 
         type: 'file', 
-        label: 'File' ,
+        label: 'Document File' ,
       },
       { 
         key: 'fileName', 
@@ -29,7 +29,7 @@ module.exports = {
       { 
         key: 'workflowId', 
         required: true, 
-        label: 'Workflow',
+        label: 'Flow',
         dynamic: 'listWorkflows.id.name',
       },
     ],
