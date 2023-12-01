@@ -55,11 +55,12 @@ async function createPrediction(z, documentId, modelId){
     documentId: documentId,
     modelId: modelId,
     postprocessConfig: {
+      outputFormat: 'v2',
       parameters: {
         n: 3,
+        collapse: true,
       },
       strategy: 'BEST_N_PAGES',
-      outputFormat: 'v2',
     }
   });
 }
