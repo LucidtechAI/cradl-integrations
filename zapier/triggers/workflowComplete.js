@@ -42,8 +42,8 @@ const setWebhookUrl = async(z, bundle) => {
     key: 'workflowComplete',
     noun: 'Document',
     display: {
-      label: 'Document parsing completed',
-      description: 'Triggers when a document processing flow has has been processed.',
+      label: 'Document Parsing Completed',
+      description: 'Triggers when a document processing flow has has completed.',
     },
     operation: {
       inputFields: [

@@ -37,8 +37,8 @@ module.exports = {
   key: 'postPrediction',
   noun: 'File',
   display: {
-    label: 'Parse document',
-    description: 'Use a model to parse data from a document',
+    label: 'Parse Document',
+    description: 'Use a model to parse data from a document.',
   },
   operation: {
     inputFields: [

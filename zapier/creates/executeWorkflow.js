@@ -11,7 +11,7 @@ module.exports = {
   noun: 'Document',
   display: {
     label: 'Parse Document with Human-in-the-Loop',
-    description: 'Post a document to an existing flow for human-in-the-loop processing',
+    description: 'Send a document to an existing flow for human-in-the-loop processing.',
   },
   operation: {
     inputFields: [
@@ -19,7 +19,7 @@ module.exports = {
         key: 'file', 
         required: true, 
         type: 'file', 
-        label: 'Document File' ,
+        label: 'Document' ,
       },
       { 
         key: 'fileName', 
