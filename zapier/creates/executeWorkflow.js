@@ -10,7 +10,7 @@ module.exports = {
   key: 'executeWorkflow',
   noun: 'Document',
   display: {
-    label: 'Parse Document with Human-in-the-Loop',
+    label: 'Parse Document With Human-In-The-Loop',
     description: 'Send a document to an existing flow for human-in-the-loop processing.',
   },
   operation: {
