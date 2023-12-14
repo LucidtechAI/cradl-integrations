@@ -1,0 +1,164 @@
+﻿<process name="Cradl Demo - extract data from runs" version="1.0" bpversion="7.2.1.7446" narrative="This process illustrates how you can extract key-value fields and line-items fields from your processed documents in Cradl AI.&#xD;&#xA;For the process to work, you need to have processed a document in Cradl, and your model needs to include a field called total_amount and one called line_items." byrefcollection="true" processrunningmessage="" disableversioning="false" preferredid="b83908d2-2460-4ecf-9179-1e90bd32246b">
+  <view>
+    <camerax>68</camerax>
+    <cameray>91</cameray>
+    <zoom version="2">1.25</zoom>
+  </view>
+  <preconditions />
+  <endpoint narrative="" />
+  <stage stageid="c98d0a6d-d1eb-4ff7-8ce0-bba44dc21782" name="Stage1" type="ProcessInfo">
+    <display x="-195" y="-105" w="180" h="150" />
+  </stage>
+  <stage stageid="6cc0a319-703e-4d38-8460-3b69605096e7" name="Start" type="Start">
+    <display x="-30" y="-135" />
+    <inputs>
+      <input type="text" name="flowId" narrative="ID of a Flow in Cradl" stage="flowId" />
+    </inputs>
+    <onsuccess>5fa84c15-5ec1-49a7-9c13-a39447ee7261</onsuccess>
+  </stage>
+  <stage stageid="87126e10-9c59-4e88-9d24-4e930cf1e65e" name="End" type="End">
+    <display x="-30" y="345" />
+  </stage>
+  <stage stageid="5fa84c15-5ec1-49a7-9c13-a39447ee7261" name="Cradl AI::List Processed Documents" type="Action">
+    <loginhibit onsuccess="true" />
+    <narrative>Get the specified set of credentials.
+
+An Exception will occur if access to the credentials is not allowed, based on the running Resource, Process and User.</narrative>
+    <display x="-30" y="-75" />
+    <inputs>
+      <input type="text" name="flowId" friendlyname="flowId" expr="[flowId]" />
+    </inputs>
+    <outputs>
+      <output type="collection" name="runs" friendlyname="runs" stage="runs" />
+    </outputs>
+    <onsuccess>11435153-2d0b-4d97-9e69-ec892ac5ad8d</onsuccess>
+    <resource object="Cradl AI" action="List Processed Documents" />
+  </stage>
+  <stage stageid="59f71d45-726a-4d4a-bc98-388c3e1a4165" name="flowId" type="Data">
+    <loginhibit onsuccess="true" />
+    <display x="-195" y="60" />
+    <datatype>text</datatype>
+    <initialvalue />
+    <private />
+    <alwaysinit />
+  </stage>
+  <stage stageid="11435153-2d0b-4d97-9e69-ec892ac5ad8d" name="Loop runs" type="LoopStart">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="-15" />
+    <onsuccess>611403a9-77d7-4e8d-8b7d-43e3f7c2222c</onsuccess>
+    <groupid>04a8d68b-73b3-4df6-8278-bd740f257b9b</groupid>
+    <looptype>ForEach</looptype>
+    <loopdata>runs</loopdata>
+  </stage>
+  <stage stageid="6a415899-a6e8-43a3-b71e-2753510a0af5" name="Loop runs" type="LoopEnd">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="300" />
+    <onsuccess>87126e10-9c59-4e88-9d24-4e930cf1e65e</onsuccess>
+    <groupid>04a8d68b-73b3-4df6-8278-bd740f257b9b</groupid>
+  </stage>
+  <stage stageid="7824df09-45c3-4ad2-a41d-a9feffc107df" name="runs" type="Collection">
+    <display x="75" y="-15" w="90" h="60" />
+    <datatype>collection</datatype>
+    <private />
+    <alwaysinit />
+  </stage>
+  <stage stageid="d8ebccd7-8888-4d18-998d-d1fd5303873a" name="Cradl AI::Mark Run As Completed" type="Action">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="255" />
+    <inputs>
+      <input type="text" name="flowId" friendlyname="flowId" expr="[runs.workflowId]" />
+      <input type="text" name="runId" friendlyname="runId" expr="[runs.executionId]" />
+    </inputs>
+    <onsuccess>6a415899-a6e8-43a3-b71e-2753510a0af5</onsuccess>
+    <resource object="Cradl AI" action="Mark Run As Completed" />
+  </stage>
+  <stage stageid="0c8a72da-d7c5-4b83-84d3-1d575b447200" name="Note1" type="Note">
+    <narrative>Note:
+
+If you don't have any succeeded runs you can use the action "Parse Document With Human In The Loop" to start a new run. After processing it in Cradl you will be able to retrieve it here.</narrative>
+    <display x="105" y="-120" w="120" h="120" />
+  </stage>
+  <stage stageid="d7437574-9f03-4ae8-b1c6-09a2423994ab" name="Input Variables" type="Note">
+    <narrative>Input Variables
+
+
+
+
+
+
+</narrative>
+    <display x="-195" y="60" w="150" h="120" />
+  </stage>
+  <stage stageid="231baf1f-a9f6-4ea7-8659-fbf38c37691f" name="Store total_amount" type="Calculation">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="75" />
+    <onsuccess>0c7d50a0-07d4-4826-852c-b23cc3a8cb81</onsuccess>
+    <calculation expression="[runs.output.values.total_amount]" stage="total_amount_value" />
+  </stage>
+  <stage stageid="8f111d2c-3ec7-40e9-966c-cd0c31f6fb9c" name="total_amount_value" type="Data">
+    <display x="180" y="75" />
+    <datatype>text</datatype>
+    <initialvalue />
+    <private />
+    <alwaysinit />
+  </stage>
+  <stage stageid="ba60ed84-7e98-4cad-8d33-d8218b5b2578" name="line_items/description" type="Collection">
+    <display x="180" y="210" />
+    <datatype>collection</datatype>
+    <private />
+    <alwaysinit />
+    <collectioninfo>
+      <field name="description" type="text" />
+    </collectioninfo>
+  </stage>
+  <stage stageid="ca02ee85-8582-44ae-920f-cc9aab587a24" name="Loop all line items" type="LoopStart">
+    <loginhibit onsuccess="true" />
+    <display x="75" y="120" />
+    <onsuccess>0b2109df-e4f6-493a-beda-ab0e75fd707b</onsuccess>
+    <groupid>fb3da20e-a5ee-4892-b7bc-7a4718f1061f</groupid>
+    <looptype>ForEach</looptype>
+    <loopdata>line_items</loopdata>
+  </stage>
+  <stage stageid="149d75c3-9a77-46b1-87de-1c391ffd5647" name="Loop all line items" type="LoopEnd">
+    <loginhibit onsuccess="true" />
+    <display x="75" y="255" />
+    <onsuccess>d8ebccd7-8888-4d18-998d-d1fd5303873a</onsuccess>
+    <groupid>fb3da20e-a5ee-4892-b7bc-7a4718f1061f</groupid>
+  </stage>
+  <stage stageid="0b2109df-e4f6-493a-beda-ab0e75fd707b" name="Collections::Add row" type="Action">
+    <loginhibit onsuccess="true" />
+    <display x="75" y="165" />
+    <inputs>
+      <input type="text" name="Collection Name" friendlyname="Collection Name" narrative="The name of the collection to act upon" expr="&quot;line_items/description&quot;" />
+    </inputs>
+    <onsuccess>0b793786-29c2-4517-af26-ff67f2d45e51</onsuccess>
+    <resource object="Blueprism.AutomateProcessCore.clsCollectionActions" action="Add Row" />
+  </stage>
+  <stage stageid="fde23232-5dcd-457c-aa18-38174b468c24" name="line_items" type="Collection">
+    <display x="180" y="120" />
+    <datatype>collection</datatype>
+    <private />
+    <alwaysinit />
+  </stage>
+  <stage stageid="611403a9-77d7-4e8d-8b7d-43e3f7c2222c" name="Collections::Remove All Rows" type="Action">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="30" />
+    <inputs>
+      <input type="text" name="Collection Name" friendlyname="Collection Name" narrative="The name of the collection to act upon" expr="&quot;line_items/description&quot;" />
+    </inputs>
+    <onsuccess>231baf1f-a9f6-4ea7-8659-fbf38c37691f</onsuccess>
+    <resource object="Blueprism.AutomateProcessCore.clsCollectionActions" action="Remove All Rows" />
+  </stage>
+  <stage stageid="0c7d50a0-07d4-4826-852c-b23cc3a8cb81" name="Store all line items" type="Calculation">
+    <loginhibit onsuccess="true" />
+    <display x="-30" y="120" />
+    <onsuccess>ca02ee85-8582-44ae-920f-cc9aab587a24</onsuccess>
+    <calculation expression="[runs.output.values.line_items]" stage="line_items" />
+  </stage>
+  <stage stageid="0b793786-29c2-4517-af26-ff67f2d45e51" name="Add values" type="Calculation">
+    <loginhibit onsuccess="true" />
+    <display x="75" y="210" />
+    <onsuccess>149d75c3-9a77-46b1-87de-1c391ffd5647</onsuccess>
+    <calculation expression="[line_items.description]" stage="line_items/description.description" />
+  </stage>
+</process>
