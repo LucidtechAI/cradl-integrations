@@ -59,9 +59,9 @@
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.ListProcessedDocuments_Status_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.ListProcessedDocuments_Status_DisplayName}" Grid.Row="6"
                    ToolTip="{x:Static activity:Resources.ListProcessedDocuments_Status_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[Status].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ListProcessedDocuments_Status_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="7" ExpressionType="{Binding ModelItem.Properties[Status].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ListProcessedDocuments_Status_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.Status" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>

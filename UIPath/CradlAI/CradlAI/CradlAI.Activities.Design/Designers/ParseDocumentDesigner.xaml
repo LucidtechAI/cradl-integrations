@@ -63,25 +63,25 @@
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.ParseDocument_DocumentId_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.ParseDocument_DocumentId_DisplayName}" Grid.Row="6"
                    ToolTip="{x:Static activity:Resources.ParseDocument_DocumentId_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[DocumentId].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_DocumentId_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="7" ExpressionType="{Binding ModelItem.Properties[DocumentId].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_DocumentId_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.DocumentId" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.ParseDocument_Content_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.ParseDocument_Content_DisplayName}" Grid.Row="8"
                    ToolTip="{x:Static activity:Resources.ParseDocument_Content_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[Content].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_Content_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="9" ExpressionType="{Binding ModelItem.Properties[Content].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_Content_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.Content" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.ParseDocument_FilePath_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.ParseDocument_FilePath_DisplayName}" Grid.Row="10"
                    ToolTip="{x:Static activity:Resources.ParseDocument_FilePath_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[FilePath].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_FilePath_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="11" ExpressionType="{Binding ModelItem.Properties[FilePath].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.ParseDocument_FilePath_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.FilePath" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>

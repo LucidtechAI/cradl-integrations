@@ -61,17 +61,17 @@
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.MarkRunAsCompleted_RunId_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.MarkRunAsCompleted_RunId_DisplayName}" Grid.Row="6"
                    ToolTip="{x:Static activity:Resources.MarkRunAsCompleted_RunId_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[RunId].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.MarkRunAsCompleted_RunId_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="7" ExpressionType="{Binding ModelItem.Properties[RunId].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.MarkRunAsCompleted_RunId_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.RunId" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>
             </sapv:ExpressionTextBox>
 
-            <Label Content="{x:Static activity:Resources.MarkRunAsCompleted_Status_DisplayName}" Grid.Row="4"
+            <Label Content="{x:Static activity:Resources.MarkRunAsCompleted_Status_DisplayName}" Grid.Row="8"
                    ToolTip="{x:Static activity:Resources.MarkRunAsCompleted_Status_Description}"/>
-            <sapv:ExpressionTextBox Grid.Row="5" ExpressionType="{Binding ModelItem.Properties[Status].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.MarkRunAsCompleted_Status_Description}" UseLocationExpression="False">
+            <sapv:ExpressionTextBox Grid.Row="9" ExpressionType="{Binding ModelItem.Properties[Status].PropertyType.GenericTypeArguments[0]}" OwnerActivity="{Binding Path=ModelItem}" HintText="{x:Static activity:Resources.MarkRunAsCompleted_Status_Description}" UseLocationExpression="False">
                 <sapv:ExpressionTextBox.Expression>
                     <Binding Path="ModelItem.Status" Converter="{StaticResource ArgumentToExpressionConverter}" Mode="TwoWay" ConverterParameter="In" UpdateSourceTrigger="PropertyChanged" />
                 </sapv:ExpressionTextBox.Expression>
