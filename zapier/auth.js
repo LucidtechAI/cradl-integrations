@@ -31,7 +31,7 @@ const addAuthorization = async (request, z, bundle) => {
   if (response.status === 400) {
     throw new z.errors.Error(
       // This message is surfaced to the user
-      'Your API credentials are incorrect. Find credentials at the Cradl app clients page: https://app.cradl.ai/appclients',
+      'Your Client ID and/or Client secret are incorrect. Find credentials in the Cradl app by going to https://app.cradl.ai/flows, selecting your Flow and adding Zapier as output under "Export".',
       'AuthenticationError',
       response.status
     );
@@ -48,16 +48,16 @@ const authentication = {
   },
   fields: [
     { 
-      key: 'app_client_id', 
+      key: 'client_id', 
       type: 'string', 
       required: true,
-      helpText: 'App client ID is found on the [App clients page](https://app.cradl.ai/appclients)'
+      helpText: 'Client ID is found on the [App clients page](https://app.cradl.ai/flows) after selecting your Flow and adding Zapier as output under "Export".'
     },
     { 
-      key: 'app_client_secret', 
+      key: 'client_secret', 
       type: 'password', 
       required: true,
-      helpText: 'App client secret is found on the [App clients page](https://app.cradl.ai/appclients)'
+      helpText: 'Client secret is found on the [App clients page](https://app.cradl.ai/flows) after selecting your Flow and adding Zapier as output under "Export".'
     },
   ],
   connectionLabel: '{{bundle.inputData.name}}', 
