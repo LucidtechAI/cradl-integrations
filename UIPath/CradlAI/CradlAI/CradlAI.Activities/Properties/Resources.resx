@@ -177,38 +177,6 @@
     <value>Please provide values for both {0} and {1}.</value>
     <comment>error message; {0} &amp; {1} are complementary properties</comment>
   </data>
-  <data name="ListFlows_DisplayName" xml:space="preserve">
-    <value>ListFlows</value>
-    <comment>activity name</comment>
-  </data>
-  <data name="ListFlows_Description" xml:space="preserve">
-    <value />
-    <comment>activity description</comment>
-  </data>
-  <data name="ListFlows_ClientId_DisplayName" xml:space="preserve">
-    <value>clientId</value>
-    <comment>property name</comment>
-  </data>
-  <data name="ListFlows_ClientId_Description" xml:space="preserve">
-    <value />
-    <comment>property description</comment>
-  </data>
-  <data name="ListFlows_ClientSecret_DisplayName" xml:space="preserve">
-    <value>clientSecret</value>
-    <comment>property name</comment>
-  </data>
-  <data name="ListFlows_ClientSecret_Description" xml:space="preserve">
-    <value />
-    <comment>property description</comment>
-  </data>
-  <data name="ListFlows_Endpoint_DisplayName" xml:space="preserve">
-    <value>endpoint</value>
-    <comment>property name</comment>
-  </data>
-  <data name="ListFlows_Endpoint_Description" xml:space="preserve">
-    <value />
-    <comment>property description</comment>
-  </data>
   <data name="ListProcessedDocuments_DisplayName" xml:space="preserve">
     <value>List Processed Documents</value>
     <comment>activity name</comment>

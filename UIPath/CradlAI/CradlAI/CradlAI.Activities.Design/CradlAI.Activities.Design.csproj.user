@@ -9,7 +9,17 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Designers\ListFlowsDesigner.xaml">
+    <Page Update="Designers\ListProcessedDocumentsDesigner.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Designers\MarkRunAsCompletedDesigner.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Designers\ParseDocumentWithHumanInTheLoopDesigner.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>

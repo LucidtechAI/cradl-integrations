@@ -32,8 +32,10 @@
     <PackageVersion>0.1.0</PackageVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Designers\ListFlowsDesigner.xaml" />
     <None Remove="Designers\ParseDocumentDesigner.xaml" />
+    <None Remove="Designers\ListProcessedDocumentsDesigner.xaml" />
+    <None Remove="Designers\MarkRunAsCompletedDesigner.xaml" />
+    <None Remove="Designers\ParseDocumentWithHumanInTheLoopDesigner.xaml" />
   </ItemGroup>
   <!-- Package Icon -->
   <ItemGroup>
@@ -69,7 +71,15 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>
-    <Page Include="Designers\ListFlowsDesigner.xaml">
+    <Page Include="Designers\ParseDocumentWithHumanInTheLoopDesigner.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Designers\MarkRunAsCompletedDesigner.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Designers\ListProcessedDocumentsDesigner.xaml">
       <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Page>

@@ -15,9 +15,17 @@ namespace CradlAI.Activities.Design
 
             var categoryAttribute = new CategoryAttribute($"{Resources.Category}");
 
-            builder.AddCustomAttributes(typeof(ListFlows), categoryAttribute);
-            builder.AddCustomAttributes(typeof(ListFlows), new DesignerAttribute(typeof(ListFlowsDesigner)));
-            builder.AddCustomAttributes(typeof(ListFlows), new HelpKeywordAttribute(""));
+            builder.AddCustomAttributes(typeof(ParseDocumentWithHumanInTheLoop), categoryAttribute);
+            builder.AddCustomAttributes(typeof(ParseDocumentWithHumanInTheLoop), new DesignerAttribute(typeof(ParseDocumentWithHumanInTheLoopDesigner)));
+            builder.AddCustomAttributes(typeof(ParseDocumentWithHumanInTheLoop), new HelpKeywordAttribute(""));
+
+            builder.AddCustomAttributes(typeof(ListProcessedDocuments), categoryAttribute);
+            builder.AddCustomAttributes(typeof(ListProcessedDocuments), new DesignerAttribute(typeof(ListProcessedDocumentsDesigner)));
+            builder.AddCustomAttributes(typeof(ListProcessedDocuments), new HelpKeywordAttribute(""));
+
+            builder.AddCustomAttributes(typeof(MarkRunAsCompleted), categoryAttribute);
+            builder.AddCustomAttributes(typeof(MarkRunAsCompleted), new DesignerAttribute(typeof(MarkRunAsCompletedDesigner)));
+            builder.AddCustomAttributes(typeof(MarkRunAsCompleted), new HelpKeywordAttribute(""));
 
             builder.AddCustomAttributes(typeof(ParseDocument), categoryAttribute);
             builder.AddCustomAttributes(typeof(ParseDocument), new DesignerAttribute(typeof(ParseDocumentDesigner)));
