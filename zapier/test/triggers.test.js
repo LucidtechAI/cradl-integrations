@@ -8,8 +8,8 @@ describe('triggers', () => {
   test('listModels', async () => {
     const bundle = {
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       },
     };
     const results = await appTester(
@@ -23,8 +23,8 @@ describe('triggers', () => {
   test('listWorkflows', async () => {
     const bundle = {
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       },
     };
     const results = await appTester(
@@ -38,8 +38,8 @@ describe('triggers', () => {
   test('workflowComplete', async () => {
     const bundle = {
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       },
       targetUrl: 'https://example.com',
       inputData: {

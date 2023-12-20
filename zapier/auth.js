@@ -14,7 +14,7 @@ const AUTH_SCOPES = [
 
 const addAuthorization = async (request, z, bundle) => {
   const basicHash = Buffer.from(
-    `${bundle.authData.app_client_id}:${bundle.authData.app_client_secret}`
+    `${bundle.authData.client_id}:${bundle.authData.client_secret}`
   ).toString(
     'base64'
   );
