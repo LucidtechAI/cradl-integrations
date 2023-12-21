@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CradlAI", "CradlAI", "{BC9318E5-2E80-44CF-A604-81478D5CDE09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CradlAI", "CradlAI\CradlAI\CradlAI.csproj", "{698CCB00-017F-468E-B7C9-FE0FC499314E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CradlAI.Activities", "CradlAI\CradlAI.Activities\CradlAI.Activities.csproj", "{D1406BEB-3915-4531-A511-3CF9FEADDA67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CradlAI.Activities.Design", "CradlAI\CradlAI.Activities.Design\CradlAI.Activities.Design.csproj", "{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{45F68BBB-C627-47EC-8E7A-4FC96A4FDA85}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "UiPath.Shared.Activities", "Shared\UiPath.Shared.Activities\UiPath.Shared.Activities.shproj", "{4546856D-EA50-45C6-9419-EEEACB5A80AA}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "UiPath.Shared.Activities.Design", "Shared\UiPath.Shared.Activities.Design\UiPath.Shared.Activities.Design.shproj", "{DF9C43F0-ADD3-4FBF-995E-84B92F9CBF25}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{698CCB00-017F-468E-B7C9-FE0FC499314E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{698CCB00-017F-468E-B7C9-FE0FC499314E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{698CCB00-017F-468E-B7C9-FE0FC499314E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{698CCB00-017F-468E-B7C9-FE0FC499314E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1406BEB-3915-4531-A511-3CF9FEADDA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1406BEB-3915-4531-A511-3CF9FEADDA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1406BEB-3915-4531-A511-3CF9FEADDA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1406BEB-3915-4531-A511-3CF9FEADDA67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{698CCB00-017F-468E-B7C9-FE0FC499314E} = {BC9318E5-2E80-44CF-A604-81478D5CDE09}
+		{D1406BEB-3915-4531-A511-3CF9FEADDA67} = {BC9318E5-2E80-44CF-A604-81478D5CDE09}
+		{735A9AFC-F71B-4399-9AA7-4D3BEF1FAB57} = {BC9318E5-2E80-44CF-A604-81478D5CDE09}
+		{4546856D-EA50-45C6-9419-EEEACB5A80AA} = {45F68BBB-C627-47EC-8E7A-4FC96A4FDA85}
+		{DF9C43F0-ADD3-4FBF-995E-84B92F9CBF25} = {45F68BBB-C627-47EC-8E7A-4FC96A4FDA85}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BA960139-C83B-47BF-A860-9B35C5EB71A0}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\UiPath.Shared.Activities\UiPath.Shared.Activities.projitems*{4546856d-ea50-45c6-9419-eeeacb5a80aa}*SharedItemsImports = 13
+		Shared\UiPath.Shared.Activities.Design\UiPath.Shared.Activities.Design.projitems*{735a9afc-f71b-4399-9aa7-4d3bef1fab57}*SharedItemsImports = 5
+		Shared\UiPath.Shared.Activities\UiPath.Shared.Activities.projitems*{d1406beb-3915-4531-a511-3cf9feadda67}*SharedItemsImports = 5
+		Shared\UiPath.Shared.Activities.Design\UiPath.Shared.Activities.Design.projitems*{df9c43f0-add3-4fbf-995e-84b92f9cbf25}*SharedItemsImports = 13
+	EndGlobalSection
+EndGlobal
