@@ -18,8 +18,8 @@ describe('downloadFile', () => {
         url: 'https://httpbin.zapier-tooling.com/xml',
       },
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       },
     };
 

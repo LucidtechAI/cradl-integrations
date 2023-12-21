@@ -1,8 +1,8 @@
 # Get started
 Set up your local .env file with the following fields:
 ```bash
-app_client_id=<Your app client ID>
-app_client_secret=<Your app client secret>
+client_id=<Your app client ID>
+client_secret=<Your app client secret>
 API_BASE_URL=<base URL to the Cradl API>
 API_AUTH_URL=<auth URL for the Cradl API>
 TEST_MODEL_ID=<ID of the model you want to test with>
@@ -25,9 +25,15 @@ zapier push
 
 # Updating version
 
-Remember to set the API_BASE_URL and API_AUTH_URL values with 
-
+Update the version in package.json. 
+Update CHANGELOG.md. 
+Set the API_BASE_URL and API_AUTH_URL values with 
 ```bash
 zapier env:set x.y.z API_BASE_URL=<url>
 zapier env:set x.y.z API_AUTH_URL=<url>
 ```
+Promote your version with 
+```bash
+zapier promote x.y.z
+```
+Consider migrating users.

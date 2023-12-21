@@ -19,8 +19,8 @@ describe('creates', () => {
         modelId: process.env.TEST_MODEL_ID,
       },
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       }
     };
 
@@ -41,8 +41,8 @@ describe('creates', () => {
         workflowId: process.env.TEST_WORKFLOW_ID,
       },
       authData: {
-        app_client_id: process.env.app_client_id,
-        app_client_secret: process.env.app_client_secret,
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
       },
     };
 
