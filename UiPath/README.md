@@ -7,7 +7,7 @@ The code in [https://github.com/LucidtechAI/cradl-integrations/UiPath]([https://
 # Development for Linux Users
 1. Download virtualbox 
 ```commandline
-# sudo pacman -S virtualbox  
+sudo pacman -S virtualbox  
 ```
 2. Download Visual Studio from [Microsoft](https://visualstudio.microsoft.com/downloads/). Make sure you choose the _.NET desktop development workload_ during the installation. 
 3. Download UIPath Studio by following [the official guide](https://docs.uipath.com/studio/standalone/2022.10/user-guide/install-studio).
