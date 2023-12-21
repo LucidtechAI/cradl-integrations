@@ -30,6 +30,6 @@
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Lucidtech.Las" Version="4.1.0" />
+    <PackageReference Include="Lucidtech.Las" Version="5.0.0" />
   </ItemGroup>
 </Project>
