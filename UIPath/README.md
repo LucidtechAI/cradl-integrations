@@ -1,9 +1,8 @@
 # Usage
 
-Go to the official [documentation](https://docs.cradl.ai/integrations/uipath) to see how these activities can be used in UiPath
+Go to the official [documentation](https://docs.cradl.ai/integrations/uipath) to see how these activities can be used in UiPath.
 
-The code included in this repo is used to create the activities found in [this](https://www.nuget.org/packages/CradlAI.Activities) nuget package.
-For an example of how this can be used you can open [this](https://docs.cradl.ai/cradl_ai_uipath.zip) project in UiPath Studio.
+The code in [https://github.com/LucidtechAI/cradl-integrations/UiPath]([https://github.com/LucidtechAI/cradl-integrations/UiPath]) is used to create the activities found in [this](https://www.nuget.org/packages/CradlAI.Activities) nuget package.
 
 # Development for Linux Users
 1. Download virtualbox 
