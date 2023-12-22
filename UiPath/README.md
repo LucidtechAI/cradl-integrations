@@ -2,7 +2,8 @@
 
 Go to the official [documentation](https://docs.cradl.ai/integrations/uipath) to see how these activities can be used in UiPath.
 
-The code in [cradl-integrations/UiPath](https://github.com/LucidtechAI/cradl-integrations/tree/main/UiPath) is used to create the activities found in [this](https://www.nuget.org/packages/CradlAI.Activities) nuget package.
+The code in [cradl-integrations/UiPath](https://github.com/LucidtechAI/cradl-integrations/tree/main/UiPath) is used to create the activities found in [this](https://www.nuget.org/packages/CradlAI.UIPath.Activities) nuget package.
+
 
 
 # Development
