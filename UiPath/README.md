@@ -1,11 +1,3 @@
-# About Us
-
-Build cutting edge AI models for document parsing and seamlessly integrate into your existing workflows in UiPath. 
-Instead of relying on pre-trained models that almost fit your case, Cradl AI enables you to train your own model on your own documents. 
-Our ML models are language agnostic and designed to be easily trained on any document type across industries. 
-With as little as 15 examples our deep neural network is able to adapt to your documents and provide you with the output that you need to automate your document process. 
-Cradl AI offers an all-in-one AI platform that enables automated document parsing as well as an optional human-in-the-loop approach for superior accuracy and adaptability.
-
 # Usage
 
 Go to the official [documentation](https://docs.cradl.ai/integrations/uipath) to see how these activities can be used in UiPath.
@@ -44,3 +36,12 @@ Two illustrative examples of how to use Cradl AI in UiPath
 1. Send your document to Cradl AI for data extraction and optional human verification. 
 2. Retrieve extracted data from Cradl AI.
 A feedback loop is automatically created so your model gets better for every document you parse with Cradl AI.
+
+## About Us
+
+Build cutting edge AI models for document parsing and seamlessly integrate into your existing workflows in UiPath. 
+Instead of relying on pre-trained models that almost fit your case, Cradl AI enables you to train your own model on your own documents. 
+Our ML models are language agnostic and designed to be easily trained on any document type across industries. 
+With as little as 15 examples our deep neural network is able to adapt to your documents and provide you with the output that you need to automate your document process. 
+Cradl AI offers an all-in-one AI platform that enables automated document parsing as well as an optional human-in-the-loop approach for superior accuracy and adaptability.
+
