@@ -15,8 +15,8 @@
     <Authors>Cradl AI</Authors>
     <Company>Cradl AI</Company>
     <Copyright>© 2024 Cradl AI</Copyright>
-    <RepositoryUrl>https://github.com/LucidtechAI/cradl-integrations/UiPath</RepositoryUrl>
-    <PackageReleaseNotes>See complete changelog: https://github.com/LucidtechAI/cradl-integrations/blob/master/UiPath/CHANGELOG.md</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/LucidtechAI/cradl-integrations/tree/main/UiPath</RepositoryUrl>
+    <PackageReleaseNotes>See complete changelog: https://github.com/LucidtechAI/cradl-integrations/blob/main/UiPath/CHANGELOG.md</PackageReleaseNotes>
     <PackageTags>UiPath Activit𝗒 Lucidtech invoice receipt intelligentOCR Automation DeepLearning MachineLearning OCR Document DataExtraction HumanInTheLoop</PackageTags>
     <PackageProjectUrl>https://docs.cradl.ai/integrations/uipath</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/LucidtechAI/cradl-docs/master/static/img/cradl-docs-black.svg</PackageIconUrl>
