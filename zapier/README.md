@@ -43,6 +43,7 @@ Check that environment variables are set correctly by comparing with old version
 zapier env:get <old version>
 zapier env:get <new version>
 ```
+
 Set the API_BASE_URL and API_AUTH_URL values with 
 ```bash
 zapier env:set x.y.z API_BASE_URL=<url>
