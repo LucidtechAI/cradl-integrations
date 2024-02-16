@@ -35,6 +35,10 @@ const setWebhookUrl = async(z, bundle) => {
     const getSuccessfulWorkflowExecutionsResponse = await cradlApi.getSuccessfulWorkflowExecutions(z, bundle.inputData.workflowId)
     executions = getSuccessfulWorkflowExecutionsResponse.data.executions
     outputs = executions.map((execution) => {return execution.output})
+    outputs = outputs.map((item) => {
+      item.id = item.documentId;
+      return item;
+    });
     return outputs
   };
   
