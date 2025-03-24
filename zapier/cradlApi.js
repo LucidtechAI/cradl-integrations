@@ -103,7 +103,7 @@ async function updateTransition(z, transitionId, parameters) {
 }
 
 async function getSuccessfulWorkflowExecutions(z, workflowId) {
-  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded')
+  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded&sortBy=startTime&order=descending')
 }
 
 
