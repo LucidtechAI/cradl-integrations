@@ -4,7 +4,7 @@ const cradlApi = require('../cradlApi')
 function cleanItem(item) {
   isLine = false
   for ([key, value] of Object.entries(item[0])) {
-    if (typeof(value) == 'object' && key != 'location') {
+    if (typeof value === 'object' && key !== 'location') {
       isLine = true
     }
   }
