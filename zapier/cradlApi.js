@@ -103,7 +103,7 @@ async function updateTransition(z, transitionId, parameters) {
 }
 
 async function getSuccessfulWorkflowExecutions(z, workflowId) {
-  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded&sortBy=startTime&order=descending')
+  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded&sortBy=startTime&order=descending&maxResults=3')
 }
 
 
@@ -117,6 +117,7 @@ module.exports = {
   getWorkflow,
   listModels,
   listWorkflows,
+  makeGetRequest,
   updateWorkflow,
   updateTransition,
 }

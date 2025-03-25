@@ -1,4 +1,5 @@
 const cradlApi = require('../cradlApi')
+const hydrators = require('../hydrators');
 
 const setWebhookUrl = async(z, bundle) => {
     const getWorkflowResponse = await cradlApi.getWorkflow(z, bundle.inputData.workflowId)
@@ -23,11 +24,13 @@ const setWebhookUrl = async(z, bundle) => {
 
     const getTransitionResponse = await cradlApi.getTransition(z, bundle.subscribeData.transitionId)
     parameters = getTransitionResponse.data.parameters
+    delete parameters.environment.WEBHOOK_URI
     const updateTransitionResponse = await cradlApi.updateTransition(z, bundle.subscribeData.transitionId, parameters) 
     return updateTransitionResponse;
   };
-  
-  const processWebhookPayload = (z, bundle) => {
+
+  const processWebhookPayload = async(z, bundle) => {
+    bundle.cleanedRequest.documentFileContent = z.dehydrateFile(hydrators.getDocument, {documentId: bundle.cleanedRequest.documentId})
     return [bundle.cleanedRequest];
   };
   
@@ -35,10 +38,16 @@ const setWebhookUrl = async(z, bundle) => {
     const getSuccessfulWorkflowExecutionsResponse = await cradlApi.getSuccessfulWorkflowExecutions(z, bundle.inputData.workflowId)
     executions = getSuccessfulWorkflowExecutionsResponse.data.executions
     outputs = executions.map((execution) => {return execution.output})
+
     outputs = outputs.map((item) => {
       item.id = item.documentId;
       return item;
     });
+
+    outputs = await outputs.map((item) => {
+      item.documentFileContent = z.dehydrateFile(hydrators.getDocument, {documentId: item.documentId})
+      return item
+    })
     return outputs
   };
   
