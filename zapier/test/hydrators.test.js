@@ -28,4 +28,21 @@ describe('downloadFile', () => {
       'https://zapier-dev-files.s3.amazonaws.com/cli-platform/'
     );
   });
+
+  test('get document', async () => {
+    const bundle = {
+      inputData: {
+        documentId: process.env.TEST_DOCUMENT_ID,
+      },
+      authData: {
+        client_id: process.env.client_id,
+        client_secret: process.env.client_secret,
+      },
+    };
+
+    const url = await appTester(App.hydrators.getDocument, bundle);
+    expect(url).toContain(
+      'https://zapier-dev-files.s3.amazonaws.com/cli-platform/'
+    );
+  });
 });
