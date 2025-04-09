@@ -1,3 +1,6 @@
+## 1.0.4
+* Added optional metadata field to executeWorkflow Action
+
 ## 1.0.3
 
 * Added documentFileContent field to workflow executions 
