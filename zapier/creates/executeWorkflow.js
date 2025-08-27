@@ -2,7 +2,7 @@ const cradlApi = require('../cradlApi')
 
 const perform = async (z, bundle) => {
   const documentId = await cradlApi.createDocument(z, bundle.inputData.file)
-  const executeWorkflowResponse = await cradlApi.executeWorkflow(z, documentId, bundle.inputData.fileName, bundle.inputData.workflowId)
+  const executeWorkflowResponse = await cradlApi.executeWorkflow(z, documentId, bundle.inputData.fileName, bundle.inputData.workflowId, bundle.inputData.metadata)
   return executeWorkflowResponse.data;
 };
 
@@ -31,6 +31,11 @@ module.exports = {
         required: true, 
         label: 'Flow',
         dynamic: 'listWorkflows.id.name',
+      },
+      {
+        key: 'metadata',
+        label: 'Metadata',
+        dict: true,
       },
     ],
     perform,

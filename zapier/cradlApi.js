@@ -69,13 +69,15 @@ async function listModels(z) {
   return makeGetRequest(z, '/models?owner=me&owner=las:organization:cradl')
 }
 
-async function executeWorkflow(z, documentId, title, workflowId){
-  return makePostRequest(z, '/workflows/' + workflowId + '/executions', {
-    input: {
-      documentId: documentId,
-      title: title,
-    }
-  });
+async function executeWorkflow(z, documentId, title, workflowId, metadata){
+  input = {
+    documentId: documentId,
+    title: title,
+  }
+  if (metadata) {
+    input.metadata = metadata
+  }
+  return makePostRequest(z, '/workflows/' + workflowId + '/executions', {input: input});
 }
 
 async function getWorkflow(z, workflowId) {
