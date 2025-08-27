@@ -1,10 +1,21 @@
 const cradlApi = require('../cradlApi')
+const predictionKeys = [
+  'formatters', 
+  'validators', 
+  'confidence', 
+  'warnings', 
+  'location',
+  'page',
+  'source',
+  'value',
+  'errors',
+]
 
 
 function cleanItem(item) {
   isLine = false
   for ([key, value] of Object.entries(item[0])) {
-    if (typeof value === 'object' && key !== 'location') {
+    if (typeof value === 'object' && !(predictionKeys.includes(key))) {
       isLine = true
     }
   }
