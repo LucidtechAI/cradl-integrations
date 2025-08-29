@@ -42,6 +42,10 @@ async function putToFileServer(z, url, content) {
   });
 }
 
+async function listActions(z, nextToken) {
+  return makeGetRequest(z, '/actions')
+}
+
 async function listAgents(z) {
   return makeGetRequest(z, '/agents')
 }
@@ -128,6 +132,7 @@ module.exports = {
   getSuccessfulWorkflowExecutions,
   getTransition,
   getWorkflow,
+  listActions,
   listAgents,
   listModels,
   listWorkflows,

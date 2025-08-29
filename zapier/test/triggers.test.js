@@ -49,6 +49,23 @@ describe('triggers', () => {
     expect(results.length).toBeGreaterThan(0);
   });
 
+  test('listZapierActions', async () => {
+    const bundle = {
+      inputData: {
+        agentId: process.env.TEST_AGENT_ID,
+      },
+      authData: {
+        client_id: process.env.client_id_v2,
+        client_secret: process.env.client_secret_v2,
+      },
+    };
+    const results = await appTester(
+      App.triggers.listZapierActions.operation.perform,
+      bundle,
+    );
+    expect(results.length).toBeGreaterThan(0);
+  });
+
   test('workflowComplete', async () => {
     const bundle = {
       authData: {
