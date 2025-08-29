@@ -5,6 +5,20 @@ const appTester = zapier.createAppTester(App);
 zapier.tools.env.inject();
 
 describe('triggers', () => {
+  test('listAgents', async () => {
+    const bundle = {
+      authData: {
+        client_id: process.env.client_id_v2,
+        client_secret: process.env.client_secret_v2,
+      },
+    };
+    const results = await appTester(
+      App.triggers.listAgents.operation.perform,
+      bundle,
+    );
+    expect(results.length).toBeGreaterThan(0);
+  });
+
   test('listModels', async () => {
     const bundle = {
       authData: {

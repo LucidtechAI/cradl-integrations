@@ -42,6 +42,16 @@ async function putToFileServer(z, url, content) {
   });
 }
 
+async function listAgents(z) {
+  return makeGetRequest(z, '/agents')
+}
+
+async function createAgentRun(z, agentId, variables) {
+  return makePostRequest(z, '/agents/' + agentId + '/runs', {
+    variables: variables,
+  })
+}
+
 async function createDocument(z, inputFileUrl) {
   const postDocumentsResponse = await makePostRequest(z, '/documents', {})
   // bundle.inputData.file will be a URL from which we download the file
