@@ -121,12 +121,14 @@ async function getSuccessfulWorkflowExecutions(z, workflowId) {
 
 module.exports = {
   CRADL_ORGANIZATION_ID,
+  createAgentRun,
   createDocument, 
   createPrediction,
   executeWorkflow,
   getSuccessfulWorkflowExecutions,
   getTransition,
   getWorkflow,
+  listAgents,
   listModels,
   listWorkflows,
   makeGetRequest,
