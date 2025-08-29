@@ -1,33 +1,20 @@
-const AUTH_SCOPES = [
-  'api.lucidtech.ai/documents.write',
-  'api.lucidtech.ai/models.read',
-  'api.lucidtech.ai/organizations.read',
-  'api.lucidtech.ai/predictions.write',
-  'api.lucidtech.ai/trainings.read',
-  'api.lucidtech.ai/transitions.read',
-  'api.lucidtech.ai/transitions.write',
-  'api.lucidtech.ai/workflows.executions.read',
-  'api.lucidtech.ai/workflows.executions.write',
-  'api.lucidtech.ai/workflows.read',
-  'api.lucidtech.ai/workflows.write',
-]
-
 const addAuthorization = async (request, z, bundle) => {
-  const basicHash = Buffer.from(
-    `${bundle.authData.client_id}:${bundle.authData.client_secret}`
-  ).toString(
-    'base64'
-  );
-  const response = await fetch(process.env.API_AUTH_URL, {
+  parameters = [
+    'grant_type=client_credentials',
+    'audience=' + encodeURIComponent('https://api.cradl.ai/v1'),
+    'client_id=' + encodeURIComponent(bundle.authData.client_id),
+    'client_secret=' + encodeURIComponent(bundle.authData.client_secret),
+  ]
+
+  const authRequest = new Request(process.env.API_AUTH_URL, {
     method: 'POST',
+    body: parameters.join('&'),
     headers: {
-      'Authorization': `Basic ${basicHash}`,
       'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: {
-      scope: AUTH_SCOPES,
     }
-  });
+  })
+
+  const response = await fetch(authRequest);
   if (response.status === 400) {
     throw new z.errors.Error(
       // This message is surfaced to the user
@@ -36,6 +23,7 @@ const addAuthorization = async (request, z, bundle) => {
       response.status
     );
   }
+
   data = await response.json()
   request.headers.Authorization = `Bearer ${data.access_token}`;
   return request;
