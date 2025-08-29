@@ -56,8 +56,16 @@ async function createAgentRun(z, agentId, variables) {
   })
 }
 
-async function createDocument(z, inputFileUrl) {
-  const postDocumentsResponse = await makePostRequest(z, '/documents', {})
+async function createDocument(z, inputFileUrl, agentRunId, fileName) {
+  body = {}
+  if (agentRunId !== undefined) {
+    body.agentRunId = agentRunId
+  }
+  if (fileName !== undefined) {
+    body.name = fileName
+  }
+
+  const postDocumentsResponse = await makePostRequest(z, '/documents', body)
   // bundle.inputData.file will be a URL from which we download the file
   fileResponse = await downloadFile(inputFileUrl, z)
   const fileServerResponse = await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())

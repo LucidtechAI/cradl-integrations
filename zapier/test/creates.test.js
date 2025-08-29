@@ -32,6 +32,49 @@ describe('creates', () => {
     expect(result.predictionId);
   }, 60000);
 
+  test('createAgentRun', async () => {
+    const bundle = {
+      inputData: {
+        // in production, this will be a hydration URL to the selected file's data
+        file: TEST_FILE_URL,
+        fileName: 'test.pdf',
+        agentId: process.env.TEST_AGENT_ID,
+      },
+      authData: {
+        client_id: process.env.client_id_v2,
+        client_secret: process.env.client_secret_v2,
+      },
+    };
+
+    const result = await appTester(
+      App.creates.createAgentRun.operation.perform,
+      bundle
+    );
+    expect(result.status).toBe('pending-predictions');
+  }, 60000);
+
+  test('createAgentRunWithVariables', async () => {
+    const bundle = {
+      inputData: {
+        // in production, this will be a hydration URL to the selected file's data
+        file: TEST_FILE_URL,
+        fileName: 'test.pdf',
+        agentId: process.env.TEST_AGENT_ID,
+        variables: {testId: '123'}
+      },
+      authData: {
+        client_id: process.env.client_id_v2,
+        client_secret: process.env.client_secret_v2,
+      },
+    };
+
+    const result = await appTester(
+      App.creates.createAgentRun.operation.perform,
+      bundle
+    );
+    expect(result.status).toBe('pending-predictions');
+  }, 60000);
+
   test('executeWorkflow', async () => {
     const bundle = {
       inputData: {
