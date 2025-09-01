@@ -94,7 +94,6 @@ describe('triggers', () => {
       App.triggers.agentRunComplete.operation.performList,
       bundle,
     )
-    console.log(performListResults)
   }, 60000)
 
   test('workflowComplete', async () => {
