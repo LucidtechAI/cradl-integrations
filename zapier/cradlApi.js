@@ -42,8 +42,28 @@ async function putToFileServer(z, url, content) {
   });
 }
 
+async function getFromFileServer(z, url) {
+  if (url == null) {
+    return {}
+  }
+  
+  return z.request({
+    url: url,
+    method: 'GET',
+  });
+}
+
+async function getAction(z, actionId) {
+  return makeGetRequest(z, '/actions/' + actionId)
+}
+
+
 async function listActions(z, nextToken) {
   return makeGetRequest(z, '/actions')
+}
+
+async function updateAction(z, actionId, body) {
+  return makePatchRequest(z, '/actions/' + actionId, body)
 }
 
 async function listAgents(z) {
@@ -126,10 +146,14 @@ async function updateTransition(z, transitionId, parameters) {
   })
 }
 
+async function getSuccessfulAgentRuns(z, agentId) {
+  return makeGetRequest(z, /agents/ + agentId + '/runs/?status=pending-export&status=review-completed&status=error&sort=createdTime%3Adesc&maxResults=20'
+  )
+}
+
 async function getSuccessfulWorkflowExecutions(z, workflowId) {
   return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded&sortBy=startTime&order=descending&maxResults=3')
 }
-
 
 module.exports = {
   CRADL_ORGANIZATION_ID,
@@ -137,6 +161,9 @@ module.exports = {
   createDocument, 
   createPrediction,
   executeWorkflow,
+  getAction,
+  getFromFileServer,
+  getSuccessfulAgentRuns,
   getSuccessfulWorkflowExecutions,
   getTransition,
   getWorkflow,
@@ -145,6 +172,7 @@ module.exports = {
   listModels,
   listWorkflows,
   makeGetRequest,
+  updateAction,
   updateWorkflow,
   updateTransition,
 }

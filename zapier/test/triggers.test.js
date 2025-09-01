@@ -66,6 +66,37 @@ describe('triggers', () => {
     expect(results.length).toBeGreaterThan(0);
   });
 
+  test('agentRunComplete', async () => {
+    const bundle = {
+      authData: {
+        client_id: process.env.client_id_v2,
+        client_secret: process.env.client_secret_v2,
+      },
+      targetUrl: 'https://example.com',
+      inputData: {
+        actionId: process.env.TEST_ACTION_ID,
+        agentId: process.env.TEST_AGENT_ID,
+      }
+    };
+    const subscribeResults = await appTester(
+      App.triggers.agentRunComplete.operation.performSubscribe,
+      bundle,
+    )
+
+    bundle.subscribeData = subscribeResults
+
+    const unsubscribeResults = await appTester(
+       App.triggers.agentRunComplete.operation.performUnsubscribe,
+       bundle,
+     )
+
+    const performListResults = await appTester(
+      App.triggers.agentRunComplete.operation.performList,
+      bundle,
+    )
+    console.log(performListResults)
+  }, 60000)
+
   test('workflowComplete', async () => {
     const bundle = {
       authData: {
