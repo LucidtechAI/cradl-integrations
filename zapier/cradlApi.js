@@ -92,87 +92,19 @@ async function createDocument(z, inputFileUrl, agentRunId, fileName) {
   return postDocumentsResponse.json.documentId
 }
 
-async function createPrediction(z, documentId, modelId){
-  return makePostRequest(z, '/predictions', {
-    documentId: documentId,
-    modelId: modelId,
-    postprocessConfig: {
-      outputFormat: 'v2',
-      parameters: {
-        n: 3,
-        collapse: true,
-      },
-      strategy: 'BEST_N_PAGES',
-    }
-  });
-}
-
-async function listModels(z) {
-  return makeGetRequest(z, '/models?owner=me&owner=las:organization:cradl')
-}
-
-async function executeWorkflow(z, documentId, title, workflowId, metadata){
-  input = {
-    documentId: documentId,
-    title: title,
-  }
-  if (metadata) {
-    input.metadata = metadata
-  }
-  return makePostRequest(z, '/workflows/' + workflowId + '/executions', {input: input});
-}
-
-async function getWorkflow(z, workflowId) {
-  return makeGetRequest(z, '/workflows/' + workflowId)
-}
-
-async function listWorkflows(z) {
-  return makeGetRequest(z, '/workflows')
-}
-
-async function updateWorkflow(z, workflowId, metadata) {
-  return makePatchRequest(z, '/workflows/' + workflowId, {
-    metadata: metadata,
-  })
-}
-
-async function getTransition(z, transitionId) {
-  return makeGetRequest(z, '/transitions/' + transitionId)
-}
-
-async function updateTransition(z, transitionId, parameters) {
-  return makePatchRequest(z, '/transitions/' + transitionId, {
-    parameters: parameters,
-  })
-}
-
 async function getSuccessfulAgentRuns(z, agentId) {
   return makeGetRequest(z, /agents/ + agentId + '/runs/?status=pending-export&status=review-completed&status=error&sort=createdTime%3Adesc&maxResults=20'
   )
 }
 
-async function getSuccessfulWorkflowExecutions(z, workflowId) {
-  return makeGetRequest(z, /workflows/ + workflowId + '/executions/?status=succeeded&sortBy=startTime&order=descending&maxResults=3')
-}
-
 module.exports = {
-  CRADL_ORGANIZATION_ID,
   createAgentRun,
   createDocument, 
-  createPrediction,
-  executeWorkflow,
   getAction,
   getFromFileServer,
   getSuccessfulAgentRuns,
-  getSuccessfulWorkflowExecutions,
-  getTransition,
-  getWorkflow,
   listActions,
   listAgents,
-  listModels,
-  listWorkflows,
   makeGetRequest,
   updateAction,
-  updateWorkflow,
-  updateTransition,
 }
