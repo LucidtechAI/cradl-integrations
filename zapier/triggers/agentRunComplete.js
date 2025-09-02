@@ -102,8 +102,8 @@ const setWebhookUrl = async(z, bundle) => {
         {
           key: 'actionId', 
           required: true, 
-          label: 'Flow',
-          dynamic: 'listActions.id.name',
+          label: 'Action',
+          dynamic: 'listZapierActions.id.name',
           helpText: 'The Action you want to export to this Zap.',
         },
       ],
