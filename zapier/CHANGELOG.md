@@ -1,6 +1,6 @@
 ## 1.1.0
 
-* Added createAgentRun action and agentRunComplete, listAgents, listZapierActions triggers
+* Added createAgentRun action and agentRunComplete, listAgents, listZapierActions triggers. Removed Workflow related actions/triggers.
 
 ## 1.0.4
 
