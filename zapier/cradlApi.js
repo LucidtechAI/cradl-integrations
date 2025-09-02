@@ -42,7 +42,7 @@ async function putToFileServer(z, url, content) {
   });
 }
 
-async function getFromFileServer(z, url) {
+async function getFromFileServer(z, url, raw=false) {
   if (url == null) {
     return {}
   }
@@ -50,6 +50,7 @@ async function getFromFileServer(z, url) {
   return z.request({
     url: url,
     method: 'GET',
+    raw: raw,
   });
 }
 
