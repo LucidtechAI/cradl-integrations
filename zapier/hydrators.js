@@ -2,8 +2,9 @@ const cradlApi = require('./cradlApi')
 
 async function getDocument(z, bundle) {
   const getDocumentsResponse = await cradlApi.makeGetRequest(z, '/documents/' + bundle.inputData.documentId)
+  fileServerResponse = await cradlApi.getFromFileServer(z, getDocumentsResponse.json.fileUrl)
   return await z.stashFile(
-    Buffer.from(getDocumentsResponse.json.content, 'base64'), 
+    Buffer.from(fileServerResponse.content, 'base64'), 
     undefined, 
     getDocumentsResponse.json.name, 
     getDocumentsResponse.json.contentType,
