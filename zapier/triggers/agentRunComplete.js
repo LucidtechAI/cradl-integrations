@@ -36,7 +36,7 @@ const setWebhookUrl = async(z, bundle) => {
       data = d[key]
       if (data instanceof Array) {
         d[key] = data.map((item) => cleanPredictions(item))
-      } else if (data instanceof Object && 'value' in data && 'confidence' in data) {
+      } else if ((data instanceof Object) && ('value' in data) && ('confidence' in data)) {
         d[key] = {
           value: data.value,
           name: data.name,
