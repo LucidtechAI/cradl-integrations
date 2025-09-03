@@ -30,7 +30,22 @@ const setWebhookUrl = async(z, bundle) => {
     bundle.cleanedRequest.documentFileContent = z.dehydrateFile(hydrators.getDocument, {documentId: bundle.cleanedRequest.documentId})
     return [bundle.cleanedRequest];
   };
-  
+
+  const cleanPredictions = (d) => {
+    for (let key in d) {
+      data = d[key]
+      if (data instanceof Array) {
+        d[key] = data.map((item) => cleanPredictions(item))
+      } else if (data instanceof Object && 'value' in data && 'confidence' in data) {
+        d[key] = {
+          value: data.value,
+          name: data.name,
+        }
+      }
+    }
+    return d
+  }
+
   const listCompleted = async (z, bundle) => {
     const getSuccessfulAgentRunsResponse = await cradlApi.getSuccessfulAgentRuns(z, bundle.inputData.agentId)
 
@@ -52,6 +67,7 @@ const setWebhookUrl = async(z, bundle) => {
       else {
         run.output = output
       }
+      run.output = cleanPredictions(run.output)
       return run
     }))
 
