@@ -27,6 +27,11 @@ const setWebhookUrl = async(z, bundle) => {
   };
 
   const processWebhookPayload = async(z, bundle) => {
+    bundle.cleanedRequest = {
+      ...bundle.cleanedRequest.context,
+      ...bundle.cleanedRequest.output,
+    }
+    bundle.cleanedRequest = cleanPredictions(bundle.cleanedRequest)
     bundle.cleanedRequest.documentFileContent = z.dehydrateFile(hydrators.getDocument, {documentId: bundle.cleanedRequest.documentId})
     return [bundle.cleanedRequest];
   };
@@ -102,8 +107,8 @@ const setWebhookUrl = async(z, bundle) => {
     key: 'agentRunComplete',
     noun: 'Document',
     display: {
-      label: 'Agent Run Completed',
-      description: 'Triggers when an Agent Run has has completed.',
+      label: 'Extracted Data From Document',
+      description: 'Triggers when an Agent Run is completed.',
     },
     operation: {
       inputFields: [
@@ -120,28 +125,12 @@ const setWebhookUrl = async(z, bundle) => {
           required: true, 
           label: 'Action',
           dynamic: 'listZapierActions.id.name',
-          helpText: 'The Action you want to export to this Zap.',
+          helpText: 'The Action that exports to this Zap.',
         },
       ],
       type: 'hook',
       sample: {
-        datasetId: 'las:dataset:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        documentId: 'las:document:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-        values: {
-          field_1: 'ACME INC',
-          field_2: '1234.00',
-          field_3: '2020-01-01',
-          line_items_field: [
-            {
-              line_items_field_1: 'LINE 1 DESCRIPTION',
-              line_items_field_2: '616.00',
-            },
-            {
-              line_items_field_1: 'LINE 2 DESCRIPTION',
-              line_items_field_2: '618.00',
-            },
-          ]
-        }
+        id: 'sample_id'
       },
       performSubscribe: setWebhookUrl,
       performUnsubscribe: deleteWebhookUrl,

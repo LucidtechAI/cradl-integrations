@@ -16,7 +16,7 @@ module.exports = {
   key: 'createAgentRun',
   noun: 'Document',
   display: {
-    label: 'Parse Document With Agent',
+    label: 'Extract Data From Document',
     description: 'Send a Document to an existing Agent for processing.',
   },
   operation: {
