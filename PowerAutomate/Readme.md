@@ -10,7 +10,7 @@ Cradl AI is a no-code AI platform for automating internal document workflows. Cr
 
 ## Prerequisites
 
-A free Cradl AI account. If you don't already have one, you can sign up for free [here](https://app.cradl.ai/signup).
+A free Cradl AI account. If you don't already have one, you can sign up for free [here](https://cradl.ai/).
 
 ## Supported Operations
 
@@ -50,23 +50,22 @@ Log into Cradl AI, and in your *Flow* select either a Power Automate trigger or 
 
 This quick start guide aims to provide a basic overview how Cradl AI can be integrated in a Power Automate workflow. Please refer to the [official documentation](https://docs.cradl.ai/) for up-to-date documentation.
 
-#### 1. Set up a flow
+#### 1. Set up an Agent 
 
-*Cradl AI Flows* enables you to automate internal document processes in a simple, effective and unified way. 
+*Cradl AI Agents* enables you to automate internal document processes in a simple, effective and unified way. 
 It reduces the risk of using AI models in production since you can send uncertain documents to a *human-in-the-loop* when necessary. 
-By adjusting your flow's *confidence thresholds*, you can decide when a document should be sent to manual verification and when it's allowed to pass straight through. 
-To create a new flow, go to [Flows -> New flow](https://app.cradl.ai/agents).
+By adjusting *confidence thresholds* of your agent, you can decide when a document should be sent to manual verification and when it's allowed to pass straight through. 
 
 ### 2. Configure a Power Automate Trigger
 
-Open your Cradl AI Flow and, in the *Trigger* section, select *Power Automate* from the list of available integrations. 
+Open the workflow of your Cradl AI Agent, in the *Trigger* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the action "Extract Data from Document" from Cradl AI. 
 Open the dropdown menu for the parameter *Agent* and choose the Agent you just modified in Cradl AI.
 Make sure you have a Trigger in your Power Automate Flow that has a valid file as output.
 
 ### 3. Configure a Power Automate Export 
 
-Open your Cradl AI Flow and, in the *Export* section, select *Power Automate* from the list of available integrations. 
+Open the workflow of your Cradl AI Agent, in the *Export* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the trigger "Extracted Data from Document" from Cradl AI. 
 Open the dropdown menu for the parameter *Export Action* and choose the Action you just created in Cradl AI.
 
