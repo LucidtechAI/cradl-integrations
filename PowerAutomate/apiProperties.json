@@ -13,7 +13,7 @@
         }
       }
     },
-    "iconBrandColor": "#121220",
+    "iconBrandColor": "#212121",
     "scriptOperations": [
       "CreateDocumentDeprecated",
       "CreateExecutionDeprecated",
