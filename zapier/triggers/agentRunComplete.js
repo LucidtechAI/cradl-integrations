@@ -51,37 +51,13 @@ const setWebhookUrl = async(z, bundle) => {
     return d
   }
 
-  const isExportable = (agentRun) => {
-    if (
-      agentRun.status === 'review-completed' ||
-      agentRun.status === 'pending-export' ||
-      agentRun.status === 'completed'
-    ) {
-      return true
-    } 
-    else if (
-      agentRun.status === 'error' && 
-      agentRun.events.some(
-        event => event.errors.at(-1) === 'url must be defined and cannot be null'
-      )
-    ) {
-      return true
-    } 
-    else 
-      {
-        return false
-      }
-  }
 
   const listCompleted = async (z, bundle) => {
     const getSuccessfulAgentRunsResponse = await cradlApi.getSuccessfulAgentRuns(z, bundle.inputData.agentId)
 
     outputs = getSuccessfulAgentRunsResponse.data.runs
-    outputs = outputs.filter(
-      agentRun => isExportable(agentRun)
-    )
 
-    outputs = Promise.all(outputs.map(async (run) => {
+    outputs = await Promise.all(outputs.map(async (run) => {
       fileServerResponse = await cradlApi.getFromFileServer(z, run.variablesFileUrl)
       output = fileServerResponse.data
       if (output === undefined) {
