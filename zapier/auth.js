@@ -45,7 +45,7 @@ const authentication = {
       key: 'client_secret', 
       type: 'password', 
       required: true,
-      helpText: 'Client ID is found under [Workspace settings](https://rc.app.cradl.ai/settings/workspace).'
+      helpText: 'Client secret is found under [Workspace settings](https://rc.app.cradl.ai/settings/workspace).'
     },
   ],
   connectionLabel: '{{bundle.inputData.name}}', 

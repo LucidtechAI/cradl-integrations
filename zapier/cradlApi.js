@@ -1,5 +1,4 @@
 const http = require('https'); // require('http') if your URL is not https
-CRADL_ORGANIZATION_ID = 'las:organization:cradl'
 
 
 const downloadFile = async (url, z) => {
