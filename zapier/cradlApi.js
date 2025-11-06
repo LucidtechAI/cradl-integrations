@@ -93,7 +93,7 @@ async function createDocument(z, inputFileUrl, agentRunId, fileName) {
 }
 
 async function getSuccessfulAgentRuns(z, agentId) {
-  return makeGetRequest(z, /agents/ + agentId + '/runs/?status=pending-export&status=review-completed&status=error&sort=createdTime%3Adesc&maxResults=20'
+  return makeGetRequest(z, /agents/ + agentId + '/runs/?status=pending-export&status=review-completed&status=error&status=completed&sort=createdTime%3Adesc&maxResults=20'
   )
 }
 
