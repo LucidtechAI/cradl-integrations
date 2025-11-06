@@ -1,10 +1,9 @@
 const auth = require('./auth');
-const executeWorkflow = require('./creates/executeWorkflow');
+const agentRunComplete = require('./triggers/agentRunComplete');
+const createAgentRun = require('./creates/createAgentRun');
 const hydrators = require('./hydrators');
-const listModels = require('./triggers/listModels');
-const listWorkflows = require('./triggers/listWorkflows');
-const postPrediction = require('./creates/postPrediction');
-const workflowComplete = require('./triggers/workflowComplete')
+const listAgents = require('./triggers/listAgents');
+const listZapierActions = require('./triggers/listZapierActions');
 
 module.exports = {
   version: require('./package.json').version,
@@ -15,13 +14,12 @@ module.exports = {
   hydrators,
 
   triggers: {
-    [listModels.key]: listModels,
-    [listWorkflows.key]: listWorkflows,
-    [workflowComplete.key]: workflowComplete,
+    [agentRunComplete.key]: agentRunComplete,
+    [listAgents.key]: listAgents,
+    [listZapierActions.key]: listZapierActions,
   },
 
   creates: {
-    [postPrediction.key]: postPrediction,
-    [executeWorkflow.key]: executeWorkflow,
+    [createAgentRun.key]: createAgentRun,
   },
 };

@@ -11,34 +11,13 @@ const TEST_FILE_URL = 'https://cdn.zapier.com/storage/files/f6679cf77afeaf6b8426
 
 
 describe('creates', () => {
-  test('postPrediction', async () => {
-    const bundle = {
-      inputData: {
-        // in production, this will be a hydration URL to the selected file's data
-        file: TEST_FILE_URL,
-        modelId: process.env.TEST_MODEL_ID,
-      },
-      authData: {
-        client_id: process.env.client_id,
-        client_secret: process.env.client_secret,
-      }
-    };
-
-    const result = await appTester(
-      App.creates.postPrediction.operation.perform,
-      bundle
-    );
-    expect(result.predictions);
-    expect(result.predictionId);
-  }, 60000);
-
-  test('executeWorkflow', async () => {
+  test('createAgentRun', async () => {
     const bundle = {
       inputData: {
         // in production, this will be a hydration URL to the selected file's data
         file: TEST_FILE_URL,
         fileName: 'test.pdf',
-        workflowId: process.env.TEST_WORKFLOW_ID,
+        agentId: process.env.TEST_AGENT_ID,
       },
       authData: {
         client_id: process.env.client_id,
@@ -47,20 +26,20 @@ describe('creates', () => {
     };
 
     const result = await appTester(
-      App.creates.executeWorkflow.operation.perform,
+      App.creates.createAgentRun.operation.perform,
       bundle
     );
-    expect(result.status).toBe('running');
+    expect(result.status).toBe('pending-predictions');
   }, 60000);
 
-  test('executeWorkflowWithMetadata', async () => {
+  test('createAgentRunWithVariables', async () => {
     const bundle = {
       inputData: {
         // in production, this will be a hydration URL to the selected file's data
         file: TEST_FILE_URL,
         fileName: 'test.pdf',
-        workflowId: process.env.TEST_WORKFLOW_ID,
-        metadata: {testId: '123'}
+        agentId: process.env.TEST_AGENT_ID,
+        variables: {testId: '123'}
       },
       authData: {
         client_id: process.env.client_id,
@@ -69,9 +48,9 @@ describe('creates', () => {
     };
 
     const result = await appTester(
-      App.creates.executeWorkflow.operation.perform,
+      App.creates.createAgentRun.operation.perform,
       bundle
     );
-    expect(result.status).toBe('running');
+    expect(result.status).toBe('pending-predictions');
   }, 60000);
 });

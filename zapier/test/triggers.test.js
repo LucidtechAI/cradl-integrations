@@ -5,7 +5,7 @@ const appTester = zapier.createAppTester(App);
 zapier.tools.env.inject();
 
 describe('triggers', () => {
-  test('listModels', async () => {
+  test('listAgents', async () => {
     const bundle = {
       authData: {
         client_id: process.env.client_id,
@@ -13,29 +13,30 @@ describe('triggers', () => {
       },
     };
     const results = await appTester(
-      App.triggers.listModels.operation.perform,
+      App.triggers.listAgents.operation.perform,
       bundle,
     );
-
     expect(results.length).toBeGreaterThan(0);
   });
 
-  test('listWorkflows', async () => {
+  test('listZapierActions', async () => {
     const bundle = {
+      inputData: {
+        agentId: process.env.TEST_AGENT_ID,
+      },
       authData: {
         client_id: process.env.client_id,
         client_secret: process.env.client_secret,
       },
     };
     const results = await appTester(
-      App.triggers.listWorkflows.operation.perform,
+      App.triggers.listZapierActions.operation.perform,
       bundle,
     );
-
     expect(results.length).toBeGreaterThan(0);
   });
 
-  test('workflowComplete', async () => {
+  test('agentRunComplete', async () => {
     const bundle = {
       authData: {
         client_id: process.env.client_id,
@@ -43,23 +44,24 @@ describe('triggers', () => {
       },
       targetUrl: 'https://example.com',
       inputData: {
-        workflowId: process.env.TEST_WORKFLOW_ID,
+        actionId: process.env.TEST_ACTION_ID,
+        agentId: process.env.TEST_AGENT_ID,
       }
     };
     const subscribeResults = await appTester(
-      App.triggers.workflowComplete.operation.performSubscribe,
+      App.triggers.agentRunComplete.operation.performSubscribe,
       bundle,
     )
 
     bundle.subscribeData = subscribeResults
 
     const unsubscribeResults = await appTester(
-      App.triggers.workflowComplete.operation.performUnsubscribe,
-      bundle,
-    )
+       App.triggers.agentRunComplete.operation.performUnsubscribe,
+       bundle,
+     )
 
     const performListResults = await appTester(
-      App.triggers.workflowComplete.operation.performList,
+      App.triggers.agentRunComplete.operation.performList,
       bundle,
     )
   }, 60000)
