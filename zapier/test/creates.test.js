@@ -29,7 +29,7 @@ describe('creates', () => {
       App.creates.createAgentRun.operation.perform,
       bundle
     );
-    expect(result.status).toBe('pending-predictions');
+    expect(result.status).toBe('running');
   }, 60000);
 
   test('createAgentRunWithVariables', async () => {
@@ -51,6 +51,6 @@ describe('creates', () => {
       App.creates.createAgentRun.operation.perform,
       bundle
     );
-    expect(result.status).toBe('pending-predictions');
+    expect(result.status).toBe('running');
   }, 60000);
 });

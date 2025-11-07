@@ -1,3 +1,7 @@
+## 1.1.1
+
+* Update agentRunComplete trigger to status changes from Cradl API.
+
 ## 1.1.0
 
 * Added createAgentRun action and agentRunComplete, listAgents, listZapierActions triggers. Removed Workflow related actions/triggers.

@@ -12,6 +12,9 @@ module.exports = {
   authentication: auth.authentication,
   beforeRequest: [auth.addAuthorization],
   hydrators,
+  flags: {
+    cleanInputData: false,  // global flag
+  },
 
   triggers: {
     [agentRunComplete.key]: agentRunComplete,

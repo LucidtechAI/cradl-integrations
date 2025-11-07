@@ -3,10 +3,11 @@ Set up your local .env file with the following fields:
 ```bash
 client_id=<Your app client ID>
 client_secret=<Your app client secret>
-API_BASE_URL=<base URL to the Cradl API>
-API_AUTH_URL=<auth URL for the Cradl API>
-TEST_MODEL_ID=<ID of the model you want to test with>
-TEST_WORKFLOW_ID=<ID of the workflow you want to test with>
+API_BASE_URL=https://api.lucidtech.ai/v1
+API_AUTH_URL=https://auth.cradl.ai/oauth2/token
+TEST_ACTION_ID=<ID of the model you want to test with>
+TEST_AGENT_ID=<ID of the agent you want to test with>
+TEST_DOCUMENT_ID=<ID of the document you want to test with>
 ```
 
 # Install dependencies
