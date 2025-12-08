@@ -324,12 +324,25 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
-        string actionId = request.Headers.GetValues("ActionId").First();
+
+        if (!request.Headers.Contains("ActionId")) {
+            throw new Exception("ActionId header is missing. Please contact support@cradl.ai");
+        }
+
+        string actionId = request.Headers.GetValues("ActionId").FirstOrDefault();
+        if (string.IsNullOrWhiteSpace(actionId)) {
+            throw new Exception("ActionId header is empty. Please contact support@cradl.ai");
+        }
+
         request.Method = HttpMethod.Get;
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
         var responseGetAction = await this.Context.SendAsync(request, this.CancellationToken);
         var contentGetAction = await ToJson(responseGetAction);
-        string agentId = (string) contentGetAction["agentId"];
+        string agentId = contentGetAction["agentId"]?.ToString();
+
+        if (string.IsNullOrWhiteSpace(agentId)) {
+            throw new Exception($"agentId is missing in action {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
+        }
 
         var requestGetAgents = CreateAuthorizedRequest(
             method: HttpMethod.Get,
@@ -338,8 +351,13 @@ public class Script : ScriptBase
         );
         var responseGetAgents = await this.Context.SendAsync(requestGetAgents, this.CancellationToken);
         var content = await ToJson(responseGetAgents);
+        var resources = content["resourceIds"] as JArray;
 
-        foreach (var resource in content["resourceIds"]) {
+        if (resources == null || resources.Count == 0) {
+            throw new Exception($"resourceIds not found in /agents/{agentId} response. Create a new agent or contact support@cradl.ai");
+        }
+
+        foreach (var resource in resources) {
             if (((string) resource).StartsWith("cradl:model")) {
               var requestGetModel = CreateAuthorizedRequest(
                   method: HttpMethod.Get,
@@ -356,7 +374,7 @@ public class Script : ScriptBase
               return response;
             }
         }
-        return new HttpResponseMessage(HttpStatusCode.InternalServerError);
+        throw new Exception($"Could not find a model in ${agentId}. Create a new agent or contact support@cradl.ai");
     }
     
     private async Task<HttpResponseMessage> SetupTrigger()
