@@ -52,11 +52,14 @@ public class Script : ScriptBase
               if (path.StartsWith("/v1/documents/")){
                   return await GetDocument();
               }
-              if (path.StartsWith("/v1/metadata/")){
+              else if (path.StartsWith("/v1/metadata/")){
                   return await GetDocumentMetadata();
               }
               else if (path.StartsWith("/v1/actions/cradl:action:")){
                   return await TeardownTrigger();
+              }
+              else if (path.StartsWith("/v1/agents/cradl:agent:")){
+                  return await PollAgentRun();
               }
               else {
                 throw new ArgumentException($"{path} is not assigned to any method");
@@ -150,6 +153,12 @@ public class Script : ScriptBase
         string accessToken = await GetAccessToken();
 
         // Get information from content and headers
+        bool poll = false;
+
+        if (request.Headers.TryGetValues("poll", out var values) && bool.TryParse(values.First(), out var parsed)) {
+            poll = parsed;
+        }
+
         string agentId = request.Headers.GetValues("AgentId").First();
         string variablesString = request.Headers.TryGetValues("variables", out var v) ? v.FirstOrDefault() : null;
         var fileContent = await this.Context.Request.Content.ReadAsByteArrayAsync();
@@ -178,6 +187,12 @@ public class Script : ScriptBase
         string fileName = request.Headers.TryGetValues("title", out var title) ? title.FirstOrDefault() : "Untitled";
         string documentId = await CreateDocument(agentRunId, fileName, fileContent, accessToken);
         response.Headers.Add("documentId", documentId);
+
+        if (poll) {
+            response.StatusCode = HttpStatusCode.Accepted;
+            response.Headers.Add("location", $"/agents/{agentId}/runs/{agentRunId}");
+            response.Headers.Add("retry-after", "10");
+        }
         return response;
     }
     
@@ -318,6 +333,24 @@ public class Script : ScriptBase
         };
     }
 
+    private async Task<HttpResponseMessage> PollAgentRun()
+    {
+        var request = this.Context.Request;
+        string accessToken = await GetAccessToken();
+        request.Headers.Add("Authorization", $"Bearer {accessToken}");
+        var response = await this.Context.SendAsync(request, this.CancellationToken);
+        var responseJson = await ToJson(response);
+
+        if ( responseJson["status"]?.ToString() == "completed") {
+          return new HttpResponseMessage(HttpStatusCode.OK) {
+              Content = CreateJsonContent(responseJson.ToString())
+          };
+        }
+        else {    
+          return new HttpResponseMessage(HttpStatusCode.Accepted);
+        }
+    }
+    
     private async Task<HttpResponseMessage> GetSchema()
     {
         // Find agentId
@@ -409,7 +442,7 @@ public class Script : ScriptBase
         // Send the request
         var response = await this.Context.SendAsync(request, this.CancellationToken);
 
-        // Optionally set a response header to allow teardown of the trigger 
+        // Set Location in header to allow teardown of the trigger 
         response.Headers.Add("Location", $"{Script.API_ENDPOINT}/actions/{actionId}");
 
         return response;
@@ -437,7 +470,7 @@ public class Script : ScriptBase
     private async Task<HttpResponseMessage> Validate()
     {
         try {
-            // 1. Get the hmacSecret
+            // Get the hmacSecret
             string actionId = this.Context.Request.Headers.GetValues("ActionId").First();
             if (string.IsNullOrEmpty(actionId)) {
                 return BadRequest("Missing ActionId header.");
@@ -466,13 +499,13 @@ public class Script : ScriptBase
                 return BadRequest("The secret has not been defined during setup.");
             }
 
-            // 2. Get signature, URL, headers, and body from the incoming request
+            // Get signature, URL, headers, and body from the incoming request
             string receivedSharedSecret = this.Context.Request.Headers.TryGetValues("Cradl-Shared-Secret", out var v) ? v.FirstOrDefault() : null;
             if (string.IsNullOrEmpty(receivedSharedSecret)) {
                 return BadRequest("Missing Cradl-Shared-Secret in header.");
             }
 
-            // 4. Compare to signature
+            // Compare to signature
             if (!string.Equals(sharedSecret, receivedSharedSecret, StringComparison.OrdinalIgnoreCase)) {
                 return BadRequest($"Invalid secret: {receivedSharedSecret}.");
             }

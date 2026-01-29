@@ -327,6 +327,16 @@
           },
           {
             "in": "header",
+            "name": "poll",
+            "required": false,
+            "x-ms-summary": "PollUntilCompleted",
+            "x-ms-skip-url-encoding": true,
+            "description": "Set to True if you want to wait for the run to complete before continuing",
+            "type": "boolean",
+            "x-ms-visibility": "important"
+          },
+          {
+            "in": "header",
             "name": "variables",
             "required": false,
             "x-ms-summary": "Variables",
@@ -359,6 +369,15 @@
           }
         ],
         "responses": {
+          "202": {
+            "description": "Parsing started. Poll the Location URL for completion",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "URL to poll for job status"
+              }
+            }
+          },
           "200": {
             "description": "Default response",
             "schema": {
@@ -718,6 +737,43 @@
           "default": {
             "description": "Default response"
           }
+        }
+      }
+    },
+    "/agents/{agentId}/runs/{runId}": {
+      "get": {
+        "summary": "Get parsing job status",
+        "operationId": "getParseStatus",
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "runId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job still processing"
+          },
+          "200": {
+            "description": "Job completed successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": { "type": "string" },
+                "fields": { "type": "object" }
+              }
+            }
+          },
+          "400": { "description": "Invalid job ID" },
+          "404": { "description": "Job not found" }
         }
       }
     },
