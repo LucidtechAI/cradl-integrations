@@ -150,6 +150,7 @@ public class Script : ScriptBase
     {
         // Create Agent Run
         var request = this.Context.Request;
+        string requestUri = request.RequestUri.ToString();
         string accessToken = await GetAccessToken();
 
         // Get information from content and headers
@@ -181,17 +182,21 @@ public class Script : ScriptBase
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         var response = await this.Context.SendAsync(request, this.CancellationToken);       
         var content = await ToJson(response);
-        string agentRunId = (string) content["id"];
+        string fullAgentRunId = (string) content["id"];
+        string agentRunId = (string) content["runId"];
 
         // Create Document handle
         string fileName = request.Headers.TryGetValues("title", out var title) ? title.FirstOrDefault() : "Untitled";
-        string documentId = await CreateDocument(agentRunId, fileName, fileContent, accessToken);
+        string documentId = await CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
         response.Headers.Add("documentId", documentId);
+        string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
+        response.Headers.Add("location", $"{urlPrefix}/v1/agents/{agentId}/runs/{agentRunId}");
+        response.Headers.Add("location2", $"{requestUri}");
 
         if (poll) {
             response.StatusCode = HttpStatusCode.Accepted;
-            response.Headers.Add("location", $"/agents/{agentId}/runs/{agentRunId}");
-            response.Headers.Add("retry-after", "10");
+            response.Headers.Add("retry-after", "11");
+            response.Content = null;
         }
         return response;
     }
@@ -335,6 +340,7 @@ public class Script : ScriptBase
 
     private async Task<HttpResponseMessage> PollAgentRun()
     {
+        // Verify that we end up here
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
@@ -443,7 +449,7 @@ public class Script : ScriptBase
         var response = await this.Context.SendAsync(request, this.CancellationToken);
 
         // Set Location in header to allow teardown of the trigger 
-        response.Headers.Add("Location", $"{Script.API_ENDPOINT}/actions/{actionId}");
+        response.Headers.Add("location", $"{Script.API_ENDPOINT}/actions/{actionId}");
 
         return response;
     }

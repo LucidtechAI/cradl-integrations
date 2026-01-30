@@ -19,6 +19,7 @@
       "CreateExecutionDeprecated",
       "GetModelsDeprecated",
       "GetAgents",
+      "GetAgentRun",
       "GetActions",
       "GetDocument",
       "GetDocumentMetadata",
@@ -40,6 +41,7 @@
           "x-ms-apimTemplate-policySection": "Request",
           "x-ms-apimTemplate-operationName": [
             "GetAgents", 
+            "GetAgentRun", 
             "GetActions", 
             "GetDocument", 
             "GetDocumentMetadata", 

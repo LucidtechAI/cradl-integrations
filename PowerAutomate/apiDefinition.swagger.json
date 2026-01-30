@@ -300,6 +300,8 @@
         "consumes": [
           "application/json"
         ],
+        "x-ms-long-running-operation": true, 
+        "x-ms-long-running-operation-options": { "final-state-via": "location" },
         "parameters": [
           {
             "in": "header",
@@ -370,9 +372,9 @@
         ],
         "responses": {
           "202": {
-            "description": "Parsing started. Poll the Location URL for completion",
+            "description": "Parsing started. Poll the tocation URL for completion",
             "headers": {
-              "Location": {
+              "location": {
                 "type": "string",
                 "description": "URL to poll for job status"
               }
@@ -743,7 +745,7 @@
     "/agents/{agentId}/runs/{runId}": {
       "get": {
         "summary": "Get parsing job status",
-        "operationId": "getParseStatus",
+        "operationId": "GetAgentRun",
         "parameters": [
           {
             "name": "agentId",
