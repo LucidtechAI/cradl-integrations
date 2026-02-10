@@ -254,6 +254,7 @@ public class Script : ScriptBase
         {
             if (fieldConfig[prop.Name] == null)
             {
+                throw new Exception($"Could not find property in field config: {prop.Name}");
                 result[prop.Name] = prop.Value;
             }
         }
@@ -264,7 +265,9 @@ public class Script : ScriptBase
             if (fieldConfig[prop.Name] != null)
             {
                 var fieldSpec = fieldConfig[prop.Name] as JObject;
-                if (fieldSpec == null) continue;
+                if (fieldSpec == null) {
+                    throw new Exception($"Could not find fieldspec in field config: {prop.Name}");
+                }
 
                 var type = fieldSpec["type"]?.ToString();
                 if (type == "single-value")
@@ -274,6 +277,9 @@ public class Script : ScriptBase
                     {
                         valueObj["name"] = fieldSpec["name"] ?? prop.Name;
                         result[prop.Name] = valueObj;
+                    }
+                    else {
+                        throw new Exception($"Unknown value {prop.Value}");
                     }
                 }
                 else if (type == "table")
@@ -293,6 +299,12 @@ public class Script : ScriptBase
                         result[prop.Name] = formattedRows;
                     }
                 }
+                else {
+                    throw new Exception($"Unknown type in field config: {type} for property {prop.Name}");
+                }
+            }
+            else {
+              throw new Exception($"Could not find property in field config: {prop.Name}");
             }
         }
 
@@ -406,24 +418,60 @@ public class Script : ScriptBase
 
         if ( responseJson["status"]?.ToString() == "completed") {
             // Get agent run variables
+            JObject variables = null;
             var fileUrl = responseJson["variablesFileUrl"]?.ToString();
             var variablesRequest = CreateAuthorizedRequest(HttpMethod.Get, new Uri(fileUrl), accessToken);
             var variablesResponse = await this.Context.SendAsync(variablesRequest, this.CancellationToken);
             var variablesJson = await ToJson(variablesResponse);
 
-            // Get field config
+            // Find documentId
+            string documentId = null;
+            var resources = responseJson["resourceIds"] as JArray;
+            foreach (var resource in resources) {
+                if (((string) resource).StartsWith("cradl:document")) {
+                    documentId = resource.ToString();
+                    break;
+                }
+            }
+
+            // Find the modelId from events
+            string modelId = null;
+            var events = responseJson["events"] as JArray;
+            if (events != null) {
+                foreach (var evt in events) {
+                    if (evt["modelId"] != null) {
+                        modelId = evt["modelId"].ToString();
+                        break;
+                    }
+                }
+            }
+            if (string.IsNullOrEmpty(modelId)) {
+                throw new Exception("No event with modelId found in events. Please contact support@cradl.ai");
+            }
+
             var requestGetModel = CreateAuthorizedRequest(
                 method: HttpMethod.Get,
-                path: $"/models/{resource}",
+                path: $"/models/{modelId}",
                 accessToken: accessToken
             );
             var responseGetModel = await this.Context.SendAsync(requestGetModel, this.CancellationToken);
             JObject contentGetModel = await ToJson(responseGetModel);
 
             // Format and return variables according to the fieldConfig
-            var variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
+            variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
+
+            if (variables == null) {
+                throw new Exception($"Could not find variables. please contact support@cradl.ai");
+            }
+
             return new HttpResponseMessage(HttpStatusCode.OK) {
-                Content = CreateJsonContent(variables.ToString())
+                Content = CreateJsonContent(new JObject {
+                    ["output"] = variables,
+                    ["context"] = new JObject {
+                        ["runId"] = responseJson["runId"],
+                        ["documentId"] = documentId
+                    }
+                }.ToString())
             };
         }
         else {
@@ -439,10 +487,10 @@ public class Script : ScriptBase
     private async Task<HttpResponseMessage> GetSchema()
     {
         // Find agentId
+        var request = this.Context.Request;
         string agentId = request.Headers.GetValues("AgentId").FirstOrDefault();
-        if (.IsNullOrWhiteSpace(agentId)) {
-            var request = this.Context.Request;
             string accessToken = await GetAccessToken();
+        if (string.IsNullOrWhiteSpace(agentId)) {
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
 
             if (!request.Headers.Contains("ActionId")) {

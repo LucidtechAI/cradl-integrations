@@ -373,7 +373,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Parsing started. Poll the tocation URL for completion",
+            "description": "Parsing started. Poll the URL for completion",
             "headers": {
               "Location": {
                 "type": "string",
@@ -700,8 +700,16 @@
         "parameters": [
           {
             "in": "header",
+            "name": "AgentId",
+            "required": false,
+            "x-ms-summary": "Agent",
+            "description": "Agent that defines the schema.",
+            "type": "string"
+          },
+          {
+            "in": "header",
             "name": "ActionId",
-            "required": true,
+            "required": false,
             "x-ms-summary": "Action",
             "description": "Action that defines the schema.",
             "type": "string"
