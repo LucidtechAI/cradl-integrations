@@ -746,6 +746,7 @@
       "get": {
         "summary": "Get parsing job status",
         "operationId": "GetAgentRun",
+        "x-ms-long-running-operation": true, 
         "parameters": [
           {
             "name": "agentId",

@@ -150,7 +150,6 @@ public class Script : ScriptBase
     {
         // Create Agent Run
         var request = this.Context.Request;
-        string requestUri = request.RequestUri.ToString();
         string accessToken = await GetAccessToken();
 
         // Get information from content and headers
@@ -190,12 +189,27 @@ public class Script : ScriptBase
         string documentId = await CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
         response.Headers.Add("documentId", documentId);
         string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
-        response.Headers.Add("location", $"{urlPrefix}/v1/agents/{agentId}/runs/{agentRunId}");
-        response.Headers.Add("location2", $"{requestUri}");
+        // 1.
+        // var trimmedUrlPrefix = urlPrefix.Substring(0, urlPrefix.LastIndexOf('/'));
+        // var location = $"{trimmedUrlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
+        // 2.
+        // var location = $"{urlPrefix}/v1/agents/{agentId}/runs/{agentRunId}");  // Old intent
+        // 4. 
+        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
+        // 5. 
+        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
+        // 6.
+        // var trimmedUrlPrefix = urlPrefix.Substring(0, urlPrefix.LastIndexOf('/'));
+        // var location = $"{trimmedUrlPrefix}/v1/agents/{agentId}/runs/{agentRunId}";
+        // 7. 
+        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
+        // 8. 
+        var location = $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}";
+        response.Headers.Add("Location", $"{location}");
 
         if (poll) {
             response.StatusCode = HttpStatusCode.Accepted;
-            response.Headers.Add("retry-after", "11");
+            response.Headers.Add("Retry-After", "1");
             response.Content = null;
         }
         return response;
@@ -344,16 +358,26 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
+        request.RequestUri = new Uri(Uri.UnescapeDataString($"{request.RequestUri}"));
         var response = await this.Context.SendAsync(request, this.CancellationToken);
         var responseJson = await ToJson(response);
 
+        if (!response.IsSuccessStatusCode) {
+            throw new Exception($"Could not poll agentRun: {request.RequestUri}");
+        }
+
         if ( responseJson["status"]?.ToString() == "completed") {
-          return new HttpResponseMessage(HttpStatusCode.OK) {
-              Content = CreateJsonContent(responseJson.ToString())
-          };
+            return new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = CreateJsonContent(responseJson.ToString())
+            };
         }
         else {    
-          return new HttpResponseMessage(HttpStatusCode.Accepted);
+            string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
+            var acceptedResponse = new HttpResponseMessage(HttpStatusCode.Accepted);
+            acceptedResponse.Headers.Add("Location", $"{url}");
+            acceptedResponse.Headers.Add("Retry-After", "5");
+            return acceptedResponse;
+
         }
     }
     
