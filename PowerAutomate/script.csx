@@ -45,10 +45,10 @@ public class Script : ScriptBase
             case "/v1/workflows":
                 return await CreateExecutionDeprecated();
                 break;
-            case "/v1/documents": 
+            case "/v1/documents":
                 return await CreateDocumentDeprecated();
                 break;
-            default: 
+            default:
               if (path.StartsWith("/v1/documents/")){
                   return await GetDocument();
               }
@@ -102,7 +102,7 @@ public class Script : ScriptBase
 
         return response;
     }
-    
+
     private async Task<HttpResponseMessage> GetDocumentMetadata()
     {
         var request = this.Context.Request;
@@ -112,7 +112,7 @@ public class Script : ScriptBase
         var response = await this.Context.SendAsync(request, this.CancellationToken);
         return response;
     }
-    
+
     private async Task<string> CreateDocument(string agentRunId, string fileName, byte[] fileContent, string accessToken)
     {
         // Create document handle
@@ -130,20 +130,20 @@ public class Script : ScriptBase
         requestPostDocuments.Content = CreateJsonContent(contentRequest.ToString());
         var createDocumentResponse = await this.Context.SendAsync(requestPostDocuments, this.CancellationToken);
         var content = await ToJson(createDocumentResponse);
-        
+
         // Upload document to fileserver
         var fileUrl = (string) content["fileUrl"];
         var putRequest = CreateAuthorizedRequest(HttpMethod.Put, new Uri(fileUrl), accessToken);
         putRequest.Content = new ByteArrayContent(fileContent);
         var putResponse = await this.Context.SendAsync(putRequest, this.CancellationToken);
-        
+
         if (putResponse.IsSuccessStatusCode) {
             return (string) content["documentId"];
         }
         else {
             throw new Exception($"Could not create document with content: {content}");
         }
-        
+
     }
 
     private async Task<HttpResponseMessage> CreateRun()
@@ -153,10 +153,10 @@ public class Script : ScriptBase
         string accessToken = await GetAccessToken();
 
         // Get information from content and headers
-        bool poll = false;
+        bool waitForResult = true;
 
-        if (request.Headers.TryGetValues("poll", out var values) && bool.TryParse(values.First(), out var parsed)) {
-            poll = parsed;
+        if (request.Headers.TryGetValues("waitForResult", out var values) && bool.TryParse(values.First(), out var parsed)) {
+            waitForResult = parsed;
         }
 
         string agentId = request.Headers.GetValues("AgentId").First();
@@ -179,42 +179,27 @@ public class Script : ScriptBase
         }
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/agents/{agentId}/runs");
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
-        var response = await this.Context.SendAsync(request, this.CancellationToken);       
+        var response = await this.Context.SendAsync(request, this.CancellationToken);
         var content = await ToJson(response);
         string fullAgentRunId = (string) content["id"];
-        string agentRunId = (string) content["runId"];
 
         // Create Document handle
         string fileName = request.Headers.TryGetValues("title", out var title) ? title.FirstOrDefault() : "Untitled";
         string documentId = await CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
         response.Headers.Add("documentId", documentId);
-        string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
-        // 1.
-        // var trimmedUrlPrefix = urlPrefix.Substring(0, urlPrefix.LastIndexOf('/'));
-        // var location = $"{trimmedUrlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
-        // 2.
-        // var location = $"{urlPrefix}/v1/agents/{agentId}/runs/{agentRunId}");  // Old intent
-        // 4. 
-        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
-        // 5. 
-        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
-        // 6.
-        // var trimmedUrlPrefix = urlPrefix.Substring(0, urlPrefix.LastIndexOf('/'));
-        // var location = $"{trimmedUrlPrefix}/v1/agents/{agentId}/runs/{agentRunId}";
-        // 7. 
-        // var location = $"{urlPrefix}/api/v1/agents/{agentId}/runs/{agentRunId}";
-        // 8. 
-        var location = $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}";
-        response.Headers.Add("Location", $"{location}");
 
-        if (poll) {
+        if (waitForResult) {
+            string agentRunId = (string) content["runId"];
+            string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
+            var location = $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}";
+            response.Headers.Add("Location", $"{location}");
             response.StatusCode = HttpStatusCode.Accepted;
-            response.Headers.Add("Retry-After", "1");
+            response.Headers.Add("Retry-After", "30");
             response.Content = null;
         }
         return response;
     }
-    
+
     private async Task<HttpResponseMessage> GetAgents()
     {
         var request = this.Context.Request;
@@ -245,7 +230,7 @@ public class Script : ScriptBase
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         var response = await this.Context.SendAsync(request, this.CancellationToken);
         var content = await ToJson(response);
-        
+
         // Filter actions and add agent name as additional info
         JArray exportActions = new JArray();
         foreach (var action in content["actions"]) {
@@ -259,6 +244,59 @@ public class Script : ScriptBase
         content["actions"] = exportActions;
         response.Content = CreateJsonContent(content.ToString());
         return response;
+    }
+
+    public static JObject FormatPredictions(JObject values, JObject fieldConfig) {
+        var result = new JObject();
+
+        // Non-prediction keys: keys in values not in fieldConfig
+        foreach (var prop in values.Properties())
+        {
+            if (fieldConfig[prop.Name] == null)
+            {
+                result[prop.Name] = prop.Value;
+            }
+        }
+
+        // Prediction keys: keys in both values and fieldConfig
+        foreach (var prop in values.Properties())
+        {
+            if (fieldConfig[prop.Name] != null)
+            {
+                var fieldSpec = fieldConfig[prop.Name] as JObject;
+                if (fieldSpec == null) continue;
+
+                var type = fieldSpec["type"]?.ToString();
+                if (type == "single-value")
+                {
+                    var valueObj = prop.Value as JObject;
+                    if (valueObj != null)
+                    {
+                        valueObj["name"] = fieldSpec["name"] ?? prop.Name;
+                        result[prop.Name] = valueObj;
+                    }
+                }
+                else if (type == "table")
+                {
+                    var tableConfig = fieldSpec["fields"] as JObject;
+                    var rowsArray = prop.Value as JArray;
+                    if (tableConfig != null && rowsArray != null)
+                    {
+                        var formattedRows = new JArray();
+                        foreach (var row in rowsArray)
+                        {
+                            if (row is JObject rowObj)
+                            {
+                                formattedRows.Add(FormatPredictions(rowObj, tableConfig));
+                            }
+                        }
+                        result[prop.Name] = formattedRows;
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     public static JObject CreateJsonSchema(JObject fieldConfig)
@@ -367,44 +405,64 @@ public class Script : ScriptBase
         }
 
         if ( responseJson["status"]?.ToString() == "completed") {
+            // Get agent run variables
+            var fileUrl = responseJson["variablesFileUrl"]?.ToString();
+            var variablesRequest = CreateAuthorizedRequest(HttpMethod.Get, new Uri(fileUrl), accessToken);
+            var variablesResponse = await this.Context.SendAsync(variablesRequest, this.CancellationToken);
+            var variablesJson = await ToJson(variablesResponse);
+
+            // Get field config
+            var requestGetModel = CreateAuthorizedRequest(
+                method: HttpMethod.Get,
+                path: $"/models/{resource}",
+                accessToken: accessToken
+            );
+            var responseGetModel = await this.Context.SendAsync(requestGetModel, this.CancellationToken);
+            JObject contentGetModel = await ToJson(responseGetModel);
+
+            // Format and return variables according to the fieldConfig
+            var variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
             return new HttpResponseMessage(HttpStatusCode.OK) {
-                Content = CreateJsonContent(responseJson.ToString())
+                Content = CreateJsonContent(variables.ToString())
             };
         }
-        else {    
+        else {
             string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
             var acceptedResponse = new HttpResponseMessage(HttpStatusCode.Accepted);
             acceptedResponse.Headers.Add("Location", $"{url}");
-            acceptedResponse.Headers.Add("Retry-After", "5");
+            acceptedResponse.Headers.Add("Retry-After", "30");
             return acceptedResponse;
 
         }
     }
-    
+
     private async Task<HttpResponseMessage> GetSchema()
     {
         // Find agentId
-        var request = this.Context.Request;
-        string accessToken = await GetAccessToken();
-        request.Headers.Add("Authorization", $"Bearer {accessToken}");
+        string agentId = request.Headers.GetValues("AgentId").FirstOrDefault();
+        if (.IsNullOrWhiteSpace(agentId)) {
+            var request = this.Context.Request;
+            string accessToken = await GetAccessToken();
+            request.Headers.Add("Authorization", $"Bearer {accessToken}");
 
-        if (!request.Headers.Contains("ActionId")) {
-            throw new Exception("ActionId header is missing. Please contact support@cradl.ai");
-        }
+            if (!request.Headers.Contains("ActionId")) {
+                throw new Exception("ActionId header is missing. Please contact support@cradl.ai");
+            }
 
-        string actionId = request.Headers.GetValues("ActionId").FirstOrDefault();
-        if (string.IsNullOrWhiteSpace(actionId)) {
-            throw new Exception("ActionId header is empty. Please contact support@cradl.ai");
-        }
+            string actionId = request.Headers.GetValues("ActionId").FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(actionId)) {
+                throw new Exception("ActionId header is empty. Please contact support@cradl.ai");
+            }
 
-        request.Method = HttpMethod.Get;
-        request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
-        var responseGetAction = await this.Context.SendAsync(request, this.CancellationToken);
-        var contentGetAction = await ToJson(responseGetAction);
-        string agentId = contentGetAction["agentId"]?.ToString();
+            request.Method = HttpMethod.Get;
+            request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
+            var responseGetAction = await this.Context.SendAsync(request, this.CancellationToken);
+            var contentGetAction = await ToJson(responseGetAction);
+            agentId = contentGetAction["agentId"]?.ToString();
 
-        if (string.IsNullOrWhiteSpace(agentId)) {
-            throw new Exception($"agentId is missing in action {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
+            if (string.IsNullOrWhiteSpace(agentId)) {
+                throw new Exception($"agentId is missing in action {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
+            }
         }
 
         var requestGetAgents = CreateAuthorizedRequest(
@@ -439,7 +497,7 @@ public class Script : ScriptBase
         }
         throw new Exception($"Could not find a model in ${agentId}. Create a new agent or contact support@cradl.ai");
     }
-    
+
     private async Task<HttpResponseMessage> SetupTrigger()
     {
         var request = this.Context.Request;
@@ -472,7 +530,7 @@ public class Script : ScriptBase
         // Send the request
         var response = await this.Context.SendAsync(request, this.CancellationToken);
 
-        // Set Location in header to allow teardown of the trigger 
+        // Set Location in header to allow teardown of the trigger
         response.Headers.Add("location", $"{Script.API_ENDPOINT}/actions/{actionId}");
 
         return response;
@@ -485,7 +543,7 @@ public class Script : ScriptBase
         request.Method = new HttpMethod("PATCH");
         request.RequestUri = new Uri(Uri.UnescapeDataString($"{request.RequestUri}"));
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
-        request.Content = CreateJsonContent(new JObject { 
+        request.Content = CreateJsonContent(new JObject {
             ["enabled"] = false,
             ["config"] = new JObject {
                 ["url"] = null,
@@ -517,7 +575,7 @@ public class Script : ScriptBase
 
 
             var headers = (JArray) contentGetAction?["config"]?["headers"];
-            string sharedSecret = ""; 
+            string sharedSecret = "";
             foreach (var header in headers) {
                 if (header["key"].ToString() == "Cradl-Shared-Secret") {
                     sharedSecret = header["value"].ToString();
@@ -558,9 +616,9 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string workflowId = request.Headers.GetValues("WorkflowId").First();
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/workflows/{workflowId}/executions");
-        return await this.Context.SendAsync(request, this.CancellationToken);       
+        return await this.Context.SendAsync(request, this.CancellationToken);
     }
-    
+
     private async Task<HttpResponseMessage> GetModelsDeprecated()
     {
         var myModelsRes = this.Context.SendAsync(
@@ -581,7 +639,7 @@ public class Script : ScriptBase
 
         var response = await myModelsRes;
         var content = await ToJson(response);
-        
+
         var myModels = (JArray) content["models"];
         foreach (var pretrainedModel in (await ToJson(await publicModelsRes))["models"]) {
             pretrainedModel["modelId"] = "las:organization:cradl/" + pretrainedModel["modelId"];
@@ -604,21 +662,21 @@ public class Script : ScriptBase
 
         request.Content = CreateJsonContent(new JObject { ["name"] = fileName }.ToString());
         var response = await this.Context.SendAsync(request, this.CancellationToken);
-        
+
         var fileUrl = (string) (await ToJson(response))["fileUrl"];
-        
+
         var putRequest = new HttpRequestMessage(HttpMethod.Put, new Uri(fileUrl));
         putRequest.Headers.Add("Authorization", this.Context.Request.Headers.GetValues("Authorization").First());
         putRequest.Content = new ByteArrayContent(fileContent);
         var putResponse = await this.Context.SendAsync(putRequest, this.CancellationToken);
-        
+
         if (!putResponse.IsSuccessStatusCode) {
             return putResponse;
         }
-        
+
         return response;
     }
-    
+
     private HttpRequestMessage CreateAuthorizedRequestDeprecated(HttpMethod method, string path)
     {
         var request = new HttpRequestMessage(method, new Uri($"{Script.API_ENDPOINT}{path}"));
@@ -632,13 +690,13 @@ public class Script : ScriptBase
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         return request;
     }
-    
+
     private HttpRequestMessage CreateAuthorizedRequest(HttpMethod method, string path, string accessToken)
     {
         return CreateAuthorizedRequest(method, new Uri($"{Script.API_ENDPOINT}{path}"), accessToken);
     }
-    
-    
+
+
     private static async Task<JObject> ToJson(HttpResponseMessage response)
     {
         return JObject.Parse(await response.Content.ReadAsStringAsync());
