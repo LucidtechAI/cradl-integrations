@@ -773,7 +773,8 @@
     },
     "/agents/{agentId}/runs/{runId}": {
       "get": {
-        "summary": "Get parsing job status, and return the full output if the run has completed",
+        "summary": "Get Agent Run Info",
+        "description": "Get info from run, and return the full output if the run has completed",
         "operationId": "GetAgentRun",
         "x-ms-long-running-operation": true,
         "parameters": [
