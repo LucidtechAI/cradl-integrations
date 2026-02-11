@@ -524,7 +524,7 @@ public class Script : ScriptBase
         // Get JSON schema for Power Automate from the field config of the model
         var requestGetModel = CreateAuthorizedRequest(
             method: HttpMethod.Get,
-            path: $"/models/{resource}",
+            path: $"/models/{modelId}",
             accessToken: accessToken
         );
         HttpResponseMessage responseGetModel = await this.Context.SendAsync(requestGetModel, this.CancellationToken);

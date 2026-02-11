@@ -330,11 +330,10 @@
           {
             "in": "header",
             "name": "waitForResult",
-            "default": true,
             "required": false,
-            "x-ms-summary": "waitForResult",
+            "x-ms-summary": "Wait For Result",
             "x-ms-skip-url-encoding": true,
-            "description": "Set to False if you want to move on immediately and handle the result in another flow with the trigger",
+            "description": "Set to 'No' to just initialize the data extraction without waiting for the result.",
             "type": "boolean",
             "x-ms-visibility": "advanced"
           },
