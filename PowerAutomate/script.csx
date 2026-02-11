@@ -403,10 +403,14 @@ public class Script : ScriptBase
 
         // Get min/max from headers (default to 20/900 if not present)
         int minRetry = Script.MIN_RETRY_TIME_SECONDS, maxRetry = Script.MAX_RETRY_TIME_SECONDS;
-        if (request.Headers.TryGetValues("minRetryInSeconds", out var minVals))
+        if (request.Headers.TryGetValues("minWait", out var minVals))
             int.TryParse(minVals.FirstOrDefault(), out minRetry);
-        if (request.Headers.TryGetValues("maxRetryInSeconds", out var maxVals))
+        if (request.Headers.TryGetValues("maxWait", out var maxVals))
             int.TryParse(maxVals.FirstOrDefault(), out maxRetry);
+
+        // Do not allow users to configure these times to something smaller than our limits
+        minRetry = Math.Max(Script.MIN_RETRY_TIME_SECONDS, minRetry);
+        maxRetry = Math.Max(Script.MAX_RETRY_TIME_SECONDS, maxRetry);
 
         // Calculate wait time: half the time since event, but clamp to [minRetry, maxRetry]
         int retryAfter = minRetry;
@@ -415,7 +419,6 @@ public class Script : ScriptBase
             retryAfter = (int)Math.Round(secondsSinceEvent / 4.0);
             retryAfter = Math.Max(minRetry, Math.Min(retryAfter, maxRetry));
         }
-        retryAfter = Math.Max(Script.MIN_RETRY_TIME_SECONDS, Math.Min(retryAfter, Script.MAX_RETRY_TIME_SECONDS));
         return retryAfter;
     }
 

@@ -339,6 +339,28 @@
           },
           {
             "in": "header",
+            "name": "minWait",
+            "required": false,
+            "x-ms-summary": "Min Wait Between Polls In Seconds",
+            "x-ms-skip-url-encoding": true,
+            "description": "The minimum number of seconds before polling again when using waitForResult",
+            "type": "integer",
+            "format": "int32",
+            "x-ms-visibility": "advanced"
+          },
+          {
+            "in": "header",
+            "name": "maxWait",
+            "required": false,
+            "x-ms-summary": "Max Wait Between Polls In Seconds",
+            "x-ms-skip-url-encoding": true,
+            "description": "The maximum number of seconds before polling again when using waitForResult",
+            "type": "integer",
+            "format": "int32",
+            "x-ms-visibility": "advanced"
+          },
+          {
+            "in": "header",
             "name": "variables",
             "required": false,
             "x-ms-summary": "Variables",
