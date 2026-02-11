@@ -10,7 +10,7 @@ using System;
 
 public class Script : ScriptBase
 {
-    private const string API_ENDPOINT = "https://api.lucidtech.ai/v1";
+    private const string API_ENDPOINT = "https://api.cradl.ai/v1";
     private const string AUTH_ENDPOINT = "https://auth.cradl.ai/oauth2/token";
 
     public override async Task<HttpResponseMessage> ExecuteAsync()

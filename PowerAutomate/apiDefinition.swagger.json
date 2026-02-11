@@ -24,7 +24,7 @@
       "propertyValue": "AI;Content and Files"
     }
   ],
-  "host": "api.lucidtech.ai",
+  "host": "api.cradl.ai",
   "basePath": "/v1",
   "schemes": [
     "https"
