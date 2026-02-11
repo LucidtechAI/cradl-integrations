@@ -334,7 +334,7 @@
             "required": false,
             "x-ms-summary": "waitForResult",
             "x-ms-skip-url-encoding": true,
-            "description": "Set to False if you want to move on and handle the result in another flow with the trigger",
+            "description": "Set to False if you want to move on immediately and handle the result in another flow with the trigger",
             "type": "boolean",
             "x-ms-visibility": "advanced"
           },
@@ -373,7 +373,7 @@
         ],
         "responses": {
           "202": {
-            "description": "Parsing started. Poll the URL for completion",
+            "description": "Parsing of document started. Poll the URL in the location header to get the result",
             "headers": {
               "Location": {
                 "type": "string",
@@ -693,7 +693,7 @@
         "summary": "Get Schema",
         "operationId": "GetSchema",
         "x-ms-visibility": "internal",
-        "description": "Get the schema for the agent run output.",
+        "description": "Get the schema for the agent run output",
         "consumes": [
           "application/json"
         ],
@@ -752,7 +752,7 @@
     },
     "/agents/{agentId}/runs/{runId}": {
       "get": {
-        "summary": "Get parsing job status",
+        "summary": "Get parsing job status, and return the full output if the run has completed",
         "operationId": "GetAgentRun",
         "x-ms-long-running-operation": true,
         "parameters": [
@@ -778,8 +778,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "status": { "type": "string" },
-                "fields": { "type": "object" }
+                "output": {"type": "object"},
+                "context": {"type": "object"}
               }
             }
           },

@@ -17,7 +17,8 @@ A free Cradl AI account. If you don't already have one, you can sign up for free
 This connector supports the following operations:
 
 ### Extract Data From Document
-Extract data from documents like invoices, receipts, order confirmations.
+Extract data from documents like invoices, receipts, order confirmations. 
+Toggle waitForResult to False if you want to run this operation asynchronously and handle the result in another flow.
 
 ### Extracted Data From Document
 Trigger that runs when data is extracted from a document. 

@@ -191,10 +191,9 @@ public class Script : ScriptBase
         if (waitForResult) {
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
-            var location = $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}";
-            response.Headers.Add("Location", $"{location}");
+            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}");
             response.StatusCode = HttpStatusCode.Accepted;
-            response.Headers.Add("Retry-After", "30");
+            response.Headers.Add("Retry-After", "20");
             response.Content = null;
         }
         return response;
@@ -254,7 +253,6 @@ public class Script : ScriptBase
         {
             if (fieldConfig[prop.Name] == null)
             {
-                throw new Exception($"Could not find property in field config: {prop.Name}");
                 result[prop.Name] = prop.Value;
             }
         }
@@ -265,10 +263,6 @@ public class Script : ScriptBase
             if (fieldConfig[prop.Name] != null)
             {
                 var fieldSpec = fieldConfig[prop.Name] as JObject;
-                if (fieldSpec == null) {
-                    throw new Exception($"Could not find fieldspec in field config: {prop.Name}");
-                }
-
                 var type = fieldSpec["type"]?.ToString();
                 if (type == "single-value")
                 {
@@ -277,9 +271,6 @@ public class Script : ScriptBase
                     {
                         valueObj["name"] = fieldSpec["name"] ?? prop.Name;
                         result[prop.Name] = valueObj;
-                    }
-                    else {
-                        throw new Exception($"Unknown value {prop.Value}");
                     }
                 }
                 else if (type == "table")
@@ -299,12 +290,6 @@ public class Script : ScriptBase
                         result[prop.Name] = formattedRows;
                     }
                 }
-                else {
-                    throw new Exception($"Unknown type in field config: {type} for property {prop.Name}");
-                }
-            }
-            else {
-              throw new Exception($"Could not find property in field config: {prop.Name}");
             }
         }
 
@@ -404,7 +389,7 @@ public class Script : ScriptBase
 
     private async Task<HttpResponseMessage> PollAgentRun()
     {
-        // Verify that we end up here
+        // Get /agents/{agentId}/runs/{runId} to check if the run is completed
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
@@ -416,7 +401,14 @@ public class Script : ScriptBase
             throw new Exception($"Could not poll agentRun: {request.RequestUri}");
         }
 
-        if ( responseJson["status"]?.ToString() == "completed") {
+        if (responseJson["status"]?.ToString() != "completed") { // Keep polling
+            string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
+            var acceptedResponse = new HttpResponseMessage(HttpStatusCode.Accepted);
+            acceptedResponse.Headers.Add("Location", $"{url}");
+            acceptedResponse.Headers.Add("Retry-After", "20");
+            return acceptedResponse;
+        }
+        else {  // Return results from run
             // Get agent run variables
             JObject variables = null;
             var fileUrl = responseJson["variablesFileUrl"]?.ToString();
@@ -449,6 +441,7 @@ public class Script : ScriptBase
                 throw new Exception("No event with modelId found in events. Please contact support@cradl.ai");
             }
 
+            // Get fieldConfig for Model
             var requestGetModel = CreateAuthorizedRequest(
                 method: HttpMethod.Get,
                 path: $"/models/{modelId}",
@@ -474,30 +467,18 @@ public class Script : ScriptBase
                 }.ToString())
             };
         }
-        else {
-            string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
-            var acceptedResponse = new HttpResponseMessage(HttpStatusCode.Accepted);
-            acceptedResponse.Headers.Add("Location", $"{url}");
-            acceptedResponse.Headers.Add("Retry-After", "30");
-            return acceptedResponse;
-
-        }
     }
 
     private async Task<HttpResponseMessage> GetSchema()
     {
-        // Find agentId
         var request = this.Context.Request;
+        string accessToken = await GetAccessToken();
         string agentId = request.Headers.GetValues("AgentId").FirstOrDefault();
-            string accessToken = await GetAccessToken();
-        if (string.IsNullOrWhiteSpace(agentId)) {
+
+        if (string.IsNullOrWhiteSpace(agentId)) { // Find agentId from actionId
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
-
-            if (!request.Headers.Contains("ActionId")) {
-                throw new Exception("ActionId header is missing. Please contact support@cradl.ai");
-            }
-
             string actionId = request.Headers.GetValues("ActionId").FirstOrDefault();
+
             if (string.IsNullOrWhiteSpace(actionId)) {
                 throw new Exception("ActionId header is empty. Please contact support@cradl.ai");
             }
@@ -513,6 +494,7 @@ public class Script : ScriptBase
             }
         }
 
+        // Get agent to find modelId
         var requestGetAgents = CreateAuthorizedRequest(
             method: HttpMethod.Get,
             path: $"/agents/{agentId}",
@@ -526,24 +508,33 @@ public class Script : ScriptBase
             throw new Exception($"resourceIds not found in /agents/{agentId} response. Create a new agent or contact support@cradl.ai");
         }
 
+        // Find the model among the resourceIds (it should start with "cradl:model")
+        string modelId = null;
         foreach (var resource in resources) {
             if (((string) resource).StartsWith("cradl:model")) {
-              var requestGetModel = CreateAuthorizedRequest(
-                  method: HttpMethod.Get,
-                  path: $"/models/{resource}",
-                  accessToken: accessToken
-              );
-              HttpResponseMessage responseGetModel = await this.Context.SendAsync(requestGetModel, this.CancellationToken);
-              JObject contentGetModel = await ToJson(responseGetModel);
-              var schema = CreateJsonSchema((JObject) contentGetModel["fieldConfig"]);
-              var response = new HttpResponseMessage(HttpStatusCode.OK)
-              {
-                  Content = new StringContent(schema.ToString(), Encoding.UTF8, "application/json")
-              };
-              return response;
+                modelId = resource.ToString();
+                break;
             }
         }
-        throw new Exception($"Could not find a model in ${agentId}. Create a new agent or contact support@cradl.ai");
+
+        if (string.IsNullOrEmpty(modelId)) {
+            throw new Exception($"Could not find a model in ${agentId}. Create a new agent or contact support@cradl.ai");
+        }
+
+        // Get JSON schema for Power Automate from the field config of the model
+        var requestGetModel = CreateAuthorizedRequest(
+            method: HttpMethod.Get,
+            path: $"/models/{resource}",
+            accessToken: accessToken
+        );
+        HttpResponseMessage responseGetModel = await this.Context.SendAsync(requestGetModel, this.CancellationToken);
+        JObject contentGetModel = await ToJson(responseGetModel);
+        var schema = CreateJsonSchema((JObject) contentGetModel["fieldConfig"]);
+
+        return new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(schema.ToString(), Encoding.UTF8, "application/json")
+        };
     }
 
     private async Task<HttpResponseMessage> SetupTrigger()
@@ -710,18 +701,14 @@ public class Script : ScriptBase
 
         request.Content = CreateJsonContent(new JObject { ["name"] = fileName }.ToString());
         var response = await this.Context.SendAsync(request, this.CancellationToken);
-
         var fileUrl = (string) (await ToJson(response))["fileUrl"];
-
         var putRequest = new HttpRequestMessage(HttpMethod.Put, new Uri(fileUrl));
         putRequest.Headers.Add("Authorization", this.Context.Request.Headers.GetValues("Authorization").First());
         putRequest.Content = new ByteArrayContent(fileContent);
         var putResponse = await this.Context.SendAsync(putRequest, this.CancellationToken);
-
         if (!putResponse.IsSuccessStatusCode) {
             return putResponse;
         }
-
         return response;
     }
 
