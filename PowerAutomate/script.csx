@@ -12,6 +12,8 @@ public class Script : ScriptBase
 {
     private const string API_ENDPOINT = "https://api.cradl.ai/v1";
     private const string AUTH_ENDPOINT = "https://auth.cradl.ai/oauth2/token";
+    private const int MIN_RETRY_TIME_SECONDS = 20;
+    private const int MAX_RETRY_TIME_SECONDS = 900;
 
     public override async Task<HttpResponseMessage> ExecuteAsync()
     {
@@ -387,6 +389,36 @@ public class Script : ScriptBase
         };
     }
 
+    private static int CalculateRetryAfter(string updatedTime, HttpRequestMessage request) {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset eventTime;
+        double secondsSinceEvent = 0;
+        DateTimeOffset.TryParse(
+            updatedTime,
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal,
+            out eventTime
+        );
+        secondsSinceEvent = (now - eventTime).TotalSeconds;
+
+        // Get min/max from headers (default to 20/900 if not present)
+        int minRetry = Script.MIN_RETRY_TIME_SECONDS, maxRetry = Script.MAX_RETRY_TIME_SECONDS;
+        if (request.Headers.TryGetValues("minRetryInSeconds", out var minVals))
+            int.TryParse(minVals.FirstOrDefault(), out minRetry);
+        if (request.Headers.TryGetValues("maxRetryInSeconds", out var maxVals))
+            int.TryParse(maxVals.FirstOrDefault(), out maxRetry);
+
+        // Calculate wait time: half the time since event, but clamp to [minRetry, maxRetry]
+        int retryAfter = minRetry;
+        if (secondsSinceEvent > 0)
+        {
+            retryAfter = (int)Math.Round(secondsSinceEvent / 4.0);
+            retryAfter = Math.Max(minRetry, Math.Min(retryAfter, maxRetry));
+        }
+        retryAfter = Math.Max(Script.MIN_RETRY_TIME_SECONDS, Math.Min(retryAfter, Script.MAX_RETRY_TIME_SECONDS));
+        return retryAfter;
+    }
+
     private async Task<HttpResponseMessage> PollAgentRun()
     {
         // Get /agents/{agentId}/runs/{runId} to check if the run is completed
@@ -403,9 +435,16 @@ public class Script : ScriptBase
 
         if (responseJson["status"]?.ToString() != "completed") { // Keep polling
             string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
+
+            // Calculate RetryAfter based on updatedTime or createdTime
+            string updatedTimeStr = responseJson["updatedTime"]?.ToString();
+            string createdTimeStr = responseJson["createdTime"]?.ToString();
+            string timeStr = !string.IsNullOrEmpty(updatedTimeStr) ? updatedTimeStr : createdTimeStr;
+            int retryAfter = CalculateRetryAfter(timeStr, request);
+
             var acceptedResponse = new HttpResponseMessage(HttpStatusCode.Accepted);
             acceptedResponse.Headers.Add("Location", $"{url}");
-            acceptedResponse.Headers.Add("Retry-After", "20");
+            acceptedResponse.Headers.Add("Retry-After", retryAfter.ToString());
             return acceptedResponse;
         }
         else {  // Return results from run
