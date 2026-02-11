@@ -19,6 +19,7 @@ This connector supports the following operations:
 ### Extract Data From Document
 Extract data from documents like invoices, receipts, order confirmations. 
 Toggle waitForResult to False if you want to run this operation asynchronously and handle the result in another flow.
+Use the trigger "Extracted Data from Document" to handle the result asynchronously in another flow.
 
 ### Extracted Data From Document
 Trigger that runs when data is extracted from a document. 
