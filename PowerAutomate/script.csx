@@ -193,9 +193,13 @@ public class Script : ScriptBase
         if (waitForResult) {
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
+            int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
+            if (request.Headers.TryGetValues("minWait", out var minVals))
+                int.TryParse(minVals.FirstOrDefault(), out retryAfter);
+            retryAfter = Math.Max(Script.MIN_RETRY_TIME_SECONDS, retryAfter);
             response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}");
             response.StatusCode = HttpStatusCode.Accepted;
-            response.Headers.Add("Retry-After", "20");
+            response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
         }
         return response;
