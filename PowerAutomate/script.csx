@@ -513,11 +513,11 @@ public class Script : ScriptBase
     {
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
-        string agentId = request.Headers.GetValues("AgentId").FirstOrDefault();
+        string agentId = request.Headers.TryGetValues("AgentId", out var v) ? v.FirstOrDefault() : null;
 
         if (string.IsNullOrWhiteSpace(agentId)) { // Find agentId from actionId
             request.Headers.Add("Authorization", $"Bearer {accessToken}");
-            string actionId = request.Headers.GetValues("ActionId").FirstOrDefault();
+            string actionId = request.Headers.TryGetValues("ActionId", out var va) ? va.FirstOrDefault() : null;
 
             if (string.IsNullOrWhiteSpace(actionId)) {
                 throw new Exception("ActionId header is empty. Please contact support@cradl.ai");
