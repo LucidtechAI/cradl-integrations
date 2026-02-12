@@ -12,35 +12,35 @@ Cradl AI is a no-code AI platform for automating internal document workflows. Cr
 
 A free Cradl AI account. If you don't already have one, you can sign up for free [here](https://cradl.ai/).
 
-## Supported Operations
+## Supported operations
 
 This connector supports the following operations:
 
-### Extract Data From Document
+### Extract data from document
 Extract data from documents like invoices, receipts, order confirmations. 
 Toggle waitForResult to False if you want to run this operation asynchronously and handle the result in another flow.
 Use the trigger "Extracted Data from Document" to handle the result asynchronously in another flow.
 
-### Extracted Data From Document
+### Extracted data from document
 Trigger that runs when data is extracted from a document. 
 
-### Validate Trigger Output
+### Validate trigger output
 Validate output from trigger, to make sure that the output originates from Cradl.
 
-### Get Document 
+### Get document 
 Get the content of a document.
 
-### Get Document Metadata
+### Get document metadata
 Get metadata like name and content-type from a document.
 
-### Create Document (deprecated)
+### Create document (deprecated)
 Create a new document.
 
-### Parse Document with Human-in-the-Loop (deprecated)
+### Parse document with Human-in-the-Loop (deprecated)
 
 Parse a document with *Flows*. This operation runs asynchronous.
 
-### Parse Document (deprecated)
+### Parse document (deprecated)
 
 Parse a document by calling the model directly. This operation runs synchronously.
 
@@ -58,20 +58,20 @@ This quick start guide aims to provide a basic overview how Cradl AI can be inte
 It reduces the risk of using AI Agents in production since you can send uncertain documents to a *human-in-the-loop* when necessary. 
 By adjusting *confidence thresholds* of your agent, you can decide when a document should be sent to manual verification and when it's allowed to pass straight through. 
 
-### 2. Configure a Power Automate Trigger
+### 2. Configure a Power Automate trigger
 
 Navigate to your Cradl AI Agent, in the *Trigger* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the action "Extract Data from Document" from Cradl AI. 
 Open the dropdown menu for the parameter *Agent* and choose the Agent you just modified in Cradl AI.
 Make sure you have a Trigger in your Power Automate Flow that has a valid file as output.
 
-### 3. Configure a Power Automate Export 
+### 3. Configure a Power Automate export 
 
 navigate to your Cradl AI Agent, in the *Export* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the trigger "Extracted Data from Document" from Cradl AI. 
 Open the dropdown menu for the parameter *Export Action* and choose the Action you just created in Cradl AI.
 
-## Known Issues and Limitations
+## Known issues and limitations
 
 See [API Limits](https://docs.cradl.ai/reference/quotas).
 
@@ -89,7 +89,7 @@ One per _document process_. For example, if you want to automate an expense appr
 
 Please refer to our to our [Data Processing Agreement](https://docs.cradl.ai/legal/dpa) and [Privacy Policy](https://docs.cradl.ai/legal/privacy-policy) for more information about how personal data is processed.
 
-## Deployment Instructions
+## Deployment instructions
 
 Refer the documentation [here](https://learn.microsoft.com/en-us/connectors/custom-connectors/paconn-cli) to deploy this connector as a custom connector in Microsoft Power Automate and Power Apps.
 

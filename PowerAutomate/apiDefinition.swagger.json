@@ -34,7 +34,7 @@
   "paths": {
     "/documents": {
       "post": {
-        "summary": "Create Document (deprecated)",
+        "summary": "Create document (deprecated)",
         "operationId": "CreateDocumentDeprecated",
         "description": "Create a document.",
         "consumes": [
@@ -78,7 +78,7 @@
     },
     "/metadata/{documentId}": {
       "get": {
-        "summary": "Get Document Metadata",
+        "summary": "Get document metadata",
         "operationId": "GetDocumentMetadata",
         "description": "Get metadata like name and content-type from a document.",
         "x-ms-visibility": "important",
@@ -108,12 +108,12 @@
                 },
                 "name": {
                   "type": "string",
-                  "x-ms-summary": "Document Name",
+                  "x-ms-summary": "Document name",
                   "description": "The name of the Document"
                 },
                 "contentType": {
                   "type": "string",
-                  "x-ms-summary": "Content Type",
+                  "x-ms-summary": "Content type",
                   "description": "Content Type of the Document"
                 }
               }
@@ -124,7 +124,7 @@
     },
     "/documents/{documentId}": {
       "get": {
-        "summary": "Get Document",
+        "summary": "Get document",
         "operationId": "GetDocument",
         "description": "Get the content of the Document.",
         "consumes": [
@@ -154,7 +154,7 @@
     },
     "/predictions": {
       "post": {
-        "summary": "Parse Document (deprecated)",
+        "summary": "Parse document (deprecated)",
         "operationId": "ParseDocumentDeprecated",
         "description": "Extract data from documents like invoices, receipts, order confirmations.",
         "consumes": [
@@ -271,7 +271,7 @@
     },
     "/models": {
       "get": {
-        "summary": "Get My Models (deprecated)",
+        "summary": "Get my models (deprecated)",
         "operationId": "GetModelsDeprecated",
         "x-ms-visibility": "internal",
         "description": "Get a list of available models.",
@@ -294,7 +294,7 @@
     },
     "/agents": {
       "post": {
-        "summary": "Extract Data From Document",
+        "summary": "Extract data from document",
         "operationId": "CreateRun",
         "description": "Extract data from documents like invoices, receipts, order confirmations.",
         "consumes": [
@@ -331,7 +331,7 @@
             "in": "header",
             "name": "waitForResult",
             "required": false,
-            "x-ms-summary": "Wait For Result",
+            "x-ms-summary": "Wait for result",
             "x-ms-skip-url-encoding": true,
             "description": "Set to 'No' to just initialize the data extraction without waiting for the result.",
             "type": "boolean",
@@ -339,22 +339,11 @@
           },
           {
             "in": "header",
-            "name": "minWait",
+            "name": "maxWaitInterval",
             "required": false,
-            "x-ms-summary": "Min Wait Between Polls",
+            "x-ms-summary": "Max wait interval",
             "x-ms-skip-url-encoding": true,
-            "description": "The minimum number of seconds before polling again when using waitForResult",
-            "type": "integer",
-            "format": "int32",
-            "x-ms-visibility": "advanced"
-          },
-          {
-            "in": "header",
-            "name": "maxWait",
-            "required": false,
-            "x-ms-summary": "Max Wait Between Polls",
-            "x-ms-skip-url-encoding": true,
-            "description": "The maximum number of seconds before polling again when using waitForResult",
+            "description": "The maximum number of minutes to wait before attempting to fetch again.",
             "type": "integer",
             "format": "int32",
             "x-ms-visibility": "advanced"
@@ -422,7 +411,7 @@
         }
       },
       "get": {
-        "summary": "Get My Agents",
+        "summary": "Get my agents",
         "operationId": "GetAgents",
         "description": "Get a list of available agents.",
         "x-ms-visibility": "internal",
@@ -470,7 +459,7 @@
             "schema": {}
           }
         },
-        "summary": "Validate Trigger Output",
+        "summary": "Validate trigger output",
         "description": "Validate output from trigger.",
         "operationId": "Validate",
         "consumes": [
@@ -537,7 +526,7 @@
       },
       "post": {
         "x-ms-trigger": "single",
-        "summary": "Extracted Data From Document",
+        "summary": "Extracted data from document",
         "description": "This operation triggers when data is extracted from your document.",
         "operationId": "RunCompleted",
         "parameters": [
@@ -546,7 +535,7 @@
             "name": "ActionId",
             "required": true,
             "x-ms-skip-url-encoding": true,
-            "x-ms-summary": "Export Action",
+            "x-ms-summary": "Export action",
             "description": "Id of the action that defines the export.",
             "type": "string",
             "x-ms-visibility": "important",
@@ -637,7 +626,7 @@
         }
       },
       "get": {
-        "summary": "Get My Actions",
+        "summary": "Get my actions",
         "operationId": "GetActions",
         "description": "Get a list of available actions.",
         "x-ms-visibility": "internal",
@@ -679,7 +668,7 @@
     },
     "/actions/{actionId}": {
       "delete": {
-        "summary": "Delete Trigger",
+        "summary": "Delete trigger",
         "description": "Don't act when a run completes.",
         "x-ms-visibility": "internal",
         "operationId": "DeleteTrigger",
@@ -711,7 +700,7 @@
     },
     "/schema": {
       "get": {
-        "summary": "Get Schema",
+        "summary": "Get schema",
         "operationId": "GetSchema",
         "x-ms-visibility": "internal",
         "description": "Get the schema for the agent run output",
@@ -773,7 +762,7 @@
     },
     "/agents/{agentId}/runs/{runId}": {
       "get": {
-        "summary": "Get Agent Run Info",
+        "summary": "Get agent run info",
         "description": "Get info from run, and return the full output if the run has completed",
         "operationId": "GetAgentRun",
         "x-ms-long-running-operation": true,
@@ -812,7 +801,7 @@
     },
     "/workflows": {
       "post": {
-        "summary": "Parse Document With Human-in-the-Loop (deprecated)",
+        "summary": "Parse document with human-in-the-Loop (deprecated)",
         "operationId": "CreateExecutionDeprecated",
         "description": "Extract data from documents like invoices, receipts, order confirmations.",
         "consumes": [
@@ -881,7 +870,7 @@
         }
       },
       "get": {
-        "summary": "Get My Workflows (deprecated)",
+        "summary": "Get my workflows (deprecated)",
         "operationId": "GetWorkflowsDeprecated",
         "description": "Get a list of available workflows.",
         "x-ms-visibility": "internal",

@@ -194,9 +194,6 @@ public class Script : ScriptBase
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
-            if (request.Headers.TryGetValues("minWait", out var minVals))
-                int.TryParse(minVals.FirstOrDefault(), out retryAfter);
-            retryAfter = Math.Max(Script.MIN_RETRY_TIME_SECONDS, retryAfter);
             response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}");
             response.StatusCode = HttpStatusCode.Accepted;
             response.Headers.Add("Retry-After", retryAfter.ToString());
@@ -405,16 +402,13 @@ public class Script : ScriptBase
         );
         secondsSinceEvent = (now - eventTime).TotalSeconds;
 
-        // Get min/max from headers (default to 20/900 if not present)
+        // Get min/max wait time from
         int minRetry = Script.MIN_RETRY_TIME_SECONDS, maxRetry = Script.MAX_RETRY_TIME_SECONDS;
-        if (request.Headers.TryGetValues("minWait", out var minVals))
-            int.TryParse(minVals.FirstOrDefault(), out minRetry);
-        if (request.Headers.TryGetValues("maxWait", out var maxVals))
+        if (request.Headers.TryGetValues("maxWaitInterval", out var maxVals))
             int.TryParse(maxVals.FirstOrDefault(), out maxRetry);
 
-        // Do not allow users to configure these times to something smaller than our limits
-        minRetry = Math.Max(Script.MIN_RETRY_TIME_SECONDS, minRetry);
-        maxRetry = Math.Max(Script.MAX_RETRY_TIME_SECONDS, maxRetry);
+        // Do not allow users to configure max time to be less than the default minimum time
+        maxRetry = Math.Max(Script.MIN_RETRY_TIME_SECONDS, maxRetry);
 
         // Calculate wait time: half the time since event, but clamp to [minRetry, maxRetry]
         int retryAfter = minRetry;
