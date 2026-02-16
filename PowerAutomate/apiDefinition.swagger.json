@@ -771,11 +771,15 @@
             "name": "agentId",
             "in": "path",
             "required": true,
+            "x-ms-summary": "AgentId",
+            "description": "The id of the agent.",
             "type": "string"
           },
           {
             "name": "runId",
             "in": "path",
+            "x-ms-summary": "RunId",
+            "description": "The id of the agent run.",
             "required": true,
             "type": "string"
           }
