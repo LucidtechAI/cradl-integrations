@@ -405,6 +405,14 @@
                     "parameter": "AgentId"
                   }
                 }
+              },
+              "x-ms-dynamic-properties": {
+                "operationId": "GetSchema",
+                "parameters": {
+                  "AgentId": {
+                    "parameterReference": "AgentId"
+                  }
+                }
               }
             }
           }
@@ -513,6 +521,14 @@
             "parameters": {
               "ActionId": {
                 "parameter": "ActionId"
+              }
+            }
+          },
+          "x-ms-dynamic-properties": {
+            "operationId": "GetSchema",
+            "parameters": {
+              "ActionId": {
+                "parameterReference": "ActionId"
               }
             }
           }
