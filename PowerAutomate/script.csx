@@ -571,10 +571,20 @@ public class Script : ScriptBase
         JObject contentGetModel = await ToJson(responseGetModel);
         var schema = CreateJsonSchema((JObject) contentGetModel["fieldConfig"]);
 
-        return new HttpResponseMessage(HttpStatusCode.OK)
+        var response = new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = new StringContent(schema.ToString(), Encoding.UTF8, "application/json")
         };
+        response.Headers.CacheControl = new CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true,
+            MaxAge = TimeSpan.Zero,
+            MustRevalidate = true
+        };
+        response.Headers.Pragma.ParseAdd("no-cache");
+        response.Content.Headers.Expires = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        return response;
     }
 
     private async Task<HttpResponseMessage> SetupTrigger()
@@ -611,6 +621,15 @@ public class Script : ScriptBase
 
         // Set Location in header to allow teardown of the trigger
         response.Headers.Add("location", $"{Script.API_ENDPOINT}/actions/{actionId}");
+        response.Headers.CacheControl = new CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true,
+            MaxAge = TimeSpan.Zero,
+            MustRevalidate = true
+        };
+        response.Headers.Pragma.ParseAdd("no-cache");
+        response.Content.Headers.Expires = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         return response;
     }
