@@ -529,7 +529,10 @@ public class Script : ScriptBase
             var contentGetAction = await ToJson(responseGetAction);
             agentId = contentGetAction["agentId"]?.ToString();
 
-            if (string.IsNullOrWhiteSpace(agentId)) {
+            if (!responseGetAction.IsSuccessStatusCode) {
+                throw new Exception($"{actionId} is not valid, try refreshing or contact support@cradl.ai");
+            }
+            else if (string.IsNullOrWhiteSpace(agentId)) {
                 throw new Exception($"agentId is missing in action {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
             }
         }
