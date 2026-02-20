@@ -235,12 +235,27 @@ public class Script : ScriptBase
 
         // Filter actions and add agent name as additional info
         JArray exportActions = new JArray();
-        foreach (var action in content["actions"]) {
-            if ((string) action["functionId"] == "cradl:organization:cradl/cradl:function:export-to-power-automate"){
-              string action_name = action["name"]?.ToString();
-              string agent_name = agents[action["agentId"].ToString()].ToString();
-              action["name"] = $"{action_name} from Agent \"{agent_name}\"";
-              exportActions.Add(action);
+
+        var actions = content["actions"] as JArray;
+        if (actions == null) {
+            throw new Exception("No actions defined in your organizations");
+        }
+
+        foreach (var action in actions.OfType<JObject>())
+        {
+            var functionId = action["functionId"]?.ToString();
+
+            if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate") {
+                var actionName = action["name"]?.ToString() ?? "Unnamed action";
+                var agentId = action["agentId"]?.ToString();
+
+                if (!string.IsNullOrEmpty(agentId) &&
+                    agents.TryGetValue(agentId, out var agentValue) &&
+                    agentValue != null)
+                {
+                    action["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\"";
+                    exportActions.Add(action);
+                }
             }
         }
         content["actions"] = exportActions;
