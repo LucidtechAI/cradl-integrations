@@ -1,6 +1,6 @@
 ## Cradl AI
 
-Cradl AI is a no-code AI platform for automating internal document workflows. Cradl AI enables you to:
+Cradl AI empowers organizations to automate any document workflow with purpose-built AI agents. Fast, flexible and zero code.
 
 🚀️ Create customized AI Agents for any document type in any Latin-based language. <br />
 👍 Deploy a fully fledged *human-in-the-loop* validation UI with one click <br />
