@@ -2,9 +2,10 @@
 
 Cradl AI empowers organizations to automate any document workflow with purpose-built AI agents. Fast, flexible and zero code.
 
-🚀️ Create customized AI Agents for any document type in any Latin-based language. <br />
-👍 Deploy a fully fledged *human-in-the-loop* validation UI with one click <br />
-🎉️ Automatically improve your *Agent* based on feedback from end users.<br />
+🚀️ Create custom AI agents to extract structured data from any document type. <br />
+👍 Route low-confidence AI predictions to a built-in human-in-the-loop validation interface. <br />
+🎉️ Continuously improve your *agent* using feedback from end users. <br />
+
 
 ## Publisher: Cradl AI
 
@@ -46,7 +47,7 @@ Parse a document by calling the model directly. This operation runs synchronousl
 
 ## Obtaining Credentials
 
-Log into Cradl AI, and in your *Agent* select either a Power Automate trigger or export and copy `Credentials` to the *Client Credentials* field.
+Log into Cradl AI, and in your *agent* select either a Power Automate trigger or export and copy `Credentials` to the *Client Credentials* field.
 
 ## Getting Started
 
@@ -54,20 +55,20 @@ This quick start guide aims to provide a basic overview how Cradl AI can be inte
 
 ### 1. Set up an Agent 
 
-*Cradl AI Agents* enables you to automate internal document processes in a simple, effective and unified way. 
-It reduces the risk of using AI Agents in production since you can send uncertain documents to a *human-in-the-loop* when necessary. 
+*Cradl AI agents* enables you to automate internal document processes in a simple, effective and unified way. 
+It reduces the risk of using AI agents in production since you can send uncertain documents to a *human-in-the-loop* when necessary. 
 By adjusting *confidence thresholds* of your agent, you can decide when a document should be sent to manual verification and when it's allowed to pass straight through. 
 
 ### 2. Configure a Power Automate trigger
 
-Navigate to your Cradl AI Agent, in the *Trigger* section, select *Power Automate* from the list of available integrations. 
+Navigate to your Cradl AI agent, in the *Trigger* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the action "Extract Data from Document" from Cradl AI. 
-Open the dropdown menu for the parameter *Agent* and choose the Agent you just modified in Cradl AI.
+Open the dropdown menu for the parameter *agent* and choose the agent you just modified in Cradl AI.
 Make sure you have a Trigger in your Power Automate Flow that has a valid file as output.
 
 ### 3. Configure a Power Automate export 
 
-navigate to your Cradl AI Agent, in the *Export* section, select *Power Automate* from the list of available integrations. 
+navigate to your Cradl AI agent, in the *Export* section, select *Power Automate* from the list of available integrations. 
 Create a new Flow in Power Automate, and select the trigger "Extracted Data from Document" from Cradl AI. 
 Open the dropdown menu for the parameter *Export Action* and choose the Action you just created in Cradl AI.
 
@@ -81,9 +82,9 @@ See [API Limits](https://docs.cradl.ai/reference/quotas).
 
 JPEG, PNG, PDF, WEBP and TIFF.
 
-### How many `Agents` do I need?
+### How many `agents` do I need?
 
-One per _document process_. For example, if you want to automate an expense approval process where you process receipts, invoices and airline tickets, we recommend using one `Agent` even if you process multiple document types with different layouts.
+One per _document process_. For example, if you want to automate an expense approval process where you process receipts, invoices and airline tickets, we recommend using one `agent` even if you process multiple document types with different layouts.
 
 ### Where is my data stored?
 
@@ -92,21 +93,3 @@ Please refer to our to our [Data Processing Agreement](https://docs.cradl.ai/leg
 ## Deployment instructions
 
 Refer the documentation [here](https://learn.microsoft.com/en-us/connectors/custom-connectors/paconn-cli) to deploy this connector as a custom connector in Microsoft Power Automate and Power Apps.
-
-As of 17.09.2025 These are the necessary steps: 
-```
-# Create two solutions in Power Automate. One that contains only the connector, and another that contains the connector and one or more example flows.
-# Export the two solutions, lets call them ConnectorSolution.zip and FlowSolution.zip
-mkdir CradlConnector
-cd CradlConnector
-mkdir PkgAssets
-cp /path/to/readme.md intro.md
-cp /path/to/ConnectorSolution.zip PkgAssets
-cp /path/to/FlowSolution.zip PkgAssets
-zip -r package.zip PkgAssets/              
-zip -r SubmissionPackage.zip intro.md package.zip
-# Upload SubmissionPackage.zip to Azure
-# Rightclick and choose Generate SAS
-# Make sure to set the expiry date to at least 15 days from now 
-# Paste the URL into your Marketplace offer
-```
