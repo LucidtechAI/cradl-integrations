@@ -329,6 +329,34 @@
           },
           {
             "in": "header",
+            "name": "ActionId",
+            "required": true,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Action",
+            "description": "Select your export action.",
+            "type": "string",
+            "x-ms-dynamic-values": {
+              "operationId": "GetActions",
+              "value-path": "actionId",
+              "value-title": "name",
+              "value-collection": "actions",
+              "parameters": {
+                "AgentId": { "parameter": "AgentId" }
+              }
+            },
+            "x-ms-dynamic-list": {
+              "operationId": "GetActions",
+              "itemsPath": "actions",
+              "itemValuePath": "actionId",
+              "itemTitlePath": "name",
+              "parameters": {
+                "AgentId": { "parameterReference": "AgentId" }
+              }
+            },
+            "x-ms-visibility": "important"
+          },
+          {
+            "in": "header",
             "name": "waitForResult",
             "required": false,
             "x-ms-summary": "Wait for result",
