@@ -187,10 +187,35 @@ public class Script : ScriptBase
 
         // Create Document handle
         string fileName = request.Headers.TryGetValues("title", out var title) ? title.FirstOrDefault() : "Untitled";
-        string documentId = await CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
-        response.Headers.Add("documentId", documentId);
+        // Start CreateDocument task asynchronously
+        var createDocumentTask = CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
 
-        if (waitForResult) {
+        // Continue with the rest of the logic while document is uploading
+        string actionId = request.Headers.GetValues("ActionId").First();
+        var requestGetAction = CreateAuthorizedRequest(
+            method: HttpMethod.Get,
+            path: $"/actions/{actionId}",
+            accessToken: accessToken
+        );
+        var responseGetAction = await this.Context.SendAsync(requestGetAction, this.CancellationToken);
+        var contentGetAction = await ToJson(responseGetAction);
+
+        var isWaitForResultTrue = false;
+        if (contentGetAction is JObject obj)
+        {
+            var config = obj["config"] as JObject;
+            if (config != null && config["waitForResult"] != null)
+            {
+                var waitForResultToken = config["waitForResult"];
+                if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true)
+                {
+                    isWaitForResultTrue = true;
+                }
+            }
+        }
+
+        if (isWaitForResultTrue)
+        {
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
@@ -199,6 +224,10 @@ public class Script : ScriptBase
             response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
         }
+
+        // Await the document creation only when needed
+        string documentId = await createDocumentTask;
+        response.Headers.Add("documentId", documentId);
         return response;
     }
 
@@ -283,6 +312,19 @@ public class Script : ScriptBase
             }
         }
         content["actions"] = exportActions;
+
+        if (exportActions.Count == 0)
+        {
+            // Compose a helpful message for the user
+            string waitForResultMsg = "";
+            if (headerWaitForResult.HasValue)
+                waitForResultMsg = headerWaitForResult.Value.ToString().ToLower();
+            else
+                waitForResultMsg = "(not set)";
+
+            content["message"] = $"No matching export actions found. Please go to the workflow setup of your agent and make sure you have a Power Automate export action with waitForResult={waitForResultMsg}.";
+        }
+
         response.Content = CreateJsonContent(content.ToString());
         return response;
     }
