@@ -850,5 +850,42 @@ public class Script : ScriptBase
 
         return token;
     }
+
+    private async Task<JObject> CreateExportAction(string agentId, string workflowId, string accessToken)
+    {
+        // Generate a shared secret header
+        var headers = new JArray
+        {
+            new JObject
+            {
+                ["key"] = "Cradl-Shared-Secret",
+                ["value"] = Guid.NewGuid().ToString()
+            }
+        };
+
+        var payload = new JObject
+        {
+            ["name"] = "Export to Power Automate",
+            ["agentId"] = agentId,
+            ["functionId"] = "cradl:organization:cradl/cradl:function:export-to-power-automate",
+            ["config"] = new JObject
+            {
+                ["workflowId"] = workflowId,
+                ["waitForResult"] = true,
+                ["headers"] = headers
+            }
+        };
+
+        var request = CreateAuthorizedRequest(HttpMethod.Post, "/actions", accessToken);
+        request.Content = new StringContent(payload.ToString(), Encoding.UTF8, "application/json");
+        var response = await this.Context.SendAsync(request, this.CancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Failed to create export action: {errorContent}");
+        }
+        var createdAction = await ToJson(response);
+        return createdAction;
+    }
 }
 
