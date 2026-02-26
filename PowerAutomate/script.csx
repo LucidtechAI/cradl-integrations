@@ -624,7 +624,6 @@ public class Script : ScriptBase
 
         // Reassign headers back to config
         content["config"]["headers"] = headers;
-        content["config"]["waitForResult"] = null; // this is only set to true when using polling
 
         // Build PATCH request
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
