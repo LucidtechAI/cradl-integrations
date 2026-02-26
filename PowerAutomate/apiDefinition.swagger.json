@@ -562,7 +562,7 @@
               "value-path": "actionId",
               "parameters": {
                 "waitForResult": {
-                  "value": false
+                  "staticParameter": "yes"
                 }
               }
             },
@@ -573,7 +573,7 @@
               "itemValuePath": "actionId",
               "parameters": {
                 "waitForResult": {
-                  "value": false
+                  "value": "yes"
                 }
               }
             }
