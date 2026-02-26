@@ -569,17 +569,6 @@
             "description": "The ID of the action that defines the export.",
             "type": "string",
             "x-ms-visibility": "important",
-            "x-ms-dynamic-values": {
-              "operationId": "GetActions",
-              "value-collection": "actions",
-              "value-title": "name",
-              "value-path": "actionId",
-              "parameters": {
-                "waitForResult": {
-                  "staticParameter": "yes"
-                }
-              }
-            },
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
               "itemsPath": "actions",
@@ -587,7 +576,7 @@
               "itemValuePath": "actionId",
               "parameters": {
                 "waitForResult": {
-                  "value": "yes"
+                  "value": "no"
                 }
               }
             }
