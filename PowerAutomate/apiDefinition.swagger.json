@@ -341,7 +341,6 @@
               "value-title": "name",
               "value-collection": "actions",
               "parameters": {
-                "AgentId": { "parameter": "AgentId" },
                 "waitForResult": { "value": true}
               }
             },
@@ -351,21 +350,10 @@
               "itemValuePath": "actionId",
               "itemTitlePath": "name",
               "parameters": {
-                "AgentId": { "parameterReference": "AgentId" },
                 "waitForResult": { "value": true}
               }
             },
             "x-ms-visibility": "important"
-          },
-          {
-            "in": "header",
-            "name": "waitForResult",
-            "required": false,
-            "x-ms-summary": "Wait for result",
-            "x-ms-skip-url-encoding": true,
-            "description": "Set to 'No' to start data extraction without waiting for the result.",
-            "type": "boolean",
-            "x-ms-visibility": "advanced"
           },
           {
             "in": "header",
@@ -687,7 +675,28 @@
         "consumes": [
           "application/json"
         ],
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "header",
+            "name": "waitForResult",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Only Synchronous Exports",
+            "description": "Filter async or sync export actions",
+            "x-ms-visibility": "internal",
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "AgentId",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Only show actions for this agent",
+            "description": "Agent Id to filter actions",
+            "x-ms-visibility": "internal",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",

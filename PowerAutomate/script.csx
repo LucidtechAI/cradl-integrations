@@ -301,13 +301,18 @@ public class Script : ScriptBase
             if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match) {
                 var actionName = action["name"]?.ToString() ?? "Unnamed action";
                 var agentId = action["agentId"]?.ToString();
+                var actionId = action["actionId"]?.ToString();
 
                 if (!string.IsNullOrEmpty(agentId) &&
                     agents.TryGetValue(agentId, out var agentValue) &&
                     agentValue != null)
                 {
-                    action["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\"";
-                    exportActions.Add(action);
+                    // Ensure actionId and name are present
+                    var actionObj = new JObject {
+                        ["actionId"] = actionId,
+                        ["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\""
+                    };
+                    exportActions.Add(actionObj);
                 }
             }
         }
