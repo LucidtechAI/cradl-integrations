@@ -497,7 +497,21 @@
             "x-ms-summary": "ActionId",
             "required": true,
             "description": "The ID of the trigger action (cradl:action:xxx).",
-            "type": "string"
+            "type": "string",
+            "x-ms-dynamic-values": {
+              "operationId": "GetActions",
+              "value-path": "actionId",
+              "value-title": "name",
+              "value-collection": "actions",
+              "parameters": {}
+            },
+            "x-ms-dynamic-list": {
+              "operationId": "GetActions",
+              "itemsPath": "actions",
+              "itemValuePath": "actionId",
+              "itemTitlePath": "name",
+              "parameters": {}
+            }
           },
           {
             "name": "X-Cradl-Shared-Secret",
@@ -652,8 +666,8 @@
       "get": {
         "summary": "Get my actions",
         "operationId": "GetActions",
-        "x-ms-visibility": "internal",
         "description": "Retrieve a list of available actions.",
+        "x-ms-visibility": "internal",
         "consumes": [
           "application/json"
         ],
@@ -662,16 +676,20 @@
             "in": "header",
             "name": "waitForResult",
             "required": false,
+            "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Only Synchronous Exports",
             "description": "Filter async or sync export actions",
+            "x-ms-visibility": "internal",
             "type": "string"
           },
           {
             "in": "header",
             "name": "AgentId",
             "required": false,
+            "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Only show actions for this agent",
             "description": "Agent Id to filter actions",
+            "x-ms-visibility": "internal",
             "type": "string"
           }
         ],
