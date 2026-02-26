@@ -341,7 +341,8 @@
               "value-title": "name",
               "value-collection": "actions",
               "parameters": {
-                "AgentId": { "parameter": "AgentId" }
+                "AgentId": { "parameter": "AgentId" },
+                "waitForResult": { "value": true}
               }
             },
             "x-ms-dynamic-list": {
@@ -350,7 +351,8 @@
               "itemValuePath": "actionId",
               "itemTitlePath": "name",
               "parameters": {
-                "AgentId": { "parameterReference": "AgentId" }
+                "AgentId": { "parameterReference": "AgentId" },
+                "waitForResult": { "value": true}
               }
             },
             "x-ms-visibility": "important"
@@ -585,17 +587,25 @@
             "x-ms-visibility": "important",
             "x-ms-dynamic-values": {
               "operationId": "GetActions",
-              "value-path": "actionId",
-              "value-title": "name",
               "value-collection": "actions",
-              "parameters": {}
+              "value-title": "name",
+              "value-path": "actionId",
+              "parameters": {
+                "waitForResult": {
+                  "value": false
+                }
+              }
             },
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
               "itemsPath": "actions",
-              "itemValuePath": "actionId",
               "itemTitlePath": "name",
-              "parameters": {}
+              "itemValuePath": "actionId",
+              "parameters": {
+                "waitForResult": {
+                  "value": false
+                }
+              }
             }
           },
           {
