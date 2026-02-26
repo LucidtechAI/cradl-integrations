@@ -431,6 +431,9 @@
                 "parameters": {
                   "AgentId": {
                     "parameter": "AgentId"
+                  },
+                  "CreateExportAction": {
+                    "value": true
                   }
                 }
               },
@@ -439,6 +442,9 @@
                 "parameters": {
                   "AgentId": {
                     "parameterReference": "AgentId"
+                  },
+                  "CreateExportAction": {
+                    "value": true
                   }
                 }
               }
@@ -767,7 +773,16 @@
             "x-ms-summary": "Action",
             "description": "The action that defines the schema.",
             "type": "string"
-          }
+          },
+          {
+            "in": "header",
+            "name": "CreateExportAction",
+            "required": false,
+            "x-ms-summary": "Create Export Action",
+            "description": "Create a new export action for the given agent if it doesn't exist for this flow already.",
+            "type": "boolean",
+            "default": false
+          },
         ],
         "responses": {
           "200": {

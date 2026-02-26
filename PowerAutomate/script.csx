@@ -566,6 +566,47 @@ public class Script : ScriptBase
             throw new Exception($"resourceIds not found in /agents/{agentId} response. Create a new agent or contact support@cradl.ai");
         }
 
+        // See if an export action already exists for this agent, if not create a hook and a new export action
+        // 1. Get all actions
+        var requestGetActions = CreateAuthorizedRequest(
+            method: HttpMethod.Get,
+            path: "/actions",
+            accessToken: accessToken
+        );
+        var responseGetActions = await this.Context.SendAsync(requestGetActions, this.CancellationToken);
+        var actionsJson = await ToJson(responseGetActions);
+        var actions = actionsJson["actions"] as JArray;
+
+        // 2. Get workflowId from header
+        var workflowId = request.Headers.TryGetValues("x-ms-workflow-id", out var workflowIdValues) ? workflowIdValues.FirstOrDefault() : null;
+        if (string.IsNullOrEmpty(workflowId)) {
+            throw new Exception("x-ms-workflow-id header is missing in the request");
+        }
+
+        JObject matchingAction = null;
+        foreach (var action in actions) {
+            var functionId = action["functionId"]?.ToString();
+            var actionId = action["id"]?.ToString();
+            var config = action["config"] as JObject;
+            var actionWorkflowId = config?["workflowId"]?.ToString();
+            var waitForResult = config?["waitForResult"]?.ToObject<bool?>();
+
+            // Check all four conditions
+            if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate"
+                && resources.Any(r => r.ToString() == actionId)
+                && actionWorkflowId == workflowId
+                && waitForResult == true)
+            {
+                matchingAction = (JObject)action;
+                break;
+            }
+        }
+
+        if (matchingAction == null) {
+            // No matching action found, create a new one
+            // ...existing code for creating a new action...
+        }
+
         // Find the model among the resourceIds (it should start with "cradl:model")
         string modelId = null;
         foreach (var resource in resources) {
@@ -624,7 +665,8 @@ public class Script : ScriptBase
 
         // Reassign headers back to config
         content["config"]["headers"] = headers;
-        content["config"]["waitForResult"] = null; // this is only set to true when using polling
+        content["config"]["waitForResult"] = false; // this is only set to true when using polling
+        content["config"]["workflowId"] = request.Headers.GetValues("x-ms-workflow-id").First();
 
         // Build PATCH request
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
