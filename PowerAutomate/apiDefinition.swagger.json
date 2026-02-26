@@ -340,18 +340,14 @@
               "value-path": "actionId",
               "value-title": "name",
               "value-collection": "actions",
-              "parameters": {
-                "waitForResult": { "value": true}
-              }
+              "parameters": {}
             },
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
               "itemsPath": "actions",
               "itemValuePath": "actionId",
               "itemTitlePath": "name",
-              "parameters": {
-                "waitForResult": { "value": true}
-              }
+              "parameters": {}
             },
             "x-ms-visibility": "important"
           },
