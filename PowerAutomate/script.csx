@@ -241,11 +241,35 @@ public class Script : ScriptBase
             throw new Exception("No actions defined in your organizations");
         }
 
+        // Parse waitForResult header as nullable bool
+        bool? headerWaitForResult = null;
+        if (request.Headers.TryGetValues("waitForResult", out var waitHeaderVals)) {
+            var headerVal = waitHeaderVals.FirstOrDefault();
+            if (!string.IsNullOrEmpty(headerVal)) {
+                if (bool.TryParse(headerVal, out var parsed)) {
+                    headerWaitForResult = parsed;
+                }
+            }
+        }
+
         foreach (var action in actions.OfType<JObject>())
         {
             var functionId = action["functionId"]?.ToString();
+            var config = action["config"] as JObject;
+            bool? actionWaitForResult = null;
+            if (config != null && config["waitForResult"] != null) {
+                if (bool.TryParse(config["waitForResult"].ToString(), out var parsedActionWait)) {
+                    actionWaitForResult = parsedActionWait;
+                }
+            }
 
-            if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate") {
+            // Only show actions where waitForResult matches header if it is defined,
+            bool match = true;
+            if (headerWaitForResult.HasValue) {
+                match = actionWaitForResult.HasValue && actionWaitForResult.Value == headerWaitForResult.Value;
+            }
+
+            if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match) {
                 var actionName = action["name"]?.ToString() ?? "Unnamed action";
                 var agentId = action["agentId"]?.ToString();
 
