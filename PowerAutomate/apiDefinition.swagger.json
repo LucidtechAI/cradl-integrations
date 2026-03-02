@@ -830,6 +830,16 @@
             "description": "The id of the agent run.",
             "required": true,
             "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "actionId",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Export Action",
+            "description": " Action that defines the export to Power Automate",
+            "x-ms-visibility": "internal",
+            "type": "string"
           }
         ],
         "responses": {

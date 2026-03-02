@@ -581,6 +581,11 @@ public class Script : ScriptBase
                     isCompleted = true;
                     break;
                 }
+                else if (!string.IsNullOrEmpty(resourceId) &&
+                         (resourceId.StartsWith("cradl:prediction:") || resourceId.StartsWith("cradl:validation:"))) {
+                    // Stop searching, do not set isCompleted
+                    break;
+                }
             }
         }
 
