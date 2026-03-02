@@ -244,6 +244,28 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
 
+        // Parse waitForResult from query parameter as nullable bool
+        bool? queryWaitForResult = null;
+        var query = request.RequestUri.Query;
+        if (!string.IsNullOrEmpty(query))
+        {
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            var waitForResultStr = queryParams.Get("waitForResult");
+            var agentStr = queryParams.Get("AgentId");
+            if (!string.IsNullOrEmpty(agentStr))
+            {
+            }
+            if (!string.IsNullOrEmpty(waitForResultStr))
+            {
+                if (waitForResultStr == "true") {
+                    queryWaitForResult = true;
+                }
+                else {
+                    queryWaitForResult = false;
+                }
+            }
+        }
+
         // Get agents to separate the different actions from one another
         var requestGetAgents = CreateAuthorizedRequest(
             method: HttpMethod.Get,
@@ -268,30 +290,6 @@ public class Script : ScriptBase
         var actions = content["actions"] as JArray;
         if (actions == null) {
             throw new Exception("No actions defined in your organizations");
-        }
-
-        // Parse waitForResult from query parameter as nullable bool
-        bool? queryWaitForResult = null;
-        var query = request.RequestUri.Query;
-        if (!string.IsNullOrEmpty(query))
-        {
-            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
-            var waitForResultStr = queryParams.Get("waitForResult");
-            var agentStr = queryParams.Get("AgentId");
-            if (!string.IsNullOrEmpty(agentStr))
-            {
-                throw new Exception($"{waitForResultStr}, {agentStr}");
-            }
-            if (!string.IsNullOrEmpty(waitForResultStr))
-            {
-                throw new Exception($"{waitForResultStr}, {agentStr}");
-                if (waitForResultStr == "true") {
-                    queryWaitForResult = true;
-                }
-                else {
-                    queryWaitForResult = false;
-                }
-            }
         }
 
         foreach (var action in actions.OfType<JObject>())
