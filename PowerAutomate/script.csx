@@ -277,9 +277,15 @@ public class Script : ScriptBase
         {
             var queryParams = System.Web.HttpUtility.ParseQueryString(query);
             var waitForResultStr = queryParams.Get("waitForResult");
+            var agentStr = queryParams.Get("AgentId");
+            if (!string.IsNullOrEmpty(agentStr))
+            {
+                throw new Exception($"{waitForResultStr}, {agentStr}");
+            }
             if (!string.IsNullOrEmpty(waitForResultStr))
             {
-                if (waitForResultStr == "yes") {
+                throw new Exception($"{waitForResultStr}, {agentStr}");
+                if (waitForResultStr == "true") {
                     queryWaitForResult = true;
                 }
                 else {

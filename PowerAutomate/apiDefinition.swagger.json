@@ -342,7 +342,10 @@
               "itemTitlePath": "name",
               "parameters": {
                 "waitForResult": {
-                  "value": "yes"
+                  "value": "true"
+                },
+                "AgentId": {
+                  "parameterReference": "AgentId"
                 }
               }
             },
@@ -573,7 +576,7 @@
               "itemValuePath": "actionId",
               "parameters": {
                 "waitForResult": {
-                  "value": "no"
+                  "value": "false"
                 }
               }
             }
