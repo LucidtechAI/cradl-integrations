@@ -335,19 +335,16 @@
             "x-ms-summary": "Action",
             "description": "Select your export action.",
             "type": "string",
-            "x-ms-dynamic-values": {
-              "operationId": "GetActions",
-              "value-path": "actionId",
-              "value-title": "name",
-              "value-collection": "actions",
-              "parameters": {}
-            },
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
               "itemsPath": "actions",
               "itemValuePath": "actionId",
               "itemTitlePath": "name",
-              "parameters": {}
+              "parameters": {
+                "waitForResult": {
+                  "value": "yes"
+                }
+              }
             },
             "x-ms-visibility": "important"
           },
