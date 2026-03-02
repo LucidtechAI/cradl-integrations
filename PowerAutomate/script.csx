@@ -270,13 +270,20 @@ public class Script : ScriptBase
             throw new Exception("No actions defined in your organizations");
         }
 
-        // Parse waitForResult header as nullable bool
-        bool? headerWaitForResult = null;
-        if (request.Headers.TryGetValues("waitForResult", out var waitHeaderVals)) {
-            var headerVal = waitHeaderVals.FirstOrDefault();
-            if (!string.IsNullOrEmpty(headerVal)) {
-                if (bool.TryParse(headerVal, out var parsed)) {
-                    headerWaitForResult = parsed;
+        // Parse waitForResult from query parameter as nullable bool
+        bool? queryWaitForResult = null;
+        var query = request.RequestUri.Query;
+        if (!string.IsNullOrEmpty(query))
+        {
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            var waitForResultStr = queryParams.Get("waitForResult");
+            if (!string.IsNullOrEmpty(waitForResultStr))
+            {
+                if (waitForResultStr == "yes") {
+                    queryWaitForResult = true;
+                }
+                else {
+                    queryWaitForResult = false;
                 }
             }
         }
@@ -292,10 +299,10 @@ public class Script : ScriptBase
                 }
             }
 
-            // Only show actions where waitForResult matches header if it is defined,
+            // Only show actions where waitForResult matches query param if it is defined,
             bool match = true;
-            if (headerWaitForResult.HasValue) {
-                match = actionWaitForResult.HasValue && actionWaitForResult.Value == headerWaitForResult.Value;
+            if (queryWaitForResult.HasValue) {
+                match = actionWaitForResult.HasValue && actionWaitForResult.Value == queryWaitForResult.Value;
             }
 
             if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match) {
@@ -322,8 +329,8 @@ public class Script : ScriptBase
         {
             // Compose a helpful message for the user
             string waitForResultMsg = "";
-            if (headerWaitForResult.HasValue)
-                waitForResultMsg = headerWaitForResult.Value.ToString().ToLower();
+            if (queryWaitForResult.HasValue)
+                waitForResultMsg = queryWaitForResult.Value.ToString().ToLower();
             else
                 waitForResultMsg = "(not set)";
 
