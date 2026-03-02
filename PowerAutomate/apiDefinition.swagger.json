@@ -330,10 +330,10 @@
           {
             "in": "header",
             "name": "ActionId",
-            "required": true,
+            "required": false,
             "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Action",
-            "description": "Select your export action.",
+            "description": "Select synchronous export action from your agent",
             "type": "string",
             "x-ms-dynamic-list": {
               "operationId": "GetActions",

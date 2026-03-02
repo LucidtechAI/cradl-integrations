@@ -165,20 +165,22 @@ public class Script : ScriptBase
         string variablesString = request.Headers.TryGetValues("variables", out var v) ? v.FirstOrDefault() : null;
         var fileContent = await this.Context.Request.Content.ReadAsByteArrayAsync();
 
-        // Redefine request and get response
+        // Always add triggerSource to variables
+        JObject variablesObj = new JObject();
         if (!string.IsNullOrEmpty(variablesString)) {
             try {
-                var variables = JObject.Parse(variablesString);
-                request.Content = CreateJsonContent(new JObject { ["variables"] = variables }.ToString());
+                variablesObj = JObject.Parse(variablesString);
             }
             catch (Exception ex) {
                 return BadRequest($"Could not parse \"variables\" from headers as JSON: {ex.Message}");
             }
             request.Headers.Remove("variables");
         }
-        else {
-            request.Content = CreateJsonContent(new JObject {}.ToString());
-        }
+        // Add triggerSource regardless
+        variablesObj["triggerSource"] = new JObject { ["value"] = "power-automate" };
+        request.Content = CreateJsonContent(new JObject { ["variables"] = variablesObj }.ToString());
+
+        // Redefine request and get response
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/agents/{agentId}/runs");
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         var response = await this.Context.SendAsync(request, this.CancellationToken);
@@ -244,8 +246,9 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
 
-        // Parse waitForResult from query parameter as nullable bool
+        // Parse waitForResult and AgentId from query parameter
         bool? queryWaitForResult = null;
+        string queryAgentId = null;
         var query = request.RequestUri.Query;
         if (!string.IsNullOrEmpty(query))
         {
@@ -254,6 +257,7 @@ public class Script : ScriptBase
             var agentStr = queryParams.Get("AgentId");
             if (!string.IsNullOrEmpty(agentStr))
             {
+                queryAgentId = agentStr;
             }
             if (!string.IsNullOrEmpty(waitForResultStr))
             {
@@ -266,27 +270,32 @@ public class Script : ScriptBase
             }
         }
 
-        // Get agents to separate the different actions from one another
-        var requestGetAgents = CreateAuthorizedRequest(
-            method: HttpMethod.Get,
-            path: $"/agents",
-            accessToken: accessToken
-        );
-        var responseGetAgents = await this.Context.SendAsync(requestGetAgents, this.CancellationToken);
-        var contentGetAgents = await ToJson(responseGetAgents);
-        JObject agents = new JObject();
-        foreach (var agent in contentGetAgents["agents"]) {
-            agents[agent["agentId"].ToString()] = agent["name"].ToString();
-        }
-
         // Get Actions
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         var response = await this.Context.SendAsync(request, this.CancellationToken);
         var content = await ToJson(response);
 
-        // Filter actions and add agent name as additional info
-        JArray exportActions = new JArray();
+        // Helper: get agent name if available
+        JObject agents = null;
+        if (string.IsNullOrEmpty(queryAgentId))
+        {
+            // Only fetch agents if not filtering by AgentId
+            var requestGetAgents = CreateAuthorizedRequest(
+                method: HttpMethod.Get,
+                path: $"/agents",
+                accessToken: accessToken
+            );
+            var responseGetAgents = await this.Context.SendAsync(requestGetAgents, this.CancellationToken);
+            var contentGetAgents = await ToJson(responseGetAgents);
+            agents = new JObject();
+            foreach (var agent in contentGetAgents["agents"])
+            {
+                agents[agent["agentId"].ToString()] = agent["name"].ToString();
+            }
+        }
 
+        // Common action filtering logic
+        JArray exportActions = new JArray();
         var actions = content["actions"] as JArray;
         if (actions == null) {
             throw new Exception("No actions defined in your organizations");
@@ -302,28 +311,43 @@ public class Script : ScriptBase
                     actionWaitForResult = parsedActionWait;
                 }
             }
-
-            // Only show actions where waitForResult matches query param if it is defined,
             bool match = true;
             if (queryWaitForResult.HasValue) {
                 match = actionWaitForResult.HasValue && actionWaitForResult.Value == queryWaitForResult.Value;
             }
-
-            if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match) {
-                var actionName = action["name"]?.ToString() ?? "Unnamed action";
-                var agentId = action["agentId"]?.ToString();
-                var actionId = action["actionId"]?.ToString();
-
-                if (!string.IsNullOrEmpty(agentId) &&
-                    agents.TryGetValue(agentId, out var agentValue) &&
-                    agentValue != null)
+            var agentId = action["agentId"]?.ToString();
+            if (!string.IsNullOrEmpty(queryAgentId))
+            {
+                // Only show actions from the specified agent
+                if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match && agentId == queryAgentId)
                 {
-                    // Ensure actionId and name are present
+                    var actionName = action["name"]?.ToString() ?? "Unnamed action";
+                    var actionId = action["actionId"]?.ToString();
                     var actionObj = new JObject {
                         ["actionId"] = actionId,
-                        ["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\""
+                        ["name"] = $"{actionName} from the selected agent"
                     };
                     exportActions.Add(actionObj);
+                }
+            }
+            else
+            {
+                // Show actions from all agents, with agent name if available
+                if (functionId == "cradl:organization:cradl/cradl:function:export-to-power-automate" && match)
+                {
+                    var actionName = action["name"]?.ToString() ?? "Unnamed action";
+                    var actionId = action["actionId"]?.ToString();
+                    if (!string.IsNullOrEmpty(agentId) &&
+                        agents != null &&
+                        agents.TryGetValue(agentId, out var agentValue) &&
+                        agentValue != null)
+                    {
+                        var actionObj = new JObject {
+                            ["actionId"] = actionId,
+                            ["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\""
+                        };
+                        exportActions.Add(actionObj);
+                    }
                 }
             }
         }
