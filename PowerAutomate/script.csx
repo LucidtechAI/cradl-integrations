@@ -557,9 +557,35 @@ public class Script : ScriptBase
             throw new Exception($"Could not poll agentRun: {request.RequestUri}");
         }
 
-        if (responseJson["status"]?.ToString() != "completed") { // Keep polling
-            string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
+        // Get actionId from query parameter
+        string actionId = null;
+        var query = request.RequestUri.Query;
+        if (!string.IsNullOrEmpty(query)) {
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            actionId = queryParams.Get("actionId");
+        }
 
+        // Parse events to determine completion
+        var events = responseJson["events"] as JArray;
+        bool isCompleted = false;
+        if (events != null && !string.IsNullOrEmpty(actionId)) {
+            for (int i = events.Count - 1; i >= 0; i--) {
+                var evt = events[i];
+                var evtActionId = evt["actionId"]?.ToString();
+                var resourceId = evt["resourceId"]?.ToString();
+                var status = evt["status"]?.ToString();
+                if (!string.IsNullOrEmpty(resourceId) &&
+                    resourceId.StartsWith(actionId) &&
+                    evtActionId == actionId &&
+                    status == "running") {
+                    isCompleted = true;
+                    break;
+                }
+            }
+        }
+
+        if (!isCompleted) { // Keep polling
+            string url = request.Headers.GetValues("X-MS-APIM-Referrer").First();
             // Calculate RetryAfter based on updatedTime or createdTime
             string updatedTimeStr = responseJson["updatedTime"]?.ToString();
             string createdTimeStr = responseJson["createdTime"]?.ToString();
@@ -591,7 +617,6 @@ public class Script : ScriptBase
 
             // Find the modelId from events
             string modelId = null;
-            var events = responseJson["events"] as JArray;
             if (events != null) {
                 foreach (var evt in events) {
                     if (evt["modelId"] != null) {
