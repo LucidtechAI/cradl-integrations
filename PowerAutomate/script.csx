@@ -193,35 +193,37 @@ public class Script : ScriptBase
         var createDocumentTask = CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
 
         // Continue with the rest of the logic while document is uploading
-        string actionId = request.Headers.GetValues("ActionId").First();
-        var requestGetAction = CreateAuthorizedRequest(
-            method: HttpMethod.Get,
-            path: $"/actions/{actionId}",
-            accessToken: accessToken
-        );
-        var responseGetAction = await this.Context.SendAsync(requestGetAction, this.CancellationToken);
-        var contentGetAction = await ToJson(responseGetAction);
-
-        var isWaitForResultTrue = false;
-        if (contentGetAction is JObject obj)
-        {
-            var config = obj["config"] as JObject;
-            if (config != null && config["waitForResult"] != null)
-            {
-                var waitForResultToken = config["waitForResult"];
-                if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true)
-                {
-                    isWaitForResultTrue = true;
+        string actionId = null;
+        bool isWaitForResultTrue = false;
+        if (request.Headers.TryGetValues("ActionId", out var actionIdValues)) {
+            actionId = actionIdValues.FirstOrDefault();
+            if (!string.IsNullOrEmpty(actionId)) {
+                var requestGetAction = CreateAuthorizedRequest(
+                    method: HttpMethod.Get,
+                    path: $"/actions/{actionId}",
+                    accessToken: accessToken
+                );
+                var responseGetAction = await this.Context.SendAsync(requestGetAction, this.CancellationToken);
+                var contentGetAction = await ToJson(responseGetAction);
+                if (contentGetAction is JObject obj) {
+                    var config = obj["config"] as JObject;
+                    if (config != null && config["waitForResult"] != null) {
+                        var waitForResultToken = config["waitForResult"];
+                        if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true) {
+                            isWaitForResultTrue = true;
+                        }
+                    }
                 }
             }
         }
 
-        if (isWaitForResultTrue)
+        if (isWaitForResultTrue && !string.IsNullOrEmpty(actionId))
         {
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
-            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}");
+            string actionIdQuery = System.Web.HttpUtility.UrlEncode(actionId);
+            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={actionIdQuery}");
             response.StatusCode = HttpStatusCode.Accepted;
             response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
