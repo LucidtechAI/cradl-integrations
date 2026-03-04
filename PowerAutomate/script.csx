@@ -575,22 +575,18 @@ public class Script : ScriptBase
                 var evtActionId = evt["actionId"]?.ToString();
                 var resourceId = evt["resourceId"]?.ToString();
                 var status = evt["status"]?.ToString();
-                if (
-                !string.IsNullOrEmpty(resourceId) &&
-                status != "succeeded" &&
-                !string.IsNullOrEmpty(evtActionId)
-                ) {
-                  throw new Exception($"Error in event {actionId}? {evt.ToString()}");
-                }
                 if (!string.IsNullOrEmpty(resourceId) &&
                     resourceId.StartsWith(actionId) &&
                     evtActionId == actionId &&
                     status == "running") {
                     isCompleted = true;
-                    succeededResourceId = resourceId;
+                    var resourceParts = resourceId.Split('/');
                     // Prepare PATCH request for action run
-                    var patchRequest = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri($"{Script.API_ENDPOINT}/runs/{succeededResourceId}"));
-                    patchRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+                    var patchRequest = CreateAuthorizedRequest(
+                        method: new HttpMethod("PATCH"),
+                        path: $"/actions/{resourceParts[0]}/runs/{resourceParts[1]}",
+                        accessToken: accessToken
+                    );
                     var patchContent = new JObject {
                         ["status"] = "succeeded",
                         ["output"] = new JObject { ["exportedToPowerAutomate"] = true }
