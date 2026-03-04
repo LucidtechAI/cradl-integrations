@@ -222,8 +222,7 @@ public class Script : ScriptBase
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
-            string actionIdQuery = System.Web.HttpUtility.UrlEncode(actionId);
-            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={actionIdQuery}");
+            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={actionId}");
             response.StatusCode = HttpStatusCode.Accepted;
             response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
@@ -327,7 +326,7 @@ public class Script : ScriptBase
                     var actionId = action["actionId"]?.ToString();
                     var actionObj = new JObject {
                         ["actionId"] = actionId,
-                        ["name"] = $"{actionName} from the selected agent"
+                        ["name"] = $"\"{actionName}\" from the selected agent"
                     };
                     exportActions.Add(actionObj);
                 }
@@ -346,7 +345,7 @@ public class Script : ScriptBase
                     {
                         var actionObj = new JObject {
                             ["actionId"] = actionId,
-                            ["name"] = $"{actionName} from Agent \"{agentValue.ToString()}\""
+                            ["name"] = $"\"{actionName}\" from Agent \"{agentValue.ToString()}\""
                         };
                         exportActions.Add(actionObj);
                     }
@@ -568,6 +567,8 @@ public class Script : ScriptBase
         // Parse events to determine completion
         var events = responseJson["events"] as JArray;
         bool isCompleted = false;
+        Task<HttpResponseMessage> patchActionRunTask = null;
+        string succeededResourceId = null;
         if (events != null && !string.IsNullOrEmpty(actionId)) {
             for (int i = events.Count - 1; i >= 0; i--) {
                 var evt = events[i];
@@ -579,6 +580,16 @@ public class Script : ScriptBase
                     evtActionId == actionId &&
                     status == "running") {
                     isCompleted = true;
+                    succeededResourceId = resourceId;
+                    // Prepare PATCH request for action run
+                    var patchRequest = new HttpRequestMessage(new HttpMethod("PATCH"), new Uri($"{Script.API_ENDPOINT}/runs/{succeededResourceId}"));
+                    patchRequest.Headers.Add("Authorization", $"Bearer {accessToken}");
+                    var patchContent = new JObject {
+                        ["status"] = "succeeded",
+                        ["output"] = new JObject { ["exportedToPowerAutomate"] = true }
+                    };
+                    patchRequest.Content = new StringContent(patchContent.ToString(), Encoding.UTF8, "application/json");
+                    patchActionRunTask = this.Context.SendAsync(patchRequest, this.CancellationToken);
                     break;
                 }
                 else if (!string.IsNullOrEmpty(resourceId) &&
@@ -650,6 +661,10 @@ public class Script : ScriptBase
                 throw new Exception($"Could not find variables. please contact support@cradl.ai");
             }
 
+            // Await the patch request before returning
+            if (patchActionRunTask != null) {
+                await patchActionRunTask;
+            }
             return new HttpResponseMessage(HttpStatusCode.OK) {
                 Content = CreateJsonContent(new JObject {
                     ["output"] = variables,
