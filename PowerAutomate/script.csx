@@ -575,6 +575,13 @@ public class Script : ScriptBase
                 var evtActionId = evt["actionId"]?.ToString();
                 var resourceId = evt["resourceId"]?.ToString();
                 var status = evt["status"]?.ToString();
+                if (
+                !string.IsNullOrEmpty(resourceId) &&
+                status != "succeeded" &&
+                !string.IsNullOrEmpty(evtActionId)
+                ) {
+                  throw new Exception($"Error in event {actionId}? {evt.ToString()}");
+                }
                 if (!string.IsNullOrEmpty(resourceId) &&
                     resourceId.StartsWith(actionId) &&
                     evtActionId == actionId &&
