@@ -808,7 +808,7 @@
         }
       }
     },
-    "/agents/{agentId}/runs/{runId}": {
+    "/poll/{agentId}/{runId}": {
       "get": {
         "summary": "Get agent run info",
         "description": "Retrieve information about a run, and return the full output if the run has completed.",
