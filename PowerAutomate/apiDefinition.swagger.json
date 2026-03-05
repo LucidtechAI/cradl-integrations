@@ -813,6 +813,7 @@
         "summary": "Get agent run info",
         "description": "Retrieve information about a run, and return the full output if the run has completed.",
         "operationId": "GetAgentRun",
+        "x-ms-visibility": "internal",
         "x-ms-long-running-operation": true,
         "parameters": [
           {
