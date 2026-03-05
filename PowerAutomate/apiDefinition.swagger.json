@@ -332,7 +332,7 @@
             "name": "ActionId",
             "required": false,
             "x-ms-skip-url-encoding": true,
-            "x-ms-summary": "Export Action",
+            "x-ms-summary": "Export action",
             "description": "Select a synchronous power automate export from your agent in Cradl",
             "type": "string",
             "x-ms-dynamic-list": {
@@ -564,9 +564,9 @@
             "in": "header",
             "name": "ActionId",
             "required": true,
+            "description": "The ID of the action that defines the export.",
             "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Export action",
-            "description": "The ID of the action that defines the export.",
             "type": "string",
             "x-ms-visibility": "important",
             "x-ms-dynamic-list": {

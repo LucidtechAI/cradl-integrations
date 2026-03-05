@@ -347,20 +347,16 @@ public class Script : ScriptBase
             }
         }
         content["actions"] = exportActions;
-
-        if (exportActions.Count == 0)
-        {
-            // Compose a helpful message for the user
-            string waitForResultMsg = "";
-            if (queryWaitForResult.HasValue)
-                waitForResultMsg = queryWaitForResult.Value.ToString().ToLower();
-            else
-                waitForResultMsg = "(not set)";
-
-            content["message"] = $"No matching export actions found. Please go to the workflow setup of your agent and make sure you have a Power Automate export action with waitForResult={waitForResultMsg}.";
-        }
-
         response.Content = CreateJsonContent(content.ToString());
+        response.Headers.CacheControl = new CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true,
+            MaxAge = TimeSpan.Zero,
+            MustRevalidate = true
+        };
+        response.Headers.Pragma.ParseAdd("no-cache");
+        response.Content.Headers.Expires = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
         return response;
     }
 
