@@ -60,7 +60,7 @@ public class Script : ScriptBase
               else if (path.StartsWith("/v1/actions/cradl:action:")){
                   return await TeardownTrigger();
               }
-              else if (path.StartsWith("/v1/poll/cradl:agent:")){
+              else if (path.StartsWith("/v1/agents/cradl:agent:")){
                   return await PollAgentRun();
               }
               else {
@@ -222,7 +222,7 @@ public class Script : ScriptBase
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
-            response.Headers.Add("Location", $"{urlPrefix}/poll/{agentId}/{agentRunId}?actionId={actionId}");
+            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={actionId}");
             response.StatusCode = HttpStatusCode.Accepted;
             response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
