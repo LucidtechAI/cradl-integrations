@@ -199,12 +199,23 @@ public class Script : ScriptBase
                 );
                 var responseGetAction = await this.Context.SendAsync(requestGetAction, this.CancellationToken);
                 var contentGetAction = await ToJson(responseGetAction);
-                if (contentGetAction is JObject obj) {
-                    var config = obj["config"] as JObject;
-                    if (config != null && config["waitForResult"] != null) {
-                        var waitForResultToken = config["waitForResult"];
-                        if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true) {
-                            isWaitForResultTrue = true;
+                var config = contentGetAction["config"] as JObject;
+                if (config != null && config["waitForResult"] != null) {
+                    var waitForResultToken = config["waitForResult"];
+                    if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true) {
+                        isWaitForResultTrue = true;
+                        // If the action is disabled, enable it, without awaiting
+                        if (contentGetAction["enabled"] == null ||
+                          (contentGetAction["enabled"].Type == JTokenType.Boolean &&
+                          contentGetAction["enabled"].Value<bool>() == false))
+                        {
+                            var patchRequest = CreateAuthorizedRequest(
+                                method: new HttpMethod("PATCH"),
+                                path: $"/actions/{actionId}",
+                                accessToken: accessToken
+                            );
+                            patchRequest.Content = CreateJsonContent(new JObject { ["enabled"] = true }.ToString());
+                            var patchResponse = this.Context.SendAsync(patchRequest, this.CancellationToken);
                         }
                     }
                 }
