@@ -155,12 +155,6 @@ public class Script : ScriptBase
         string accessToken = await GetAccessToken();
 
         // Get information from content and headers
-        bool waitForResult = true;
-
-        if (request.Headers.TryGetValues("waitForResult", out var values) && bool.TryParse(values.First(), out var parsed)) {
-            waitForResult = parsed;
-        }
-
         string agentId = request.Headers.GetValues("AgentId").First();
         string variablesString = request.Headers.TryGetValues("variables", out var v) ? v.FirstOrDefault() : null;
         var fileContent = await this.Context.Request.Content.ReadAsByteArrayAsync();
