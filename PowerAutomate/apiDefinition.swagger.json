@@ -3,7 +3,7 @@
   "info": {
     "version": "2.0",
     "title": "Cradl AI",
-    "description": "Use Cradl AI to OCR and extract structured data from PDFs, images, scans, and handwriting. Build AI agents to automate document processing and integrate extracted data into workflows in Microsoft Power Automate. Requires a Cradl AI account and a configured AI agent.",
+    "description": "Use Cradl AI to OCR and extract structured data from PDFs, images, scans, and handwriting. Build AI agents to automate document processing and integrate extracted data into your workflows. Requires a Cradl AI account and a configured AI agent.",
     "contact": {
       "name": "Cradl AI Support",
       "url": "https://www.cradl.ai",
