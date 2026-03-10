@@ -775,7 +775,7 @@ public class Script : ScriptBase
         var headers = (JArray)content["config"]?["headers"] ?? new JArray();
         headers.Add(new JObject
         {
-            ["key"] = "Cradl-Shared-Secret",
+            ["key"] = "X-Cradl-Shared-Secret",
             ["value"] = Guid.NewGuid().ToString()
         });
 
@@ -850,7 +850,7 @@ public class Script : ScriptBase
             var headers = (JArray) contentGetAction?["config"]?["headers"];
             string sharedSecret = "";
             foreach (var header in headers) {
-                if (header["key"].ToString() == "Cradl-Shared-Secret") {
+                if (header["key"].ToString() == "X-Cradl-Shared-Secret") {
                     sharedSecret = header["value"].ToString();
                     break;
                 }
@@ -861,9 +861,9 @@ public class Script : ScriptBase
             }
 
             // Get signature, URL, headers, and body from the incoming request
-            string receivedSharedSecret = this.Context.Request.Headers.TryGetValues("Cradl-Shared-Secret", out var v) ? v.FirstOrDefault() : null;
+            string receivedSharedSecret = this.Context.Request.Headers.TryGetValues("X-Cradl-Shared-Secret", out var v) ? v.FirstOrDefault() : null;
             if (string.IsNullOrEmpty(receivedSharedSecret)) {
-                return BadRequest("Missing Cradl-Shared-Secret in header.");
+                return BadRequest("Missing X-Cradl-Shared-Secret in header.");
             }
 
             // Compare to signature
