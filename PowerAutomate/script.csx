@@ -785,7 +785,11 @@ public class Script : ScriptBase
         });
 
         // Reassign headers back to config
+        string url_part1 = request.Headers.GetValues("x-ms-workflow-subscription-id").First();
+        string url_part2 = request.Headers.GetValues("x-ms-workflow-name").First();
+
         content["config"]["headers"] = headers;
+        content["config"]["flowUrl"] = $"https://make.powerautomate.com/environments/{url_part1}/flows/{url_part2}/details";
         content["enabled"] = true;
 
         // Build PATCH request
