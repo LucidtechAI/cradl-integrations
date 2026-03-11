@@ -217,14 +217,15 @@ public class Script : ScriptBase
                             path: $"/actions/{actionId}",
                             accessToken: accessToken
                         );
-                        var patchContent = new JObject { ["enabled"] = true };
-                        var configForPatch = config != null ? (JObject)config.DeepClone() : new JObject();
-                        configForPatch["waitForResult"] = true;
+                        var configForPatch = new JObject { ["waitForResult"] = true };
                         if (flowUrl != null)
                         {
                             configForPatch["flowUrl"] = flowUrl;
                         }
-                        patchContent["config"] = configForPatch;
+                        var patchContent = new JObject {
+                            ["enabled"] = true,
+                            ["config"] = configForPatch
+                        };
 
                         patchRequest.Content = CreateJsonContent(patchContent.ToString());
                         var patchResponse = this.Context.SendAsync(patchRequest, this.CancellationToken);
@@ -793,6 +794,7 @@ public class Script : ScriptBase
         // Reassign headers back to config
         content["config"]["headers"] = headers;
         content["config"]["flowUrl"] = GetFlowUrl(request);
+        content["config"]["waitForResult"] = false;
         content["enabled"] = true;
 
         // Build PATCH request
