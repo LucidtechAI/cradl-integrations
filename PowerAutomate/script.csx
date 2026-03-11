@@ -200,23 +200,28 @@ public class Script : ScriptBase
                 var responseGetAction = await this.Context.SendAsync(requestGetAction, this.CancellationToken);
                 var contentGetAction = await ToJson(responseGetAction);
                 var config = contentGetAction["config"] as JObject;
-                if (config != null && config["waitForResult"] != null) {
-                    var waitForResultToken = config["waitForResult"];
-                    if (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true) {
-                        isWaitForResultTrue = true;
-                        // If the action is disabled, enable it, without awaiting
-                        if (contentGetAction["enabled"] == null ||
-                          (contentGetAction["enabled"].Type == JTokenType.Boolean &&
-                          contentGetAction["enabled"].Value<bool>() == false))
-                        {
-                            var patchRequest = CreateAuthorizedRequest(
-                                method: new HttpMethod("PATCH"),
-                                path: $"/actions/{actionId}",
-                                accessToken: accessToken
-                            );
-                            patchRequest.Content = CreateJsonContent(new JObject { ["enabled"] = true }.ToString());
-                            var patchResponse = this.Context.SendAsync(patchRequest, this.CancellationToken);
-                        }
+                var waitForResultToken = config?["waitForResult"];
+
+                if (waitForResultToken == null || (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true))
+                {
+                    isWaitForResultTrue = true;
+                    // If the action is disabled, enable it, without awaiting
+                    if (contentGetAction["enabled"] == null ||
+                        (contentGetAction["enabled"].Type == JTokenType.Boolean &&
+                        contentGetAction["enabled"].Value<bool>() == false))
+                    {
+                        var patchRequest = CreateAuthorizedRequest(
+                            method: new HttpMethod("PATCH"),
+                            path: $"/actions/{actionId}",
+                            accessToken: accessToken
+                        );
+                        var patchContent = new JObject { ["enabled"] = true };
+                        var configForPatch = config != null ? (JObject)config.DeepClone() : new JObject();
+                        configForPatch["waitForResult"] = true;
+                        patchContent["config"] = configForPatch;
+
+                        patchRequest.Content = CreateJsonContent(patchContent.ToString());
+                        var patchResponse = this.Context.SendAsync(patchRequest, this.CancellationToken);
                     }
                 }
             }
@@ -227,7 +232,7 @@ public class Script : ScriptBase
             string agentRunId = (string) content["runId"];
             string urlPrefix = request.Headers.GetValues("X-MS-APIM-Referrer-Prefix").First();
             int retryAfter = Script.MIN_RETRY_TIME_SECONDS;
-            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={actionId}");
+            response.Headers.Add("Location", $"{urlPrefix}/agents/{agentId}/runs/{agentRunId}?actionId={Uri.EscapeDataString(actionId)}");
             response.StatusCode = HttpStatusCode.Accepted;
             response.Headers.Add("Retry-After", retryAfter.ToString());
             response.Content = null;
@@ -318,7 +323,7 @@ public class Script : ScriptBase
                 }
             }
             bool match = true;
-            if (queryWaitForResult.HasValue) {
+            if (actionWaitForResult.HasValue && queryWaitForResult.HasValue) {
                 match = actionWaitForResult.HasValue && actionWaitForResult.Value == queryWaitForResult.Value;
             }
             var agentId = action["agentId"]?.ToString();
@@ -781,6 +786,7 @@ public class Script : ScriptBase
 
         // Reassign headers back to config
         content["config"]["headers"] = headers;
+        content["enabled"] = true;
 
         // Build PATCH request
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/actions/{actionId}");
