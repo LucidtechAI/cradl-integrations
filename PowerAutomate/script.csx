@@ -202,13 +202,15 @@ public class Script : ScriptBase
                 var config = contentGetAction["config"] as JObject;
                 var waitForResultToken = config?["waitForResult"];
 
+                var flowUrl = GetFlowUrl(request);
                 if (waitForResultToken == null || (waitForResultToken.Type == JTokenType.Boolean && waitForResultToken.Value<bool>() == true))
                 {
                     isWaitForResultTrue = true;
                     // If the action is disabled, enable it, without awaiting
                     if (contentGetAction["enabled"] == null ||
                         (contentGetAction["enabled"].Type == JTokenType.Boolean &&
-                        contentGetAction["enabled"].Value<bool>() == false))
+                        contentGetAction["enabled"].Value<bool>() == false) ||
+                        (config["flowUrl"]?.ToString() != flowUrl))
                     {
                         var patchRequest = CreateAuthorizedRequest(
                             method: new HttpMethod("PATCH"),
@@ -218,6 +220,10 @@ public class Script : ScriptBase
                         var patchContent = new JObject { ["enabled"] = true };
                         var configForPatch = config != null ? (JObject)config.DeepClone() : new JObject();
                         configForPatch["waitForResult"] = true;
+                        if (flowUrl != null)
+                        {
+                            configForPatch["flowUrl"] = flowUrl;
+                        }
                         patchContent["config"] = configForPatch;
 
                         patchRequest.Content = CreateJsonContent(patchContent.ToString());
@@ -785,11 +791,8 @@ public class Script : ScriptBase
         });
 
         // Reassign headers back to config
-        string url_part1 = request.Headers.GetValues("x-ms-workflow-subscription-id").First();
-        string url_part2 = request.Headers.GetValues("x-ms-workflow-name").First();
-
         content["config"]["headers"] = headers;
-        content["config"]["flowUrl"] = $"https://make.powerautomate.com/environments/{url_part1}/flows/{url_part2}/details";
+        content["config"]["flowUrl"] = GetFlowUrl(request);
         content["enabled"] = true;
 
         // Build PATCH request
@@ -975,6 +978,20 @@ public class Script : ScriptBase
         return CreateAuthorizedRequest(method, new Uri($"{Script.API_ENDPOINT}{path}"), accessToken);
     }
 
+    private string GetFlowUrl(HttpRequestMessage request)
+    {
+        if (request.Headers.TryGetValues("x-ms-workflow-subscription-id", out var subscriptionIdValues) &&
+            request.Headers.TryGetValues("x-ms-workflow-name", out var workflowNameValues))
+        {
+            string subscriptionId = subscriptionIdValues.FirstOrDefault();
+            string workflowName = workflowNameValues.FirstOrDefault();
+            if (!string.IsNullOrEmpty(subscriptionId) && !string.IsNullOrEmpty(workflowName))
+            {
+                return $"https://make.powerautomate.com/environments/{subscriptionId}/flows/{workflowName}/details";
+            }
+        }
+        return null;
+    }
 
     private static async Task<JObject> ToJson(HttpResponseMessage response)
     {
