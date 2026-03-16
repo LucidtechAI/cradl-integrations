@@ -36,11 +36,27 @@ const addAuthorization = async (request, z, bundle) => {
   return request;
 };
 
+const getOrganization = async (z, bundle) => {
+  try {
+    response = await z.request({
+      url: process.env.API_BASE_URL + '/organizations/me',
+      method: 'GET',
+    });
+  } catch (error) {
+    console.log(error)
+    response = await z.request({
+      url: process.env.BETA_API_BASE_URL + '/organizations/me',
+      method: 'GET',
+    });
+  }
+  return {
+    name: response.json.name
+  }
+}
+
 const authentication = {
   type: 'custom',
-  test: {
-    url: process.env.API_BASE_URL + '/organizations/me',
-  },
+  test: getOrganization,
   fields: [
     { 
       key: 'client_id', 
