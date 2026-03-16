@@ -14,23 +14,21 @@ const addAuthorization = async (request, z, bundle) => {
     }
   }
 
-  let response;
-  try {
-    const authRequest = new Request(process.env.API_AUTH_URL, data)
-    response = await fetch(authRequest);
-  } catch (error) {
-    console.log(error)
-    const authRequest = new Request(process.env.API_BETA_AUTH_URL, data)
-    response = await fetch(authRequest);
-  }
-
+  const authRequest = new Request(process.env.API_AUTH_URL, data)
+  response = await fetch(authRequest);
   if (response.status === 400) {
-    throw new z.errors.Error(
-      // This message is surfaced to the user
-      'Your Client ID and/or Client Secret are incorrect. Find credentials in the Cradl app here: https://rc.app.cradl.ai/settings/api',
-      'AuthenticationError',
-      response.status
-    );
+    // Try the BETA API 
+    const authRequest = new Request(process.env.BETA_API_AUTH_URL, data)
+    response = await fetch(authRequest);
+    if (response.status === 400) {
+      // Credentials don't work with PROD or BETA, so throw
+      throw new z.errors.Error(
+        // This message is surfaced to the user
+        'Your Client ID and/or Client Secret are incorrect. Find credentials in the Cradl app here: https://rc.app.cradl.ai/settings/api',
+        'AuthenticationError',
+        response.status
+      );
+    }
   }
 
   auth_data = await response.json()
