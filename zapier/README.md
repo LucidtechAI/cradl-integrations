@@ -20,13 +20,13 @@ npm install -g zapier-platform-cli
 
 # Login to zapier user and check that you have necessary authorization
 ```bash
-zapier login
-zapier integrations
+zapier-platform login
+zapier-platform integrations
 ```
 
 # Run tests
 ```bash
-zapier test
+zapier-platform test
 ```
 
 # Make updates to the integration
@@ -35,7 +35,7 @@ Docs here: https://github.com/zapier/zapier-platform/blob/main/packages/cli/READ
 # Push update to Zapier
 Note: This it is only possible to push to a non-public version. You'll probably want to update the version in package.json.
 ```bash
-zapier push
+zapier-platform push
 ```
 
 # Updating version
@@ -43,22 +43,22 @@ Update the version in package.json.
 Update CHANGELOG.md. 
 Check that environment variables are set correctly by comparing with old version:
 ```bash
-zapier env:get <old version>
-zapier env:get <new version>
+zapier-platform env:get <old version>
+zapier-platform env:get <new version>
 ```
 
 Set the API_BASE_URL, BETA_API_BASE_URL, API_AUTH_URL, and BETA_API_AUTH_URL values with 
 ```bash
-zapier env:set x.y.z API_BASE_URL=<url>
-zapier env:set x.y.z API_AUTH_URL=<url>
-zapier env:set x.y.z BETA_API_BASE_URL=<url>
-zapier env:set x.y.z BETA_API_AUTH_URL=<url>
+zapier-platform env:set x.y.z API_BASE_URL=<url>
+zapier-platform env:set x.y.z API_AUTH_URL=<url>
+zapier-platform env:set x.y.z BETA_API_BASE_URL=<url>
+zapier-platform env:set x.y.z BETA_API_AUTH_URL=<url>
 ```
 Promote your version with 
 ```bash
-zapier promote x.y.z
+zapier-platform promote x.y.z
 ```
 Consider migrating users.
 ```bash
-zapier migrate --help
+zapier-platform migrate --help
 ```

@@ -33,8 +33,8 @@ const addAuthorization = async (request, z, bundle) => {
     );
   }
 
-  data = await response.json()
-  request.headers.Authorization = `Bearer ${data.access_token}`;
+  auth_data = await response.json()
+  request.headers.Authorization = `Bearer ${auth_data.access_token}`;
   return request;
 };
 

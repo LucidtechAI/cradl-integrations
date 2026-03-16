@@ -14,6 +14,13 @@ const perform = async (z, bundle) => {
     } catch (error) {
       console.log(error)
       await cradlApi.deleteAgentRun(z, createAgentRunResponse.json.agentId, createAgentRunResponse.json.runId)
+      if (JSON.parse(error.message).status == 400) {
+        throw new z.errors.Error(
+          'Invalid document data. Ensure your document is in PDF, JPEG, PNG, WEBP or TIFF format.',
+          'InvalidData', 
+          400,
+        );
+      }
     }
 };
 
