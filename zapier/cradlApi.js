@@ -10,26 +10,52 @@ const downloadFile = async (url, z) => {
 }
 
 async function makePostRequest(z, endpoint, body) {
-  return z.request({
-    url: process.env.API_BASE_URL + endpoint,
-    method: 'POST',
-    body: body,
-  });
-}
+  try {
+    return z.request({
+      url: process.env.API_BASE_URL + endpoint,
+      method: 'POST',
+      body: body,
+    });
+  } catch (error) {
+    console.log(error)
+    return z.request({
+      url: process.env.BETA_API_BASE_URL + endpoint,
+      method: 'POST',
+      body: body,
+    });
+  }
+  }
 
 async function makePatchRequest(z, endpoint, body) {
-  return z.request({
-    url: process.env.API_BASE_URL + endpoint,
-    method: 'PATCH',
-    body: body,
-  });
+  try {
+    return z.request({
+      url: process.env.API_BASE_URL + endpoint,
+      method: 'PATCH',
+      body: body,
+    });
+  } catch (error) {
+    console.log(error)
+    return z.request({
+      url: process.env.BETA_API_BASE_URL + endpoint,
+      method: 'PATCH',
+      body: body,
+    });
+  }
 }
 
 async function makeGetRequest(z, endpoint) {
-  return z.request({
-    url: process.env.API_BASE_URL + endpoint,
-    method: 'GET',
-  });
+  try {
+    return z.request({
+      url: process.env.API_BASE_URL + endpoint,
+      method: 'GET',
+    });
+  } catch (error) {
+    console.log(error)
+    return z.request({
+      url: process.env.API_BASE_URL + endpoint,
+      method: 'GET',
+    });
+  }
 }
 
 async function putToFileServer(z, url, content) {
