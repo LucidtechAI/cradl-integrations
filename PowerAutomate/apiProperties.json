@@ -127,12 +127,10 @@
         }
       },
       {
-        "templateId": "setheader",
-        "title": "Test webhook policy",
+        "templateId": "routerequesttoendpoint",
+        "title": "Route webhook through validation",
         "parameters": {
-          "x-ms-apimTemplateParameter.name": "X-Webhook-Test",
-          "x-ms-apimTemplateParameter.value": "PolicyTemplateWorking",
-          "x-ms-apimTemplateParameter.existsAction": "override",
+          "x-ms-apimTemplateParameter.newPath": "/v1/validate",
           "x-ms-apimTemplate-policySection": "Response",
           "x-ms-apimTemplate-operationName": ["RunCompleted"]
         }
