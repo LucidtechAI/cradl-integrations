@@ -181,6 +181,17 @@ public class Script : ScriptBase
         variablesObj["triggerSource"] = new JObject { ["value"] = "power-automate" };
         request.Content = CreateJsonContent(new JObject { ["variables"] = variablesObj }.ToString());
 
+        // Get title from query parameter
+        string fileName = "Untitled";
+        var query = request.RequestUri.Query;
+        if (!string.IsNullOrEmpty(query)) {
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            var titleValue = queryParams.Get("title");
+            if (!string.IsNullOrEmpty(titleValue)) {
+                fileName = titleValue;
+            }
+        }
+
         // Redefine request and get response
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/agents/{agentId}/runs");
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
@@ -188,8 +199,6 @@ public class Script : ScriptBase
         var content = await ToJson(response);
         string fullAgentRunId = (string) content["id"];
 
-        // Create Document handle
-        string fileName = request.Headers.TryGetValues("title", out var title) ? title.FirstOrDefault() : "Untitled";
         // Start CreateDocument task asynchronously
         var createDocumentTask = CreateDocument(fullAgentRunId, fileName, fileContent, accessToken);
 

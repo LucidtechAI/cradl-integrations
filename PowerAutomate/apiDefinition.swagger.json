@@ -373,14 +373,14 @@
             "x-ms-visibility": "advanced"
           },
           {
-            "in": "header",
+            "in": "query",
             "name": "title",
             "x-ms-summary": "Title",
             "description": "The title of the document or run.",
             "required": false,
-            "x-ms-skip-url-encoding": true,
             "type": "string",
-            "x-ms-visibility": "important"
+            "x-ms-visibility": "important",
+            "x-ms-skip-url-encoding": true
           },
           {
             "in": "body",
