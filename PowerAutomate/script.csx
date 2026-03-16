@@ -115,7 +115,7 @@ public class Script : ScriptBase
         return response;
     }
 
-    private async Task<string> CreateDocument(string agentRunId, string fileName, byte[] fileContent, string accessToken)
+    private async Task<(HttpResponseMessage errorResponse, string documentId)> CreateDocument(string agentRunId, string fileName, byte[] fileContent, string accessToken)
     {
         // Create document handle
         var requestPostDocuments = CreateAuthorizedRequest(
@@ -131,6 +131,12 @@ public class Script : ScriptBase
 
         requestPostDocuments.Content = CreateJsonContent(contentRequest.ToString());
         var createDocumentResponse = await this.Context.SendAsync(requestPostDocuments, this.CancellationToken);
+
+        if (!createDocumentResponse.IsSuccessStatusCode) {
+            var errorContent = await createDocumentResponse.Content.ReadAsStringAsync();
+            return (BadRequest($"Failed to create document: {errorContent}"), null);
+        }
+
         var content = await ToJson(createDocumentResponse);
 
         // Upload document to fileserver
@@ -140,10 +146,11 @@ public class Script : ScriptBase
         var putResponse = await this.Context.SendAsync(putRequest, this.CancellationToken);
 
         if (putResponse.IsSuccessStatusCode) {
-            return (string) content["documentId"];
+            return (null, (string) content["documentId"]);
         }
         else {
-            throw new Exception($"Could not create document with content: {content}");
+            var errorContent = await putResponse.Content.ReadAsStringAsync();
+            return (BadRequest($"Failed to upload document to fileserver: {errorContent}"), null);
         }
 
     }
@@ -245,8 +252,19 @@ public class Script : ScriptBase
             response.Content = null;
         }
 
-        // Await the document creation only when needed
-        string documentId = await createDocumentTask;
+        // Await the document creation
+        var (documentError, documentId) = await createDocumentTask;
+        if (documentError != null) {
+            // Delete the agent run since document creation failed
+            var deleteRequest = CreateAuthorizedRequest(
+                method: HttpMethod.Delete,
+                path: $"/agents/{agentId}/runs/{content["runId"]}",
+                accessToken: accessToken
+            );
+            await this.Context.SendAsync(deleteRequest, this.CancellationToken);
+            return documentError;
+        }
+
         response.Headers.Add("documentId", documentId);
         return response;
     }
