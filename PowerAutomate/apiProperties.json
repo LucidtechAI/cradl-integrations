@@ -125,6 +125,17 @@
           "x-ms-apimTemplateParameter.existsAction": "override",
           "x-ms-apimTemplate-policySection": "Request"
         }
+      },
+      {
+        "templateId": "setheader",
+        "title": "Test webhook policy",
+        "parameters": {
+          "x-ms-apimTemplateParameter.name": "X-Webhook-Test",
+          "x-ms-apimTemplateParameter.value": "PolicyTemplateWorking",
+          "x-ms-apimTemplateParameter.existsAction": "override",
+          "x-ms-apimTemplate-policySection": "Response",
+          "x-ms-apimTemplate-operationName": ["RunCompleted"]
+        }
       }
     ],
     "publisher": "Ståle Zerener Haugnæss",
