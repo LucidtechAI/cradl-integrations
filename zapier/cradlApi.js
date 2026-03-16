@@ -52,8 +52,23 @@ async function makeGetRequest(z, endpoint) {
   } catch (error) {
     console.log(error)
     return z.request({
-      url: process.env.API_BASE_URL + endpoint,
+      url: process.env.BETA_API_BASE_URL + endpoint,
       method: 'GET',
+    });
+  }
+}
+
+async function makeDeleteRequest(z, endpoint) {
+  try {
+    return z.request({
+      url: process.env.API_BASE_URL + endpoint,
+      method: 'DELETE',
+    });
+  } catch (error) {
+    console.log(error)
+    return z.request({
+      url: process.env.BETA_API_BASE_URL + endpoint,
+      method: 'DELETE',
     });
   }
 }
@@ -123,9 +138,14 @@ async function getSuccessfulAgentRuns(z, agentId) {
   )
 }
 
+async function deleteAgentRun(z, agentId, runId) {
+  return makeDeleteRequest(z, '/agents/' + agentId + '/runs/' + runId)
+}
+
 module.exports = {
   createAgentRun,
   createDocument, 
+  deleteAgentRun,
   getAction,
   getFromFileServer,
   getSuccessfulAgentRuns,

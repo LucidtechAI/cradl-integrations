@@ -8,8 +8,13 @@ const perform = async (z, bundle) => {
     bundle.inputData.variables.source = 'zapier'
     const createAgentRunResponse = await cradlApi.createAgentRun(z, bundle.inputData.agentId, bundle.inputData.variables)
     const agentRunId = createAgentRunResponse.json.agentId + '/' + createAgentRunResponse.json.runId
-    await cradlApi.createDocument(z, bundle.inputData.file, agentRunId, bundle.inputData.fileName)
-  return createAgentRunResponse.data;
+    try {
+      await cradlApi.createDocument(z, bundle.inputData.file, agentRunId, bundle.inputData.fileName)
+      return createAgentRunResponse.data;
+    } catch (error) {
+      console.log(error)
+      await cradlApi.deleteAgentRun(z, createAgentRunResponse.json.agentId, createAgentRunResponse.json.runId)
+    }
 };
 
 module.exports = {
