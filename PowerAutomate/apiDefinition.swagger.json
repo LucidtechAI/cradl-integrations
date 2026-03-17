@@ -492,11 +492,19 @@
         ],
         "parameters": [
           {
-            "name": "Request",
+            "name": "headers",
+            "in": "query",
+            "required": true,
+            "type": "string",
+            "x-ms-visibility": "important",
+            "description": "JSON string containing the webhook headers from triggerOutputs()['headers']"
+          },
+          {
+            "name": "body",
             "in": "body",
             "required": true,
             "x-ms-visibility": "important",
-            "description": "triggerOutputs()",
+            "description": "The raw webhook body from triggerOutputs()['body']",
             "schema": {
               "type": "object"
             }

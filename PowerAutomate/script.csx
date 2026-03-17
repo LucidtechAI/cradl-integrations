@@ -17,38 +17,6 @@ public class Script : ScriptBase
     private const int MIN_RETRY_TIME_SECONDS = 20;
     private const int MAX_RETRY_TIME_SECONDS = 900;
 
-    // Custom JSON writer that formats with spaces after colons (matching Python's json.dumps())
-    private class PythonStyleJsonWriter : Newtonsoft.Json.JsonTextWriter
-    {
-        public PythonStyleJsonWriter(TextWriter textWriter) : base(textWriter)
-        {
-            // No indentation or formatting
-        }
-
-        public override void WritePropertyName(string name)
-        {
-            base.WritePropertyName(name);
-        }
-
-        public override void WritePropertyName(string name, bool escape)
-        {
-            base.WritePropertyName(name, escape);
-            // After writing property name and colon, add a space
-            WriteWhitespace(" ");
-        }
-    }
-
-    private static string SerializeJsonPythonStyle(JToken token)
-    {
-        var sb = new StringBuilder();
-        using (var sw = new StringWriter(sb))
-        using (var writer = new PythonStyleJsonWriter(sw))
-        {
-            token.WriteTo(writer);
-        }
-        return sb.ToString();
-    }
-
     public override async Task<HttpResponseMessage> ExecuteAsync()
     {
         try {
@@ -912,16 +880,38 @@ public class Script : ScriptBase
     private async Task<HttpResponseMessage> Validate()
     {
         try {
-            // Parse the incoming JSON body
-            var requestBody = await this.Context.Request.Content.ReadAsStringAsync();
-            var payload = JObject.Parse(requestBody);
+            // Parse headers from query parameter
+            var query = this.Context.Request.RequestUri.Query;
+            if (string.IsNullOrEmpty(query)) {
+                return BadRequest("Missing query parameters.");
+            }
 
-            // Extract headers and body from the payload
-            var headers = payload["headers"] as JObject;
-            var body = payload["body"] as JObject;
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            string headersString = queryParams.Get("headers");
 
-            if (headers == null || body == null) {
-                return BadRequest("Invalid payload structure. Expected 'headers' and 'body' properties.");
+            if (string.IsNullOrEmpty(headersString)) {
+                return BadRequest("Missing 'headers' query parameter.");
+            }
+
+            JObject headers;
+            try {
+                headers = JObject.Parse(headersString);
+            }
+            catch (Exception ex) {
+                return BadRequest($"Failed to parse headers JSON: {ex.Message}");
+            }
+
+            // Read the raw body bytes
+            byte[] bodyBytes = await this.Context.Request.Content.ReadAsByteArrayAsync();
+
+            // Parse body to extract actionId
+            string bodyString = Encoding.UTF8.GetString(bodyBytes);
+            JObject body;
+            try {
+                body = JObject.Parse(bodyString);
+            }
+            catch (Exception ex) {
+                return BadRequest($"Failed to parse body JSON: {ex.Message}");
             }
 
             // Extract actionId from body.context.actionId
@@ -967,15 +957,13 @@ public class Script : ScriptBase
                 return BadRequest("Missing x-cradl-signedheaders header.");
             }
 
-            // Serialize the body using Python-style formatting (space after colon)
-            string bodyString = SerializeJsonPythonStyle(body);
-            // Calculate the HMAC signature
+            // Calculate the HMAC signature using the raw body bytes
             string calculatedSignature = CalculateHmacSignature(
                 httpMethod,
                 webhookUrl,
                 headers,
                 signedHeadersStr,
-                bodyString,
+                bodyBytes,
                 hmacSecret
             );
 
