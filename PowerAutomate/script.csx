@@ -973,15 +973,25 @@ public class Script : ScriptBase
     private string CalculateHmacSignature(string httpMethod, string url, JObject headers, string signedHeadersStr, string bodyString, string secret)
     {
         // Parse the comma-separated list of signed headers
-        var signedHeaders = signedHeadersStr.Split(',').Select(h => h.Trim()).ToArray();
+        var signedHeadersList = signedHeadersStr.Split(',').Select(h => h.Trim().ToLower()).ToList();
 
-        // Build the headers bytes by concatenating the signed header values
-        var headerBytes = new List<byte>();
-        foreach (var headerName in signedHeaders) {
+        // Build a sorted dictionary of lowercase header names to values, filtering only the signed headers
+        var lowercaseHeaders = new Dictionary<string, string>();
+        foreach (var headerName in signedHeadersList) {
             string headerValue = GetHeaderValue(headers, headerName);
             if (!string.IsNullOrEmpty(headerValue)) {
-                headerBytes.AddRange(Encoding.UTF8.GetBytes(headerValue));
+                lowercaseHeaders[headerName.ToLower()] = headerValue;
             }
+        }
+
+        // Sort the headers by key (matching Python's sorted(lowercase_headers.items()))
+        var sortedHeaders = lowercaseHeaders.OrderBy(kvp => kvp.Key).ToList();
+
+        // Build the headers bytes: sorted headers formatted as "key:value"
+        var headerBytes = new List<byte>();
+        foreach (var kvp in sortedHeaders) {
+            string headerLine = $"{kvp.Key}:{kvp.Value}";
+            headerBytes.AddRange(Encoding.UTF8.GetBytes(headerLine));
         }
 
         // Build the message to sign: METHOD + URL + headers_bytes + body
