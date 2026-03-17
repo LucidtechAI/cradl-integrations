@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System;
+using System.IO;
 
 
 public class Script : ScriptBase
@@ -15,6 +16,38 @@ public class Script : ScriptBase
     private const string AUTH_ENDPOINT = "https://auth.lucidtech.io/oauth2/token";
     private const int MIN_RETRY_TIME_SECONDS = 20;
     private const int MAX_RETRY_TIME_SECONDS = 900;
+
+    // Custom JSON writer that formats with spaces after colons (matching Python's json.dumps())
+    private class PythonStyleJsonWriter : Newtonsoft.Json.JsonTextWriter
+    {
+        public PythonStyleJsonWriter(TextWriter textWriter) : base(textWriter)
+        {
+            // No indentation or formatting
+        }
+
+        public override void WritePropertyName(string name)
+        {
+            base.WritePropertyName(name);
+        }
+
+        public override void WritePropertyName(string name, bool escape)
+        {
+            base.WritePropertyName(name, escape);
+            // After writing property name and colon, add a space
+            WriteWhitespace(" ");
+        }
+    }
+
+    private static string SerializeJsonPythonStyle(JToken token)
+    {
+        var sb = new StringBuilder();
+        using (var sw = new StringWriter(sb))
+        using (var writer = new PythonStyleJsonWriter(sw))
+        {
+            token.WriteTo(writer);
+        }
+        return sb.ToString();
+    }
 
     public override async Task<HttpResponseMessage> ExecuteAsync()
     {
@@ -934,8 +967,9 @@ public class Script : ScriptBase
                 return BadRequest("Missing x-cradl-signedheaders header.");
             }
 
+            // Serialize the body using Python-style formatting (space after colon)
+            string bodyString = SerializeJsonPythonStyle(body);
             // Calculate the HMAC signature
-            string bodyString = body.ToString(Newtonsoft.Json.Formatting.None);
             string calculatedSignature = CalculateHmacSignature(
                 httpMethod,
                 webhookUrl,
@@ -1008,9 +1042,20 @@ public class Script : ScriptBase
         messageBytes.AddRange(headerBytes);
         messageBytes.AddRange(Encoding.UTF8.GetBytes(bodyString));
 
+        // Debug: throw to inspect the message bytes
+        var messageBytesArray = messageBytes.ToArray();
+        var messageString = Encoding.UTF8.GetString(messageBytesArray);
+        var messageHex = BitConverter.ToString(messageBytesArray).Replace("-", "");
+        throw new Exception($"DEBUG MESSAGE BYTES:\n" +
+            $"Length: {messageBytesArray.Length}\n" +
+            $"As String: {messageString}\n" +
+            $"As Hex: {messageHex}\n" +
+            $"Body String Length: {bodyString.Length}\n" +
+            $"Body String: {bodyString}");
+
         // Calculate HMAC-SHA256
         using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret))) {
-            byte[] hashBytes = hmac.ComputeHash(messageBytes.ToArray());
+            byte[] hashBytes = hmac.ComputeHash(messageBytesArray);
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
