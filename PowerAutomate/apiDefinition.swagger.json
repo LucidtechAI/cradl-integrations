@@ -496,16 +496,9 @@
             "in": "body",
             "required": true,
             "x-ms-visibility": "important",
+            "description": "triggerOutputs()",
             "schema": {
-              "type": "object",
-              "properties": {
-                "headers": {"type": "object"},
-                "body": {"type":  "object"}
-              },
-              "required": [
-                "headers",
-                "body"
-              ]
+              "type": "object"
             }
           }
         ]
