@@ -904,7 +904,9 @@ public class Script : ScriptBase
 
             string hmacSecret = contentGetAction?["config"]?["hmacSecret"]?.ToString();
             if (string.IsNullOrEmpty(hmacSecret)) {
-                return BadRequest("The hmacSecret has not been defined in the action configuration.");
+                // Fallback to using clientSecret from apiKey
+                var (clientId, clientSecret) = GetClientIdAndSecret();
+                hmacSecret = clientSecret;
             }
 
             // Get the webhook URL and HTTP method from action config
@@ -1115,7 +1117,7 @@ public class Script : ScriptBase
         return JObject.Parse(await response.Content.ReadAsStringAsync());
     }
 
-    private async Task<string> GetAccessToken()
+    private (string clientId, string clientSecret) GetClientIdAndSecret()
     {
         // Decode apiKey (base64 encoded string "<clientId>:<clientSecret>")
         var apiKey = this.Context.Request.Headers.GetValues("apiKey").First();
@@ -1125,8 +1127,12 @@ public class Script : ScriptBase
             throw new ArgumentException("Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>'");
         }
 
-        var clientId = parts[0];
-        var clientSecret = parts[1];
+        return (parts[0], parts[1]);
+    }
+
+    private async Task<string> GetAccessToken()
+    {
+        var (clientId, clientSecret) = GetClientIdAndSecret();
 
         // Prepare form-urlencoded content
         var formData = new[] {
