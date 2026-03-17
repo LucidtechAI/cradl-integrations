@@ -892,7 +892,7 @@ public class Script : ScriptBase
                 return BadRequest("Missing actionId in body.context.actionId.");
             }
 
-            // Get the hmacSecret from the action configuration
+            // Get the hmacSecret and webhook config from the action
             var request = CreateAuthorizedRequest(
                 method: HttpMethod.Get,
                 path: $"/actions/{actionId}",
@@ -905,6 +905,14 @@ public class Script : ScriptBase
             string hmacSecret = contentGetAction?["config"]?["hmacSecret"]?.ToString();
             if (string.IsNullOrEmpty(hmacSecret)) {
                 return BadRequest("The hmacSecret has not been defined in the action configuration.");
+            }
+
+            // Get the webhook URL and HTTP method from action config
+            string webhookUrl = contentGetAction?["config"]?["url"]?.ToString();
+            string httpMethod = contentGetAction?["config"]?["httpMethod"]?.ToString() ?? "POST";
+
+            if (string.IsNullOrEmpty(webhookUrl)) {
+                return BadRequest("The webhook URL is not configured in the action.");
             }
 
             // Extract signature-related headers
@@ -920,7 +928,15 @@ public class Script : ScriptBase
             }
 
             // Calculate the HMAC signature
-            string calculatedSignature = CalculateHmacSignature(headers, signedHeadersStr, hmacSecret);
+            string bodyString = body.ToString(Newtonsoft.Json.Formatting.None);
+            string calculatedSignature = CalculateHmacSignature(
+                httpMethod,
+                webhookUrl,
+                headers,
+                signedHeadersStr,
+                bodyString,
+                hmacSecret
+            );
 
             // Compare signatures
             if (!string.Equals(calculatedSignature, receivedSignature, StringComparison.OrdinalIgnoreCase)) {
@@ -954,23 +970,30 @@ public class Script : ScriptBase
         return null;
     }
 
-    private string CalculateHmacSignature(JObject headers, string signedHeadersStr, string secret)
+    private string CalculateHmacSignature(string httpMethod, string url, JObject headers, string signedHeadersStr, string bodyString, string secret)
     {
         // Parse the comma-separated list of signed headers
         var signedHeaders = signedHeadersStr.Split(',').Select(h => h.Trim()).ToArray();
 
-        // Build the string to sign by concatenating the signed header values
-        var stringToSign = new StringBuilder();
+        // Build the headers bytes by concatenating the signed header values
+        var headerBytes = new List<byte>();
         foreach (var headerName in signedHeaders) {
             string headerValue = GetHeaderValue(headers, headerName);
             if (!string.IsNullOrEmpty(headerValue)) {
-                stringToSign.Append(headerValue);
+                headerBytes.AddRange(Encoding.UTF8.GetBytes(headerValue));
             }
         }
 
+        // Build the message to sign: METHOD + URL + headers_bytes + body
+        var messageBytes = new List<byte>();
+        messageBytes.AddRange(Encoding.UTF8.GetBytes(httpMethod.ToUpper()));
+        messageBytes.AddRange(Encoding.UTF8.GetBytes(url));
+        messageBytes.AddRange(headerBytes);
+        messageBytes.AddRange(Encoding.UTF8.GetBytes(bodyString));
+
         // Calculate HMAC-SHA256
         using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret))) {
-            byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToString()));
+            byte[] hashBytes = hmac.ComputeHash(messageBytes.ToArray());
             return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
