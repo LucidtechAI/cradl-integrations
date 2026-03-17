@@ -492,38 +492,19 @@
         ],
         "parameters": [
           {
-            "name": "ActionId",
-            "in": "header",
-            "x-ms-summary": "ActionId",
+            "in": "body",
+            "name": "Request",
             "required": true,
-            "description": "The ID of the trigger action (cradl:action:xxx).",
-            "type": "string",
-            "x-ms-dynamic-values": {
-              "operationId": "GetActions",
-              "value-path": "actionId",
-              "value-title": "name",
-              "value-collection": "actions",
-              "parameters": {}
-            },
-            "x-ms-dynamic-list": {
-              "operationId": "GetActions",
-              "itemsPath": "actions",
-              "itemValuePath": "actionId",
-              "itemTitlePath": "name",
-              "parameters": {}
+            "x-ms-visibility": "important",
+            "schema": {
+              "type": "object",
+              "required": [
+                "headers",
+                "body"
+              ],
             }
-          },
-          {
-            "name": "X-Cradl-Shared-Secret",
-            "in": "header",
-            "x-ms-summary": "X-Cradl-Shared-Secret",
-            "required": true,
-            "description": "@{triggerOutputs()['headers']['X-Cradl-Shared-Secret']}",
-            "type": "string",
-            "default": "@{triggerOutputs()['headers']['X-Cradl-Shared-Secret']}"
           }
-        ],
-        "x-ms-visibility": "important"
+        ]
       }
     },
     "/actions": {

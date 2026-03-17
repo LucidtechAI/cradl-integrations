@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System;
@@ -873,12 +874,25 @@ public class Script : ScriptBase
     private async Task<HttpResponseMessage> Validate()
     {
         try {
-            // Get the hmacSecret
-            string actionId = this.Context.Request.Headers.GetValues("ActionId").First();
-            if (string.IsNullOrEmpty(actionId)) {
-                return BadRequest("Missing ActionId header.");
+            // Parse the incoming JSON body
+            var requestBody = await this.Context.Request.Content.ReadAsStringAsync();
+            var payload = JObject.Parse(requestBody);
+
+            // Extract headers and body from the payload
+            var headers = payload["headers"] as JObject;
+            var body = payload["body"] as JObject;
+
+            if (headers == null || body == null) {
+                return BadRequest("Invalid payload structure. Expected 'headers' and 'body' properties.");
             }
 
+            // Extract actionId from body.context.actionId
+            string actionId = body["context"]?["actionId"]?.ToString();
+            if (string.IsNullOrEmpty(actionId)) {
+                return BadRequest("Missing actionId in body.context.actionId.");
+            }
+
+            // Get the hmacSecret from the action configuration
             var request = CreateAuthorizedRequest(
                 method: HttpMethod.Get,
                 path: $"/actions/{actionId}",
@@ -888,35 +902,76 @@ public class Script : ScriptBase
             var getActionResponse = await this.Context.SendAsync(request, this.CancellationToken);
             var contentGetAction = await ToJson(getActionResponse);
 
-
-            var headers = (JArray) contentGetAction?["config"]?["headers"];
-            string sharedSecret = "";
-            foreach (var header in headers) {
-                if (header["key"].ToString() == "X-Cradl-Shared-Secret") {
-                    sharedSecret = header["value"].ToString();
-                    break;
-                }
+            string hmacSecret = contentGetAction?["config"]?["hmacSecret"]?.ToString();
+            if (string.IsNullOrEmpty(hmacSecret)) {
+                return BadRequest("The hmacSecret has not been defined in the action configuration.");
             }
 
-            if (string.IsNullOrEmpty(sharedSecret)) {
-                return BadRequest("The secret has not been defined during setup.");
+            // Extract signature-related headers
+            string receivedSignature = GetHeaderValue(headers, "x-cradl-signature");
+            string signedHeadersStr = GetHeaderValue(headers, "x-cradl-signedheaders");
+
+            if (string.IsNullOrEmpty(receivedSignature)) {
+                return BadRequest("Missing x-cradl-signature header.");
             }
 
-            // Get signature, URL, headers, and body from the incoming request
-            string receivedSharedSecret = this.Context.Request.Headers.TryGetValues("X-Cradl-Shared-Secret", out var v) ? v.FirstOrDefault() : null;
-            if (string.IsNullOrEmpty(receivedSharedSecret)) {
-                return BadRequest("Missing X-Cradl-Shared-Secret in header.");
+            if (string.IsNullOrEmpty(signedHeadersStr)) {
+                return BadRequest("Missing x-cradl-signedheaders header.");
             }
 
-            // Compare to signature
-            if (!string.Equals(sharedSecret, receivedSharedSecret, StringComparison.OrdinalIgnoreCase)) {
-                return BadRequest($"Invalid secret: {receivedSharedSecret}.");
+            // Calculate the HMAC signature
+            string calculatedSignature = CalculateHmacSignature(headers, signedHeadersStr, hmacSecret);
+
+            // Compare signatures
+            if (!string.Equals(calculatedSignature, receivedSignature, StringComparison.OrdinalIgnoreCase)) {
+                return BadRequest($"Invalid signature. Expected: {calculatedSignature}, Received: {receivedSignature}");
             }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            // Return the original body if validation succeeds
+            return new HttpResponseMessage(HttpStatusCode.OK) {
+                Content = CreateJsonContent(body.ToString())
+            };
         }
         catch (Exception ex) {
             return BadRequest($"Unexpected error: {ex.Message}");
+        }
+    }
+
+    private string GetHeaderValue(JObject headers, string headerName)
+    {
+        // Try exact match first
+        if (headers[headerName] != null) {
+            return headers[headerName].ToString();
+        }
+
+        // Try case-insensitive match
+        foreach (var prop in headers.Properties()) {
+            if (string.Equals(prop.Name, headerName, StringComparison.OrdinalIgnoreCase)) {
+                return prop.Value.ToString();
+            }
+        }
+
+        return null;
+    }
+
+    private string CalculateHmacSignature(JObject headers, string signedHeadersStr, string secret)
+    {
+        // Parse the comma-separated list of signed headers
+        var signedHeaders = signedHeadersStr.Split(',').Select(h => h.Trim()).ToArray();
+
+        // Build the string to sign by concatenating the signed header values
+        var stringToSign = new StringBuilder();
+        foreach (var headerName in signedHeaders) {
+            string headerValue = GetHeaderValue(headers, headerName);
+            if (!string.IsNullOrEmpty(headerValue)) {
+                stringToSign.Append(headerValue);
+            }
+        }
+
+        // Calculate HMAC-SHA256
+        using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret))) {
+            byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(stringToSign.ToString()));
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
 
