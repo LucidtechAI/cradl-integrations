@@ -24,7 +24,7 @@
       "propertyValue": "AI;Content and Files"
     }
   ],
-  "host": "api.cradl.ai",
+  "host": "vuue1a2nqc.execute-api.eu-west-1.amazonaws.com",
   "basePath": "/v1",
   "schemes": [
     "https"
