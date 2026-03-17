@@ -1,7 +1,11 @@
 ## Deployment instructions
 
-As of 20.02.2026 These are the necessary steps: 
+The deployment pipeline normally takes around 14 days. 
+1. First Microsoft verifies the package (1-2 days)
+2. Testing in a preview environment that Microsoft creates for us
+3. Press the "Go live" button in the partner center (10-14 days before the connector is rolled out to all regions)
 
+As of 20.02.2026 These are the necessary steps:
 ```
 # Create two solutions in Power Automate. One that contains only the connector, and another that contains the connector and one or more example flows.
 # Export the two solutions, lets call them ConnectorSolution.zip and FlowSolution.zip
