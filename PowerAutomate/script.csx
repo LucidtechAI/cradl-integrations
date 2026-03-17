@@ -1133,7 +1133,7 @@ public class Script : ScriptBase
         }
         catch (FormatException ex)
         {
-            throw new ArgumentException($"Failed to decode apiKey. The apiKey must be a valid base64-encoded string. Error: {ex.Message}");
+            throw new ArgumentException($"Failed to decode apiKey. The apiKey must be base64 encoded '<clientId>:<clientSecret>'. Error: {ex.Message}");
         }
 
         var parts = decoded.Split(':');
@@ -1143,6 +1143,8 @@ public class Script : ScriptBase
         }
 
         if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]))
+        {
+            throw new ArgumentException($"Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>', but got '{parts.Length}' parts after decoding. Please verify your Cradl AI credentials.");
         }
 
         return (parts[0], parts[1]);
