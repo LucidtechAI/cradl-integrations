@@ -1115,11 +1115,34 @@ public class Script : ScriptBase
     private (string clientId, string clientSecret) GetClientIdAndSecret()
     {
         // Decode apiKey (base64 encoded string "<clientId>:<clientSecret>")
-        var apiKey = this.Context.Request.Headers.GetValues("apiKey").First();
-        var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(apiKey));
+        if (!this.Context.Request.Headers.TryGetValues("apiKey", out var apiKeyValues) || !apiKeyValues.Any())
+        {
+            throw new ArgumentException("Missing apiKey header. Please ensure your Cradl AI connection is properly configured with valid credentials.");
+        }
+
+        var apiKey = apiKeyValues.First();
+        if (string.IsNullOrEmpty(apiKey))
+        {
+            throw new ArgumentException("The apiKey header is empty. Please ensure your Cradl AI connection credentials are properly configured.");
+        }
+
+        string decoded;
+        try
+        {
+            decoded = Encoding.UTF8.GetString(Convert.FromBase64String(apiKey));
+        }
+        catch (FormatException ex)
+        {
+            throw new ArgumentException($"Failed to decode apiKey. The apiKey must be a valid base64-encoded string. Error: {ex.Message}");
+        }
+
         var parts = decoded.Split(':');
-        if (parts.Length != 2) {
-            throw new ArgumentException("Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>'");
+        if (parts.Length != 2)
+        {
+            throw new ArgumentException($"Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>', but got '{parts.Length}' parts after decoding. Please verify your Cradl AI credentials.");
+        }
+
+        if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]))
         }
 
         return (parts[0], parts[1]);
@@ -1143,11 +1166,48 @@ public class Script : ScriptBase
 
         using var response = await this.Context.SendAsync(request, this.CancellationToken);
         var content = await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            var statusCode = (int)response.StatusCode;
+            string errorMessage = $"Authentication failed with status code {statusCode} ({response.StatusCode}). ";
+
+            try
+            {
+                var errorJson = JObject.Parse(content);
+                var errorDescription = errorJson["error_description"]?.ToString() ?? errorJson["error"]?.ToString();
+                if (!string.IsNullOrEmpty(errorDescription))
+                {
+                    errorMessage += $"Error: {errorDescription}. ";
+                }
+            }
+            catch
+            {
+                // If we can't parse the error as JSON, include the raw content
+                if (!string.IsNullOrEmpty(content))
+                {
+                    errorMessage += $"Response: {content}. ";
+                }
+            }
+
+            if (statusCode == 401 || statusCode == 403)
+            {
+                errorMessage += "Please verify your Cradl AI credentials (Client ID and Client Secret) are correct and have not expired.";
+            }
+            else if (statusCode >= 500)
+            {
+                errorMessage += "The authentication service is experiencing issues. Please try again later or contact support@cradl.ai.";
+            }
+
+            throw new Exception(errorMessage);
+        }
+
         var jsonResponse = JObject.Parse(content);
         var token = jsonResponse["access_token"]?.ToString();
 
-        if (string.IsNullOrEmpty(token)) {
-            throw new Exception("Access token was not found in the response.");
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new Exception($"Access token was not found in the authentication response. Response content: {content}");
         }
 
         return token;
