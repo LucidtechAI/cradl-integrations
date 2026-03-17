@@ -524,12 +524,6 @@
               }
             }
           }
-        },
-        "headers": {
-          "X-Cradl-Shared-Secret": {
-            "description": "Shared Secret to verify trigger event.",
-            "type": "string"
-          }
         }
       },
       "post": {

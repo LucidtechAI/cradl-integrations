@@ -813,11 +813,6 @@ public class Script : ScriptBase
 
         // Modify headers
         var headers = (JArray)content["config"]?["headers"] ?? new JArray();
-        headers.Add(new JObject
-        {
-            ["key"] = "X-Cradl-Shared-Secret",
-            ["value"] = Guid.NewGuid().ToString()
-        });
 
         // Reassign headers back to config
         content["config"]["headers"] = headers;
