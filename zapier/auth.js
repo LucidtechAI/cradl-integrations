@@ -17,18 +17,12 @@ const addAuthorization = async (request, z, bundle) => {
   const authRequest = new Request(process.env.API_AUTH_URL, data)
   response = await fetch(authRequest);
   if (response.status === 400) {
-    // Try the BETA API 
-    const authRequest = new Request(process.env.BETA_API_AUTH_URL, data)
-    response = await fetch(authRequest);
-    if (response.status === 400) {
-      // Credentials don't work with PROD or BETA, so throw
-      throw new z.errors.Error(
-        // This message is surfaced to the user
-        'Your Client ID and/or Client Secret are incorrect. Find credentials in the Cradl app here: https://rc.app.cradl.ai/settings/api',
-        'AuthenticationError',
-        response.status
-      );
-    }
+    throw new z.errors.Error(
+      // This message is surfaced to the user
+      'Your Client ID and/or Client Secret are incorrect. Find credentials in the Cradl app here: https://rc.app.cradl.ai/settings/api',
+      'AuthenticationError',
+      response.status
+    );
   }
 
   auth_data = await response.json()
@@ -37,18 +31,10 @@ const addAuthorization = async (request, z, bundle) => {
 };
 
 const getOrganization = async (z, bundle) => {
-  try {
-    response = await z.request({
-      url: process.env.API_BASE_URL + '/organizations/me',
-      method: 'GET',
-    });
-  } catch (error) {
-    console.log(error)
-    response = await z.request({
-      url: process.env.BETA_API_BASE_URL + '/organizations/me',
-      method: 'GET',
-    });
-  }
+  response = await z.request({
+    url: process.env.API_BASE_URL + '/organizations/me',
+    method: 'GET',
+  });
   return {
     name: response.json.name
   }

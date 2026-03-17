@@ -1,5 +1,4 @@
 ## 1.1.2
-* Route requests to beta API if production API fails.
 * Enable actions when doing performSubscribe.
 * Delete agent run if file upload fails.
 

@@ -10,67 +10,33 @@ const downloadFile = async (url, z) => {
 }
 
 async function makePostRequest(z, endpoint, body) {
-  try {
-    return await z.request({
-      url: process.env.API_BASE_URL + endpoint,
-      method: 'POST',
-      body: body,
-    });
-  } catch (error) {
-    console.log(error)
-    return await z.request({
-      url: process.env.BETA_API_BASE_URL + endpoint,
-      method: 'POST',
-      body: body,
-    });
-  }
+  return await z.request({
+    url: process.env.API_BASE_URL + endpoint,
+    method: 'POST',
+    body: body,
+  });
   }
 
 async function makePatchRequest(z, endpoint, body) {
-  try {
-    return await z.request({
-      url: process.env.API_BASE_URL + endpoint,
-      method: 'PATCH',
-      body: body,
-    });
-  } catch (error) {
-    console.log(error)
-    return await z.request({
-      url: process.env.BETA_API_BASE_URL + endpoint,
-      method: 'PATCH',
-      body: body,
-    });
-  }
+  return await z.request({
+    url: process.env.API_BASE_URL + endpoint,
+    method: 'PATCH',
+    body: body,
+  });
 }
 
 async function makeGetRequest(z, endpoint) {
-  try {
-    return await z.request({
-      url: process.env.API_BASE_URL + endpoint,
-      method: 'GET',
-    });
-  } catch (error) {
-    console.log(error)
-    return await z.request({
-      url: process.env.BETA_API_BASE_URL + endpoint,
-      method: 'GET',
-    });
-  }
+  return await z.request({
+    url: process.env.API_BASE_URL + endpoint,
+    method: 'GET',
+  });
 }
 
 async function makeDeleteRequest(z, endpoint) {
-  try {
-    return await z.request({
-      url: process.env.API_BASE_URL + endpoint,
-      method: 'DELETE',
-    });
-  } catch (error) {
-    console.log(error)
-    return await z.request({
-      url: process.env.BETA_API_BASE_URL + endpoint,
-      method: 'DELETE',
-    });
-  }
+  return await z.request({
+    url: process.env.API_BASE_URL + endpoint,
+    method: 'DELETE',
+  });
 }
 
 async function putToFileServer(z, url, content) {

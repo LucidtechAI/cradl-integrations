@@ -4,9 +4,7 @@ Set up your local .env file with the following fields:
 client_id=<Your app client ID>
 client_secret=<Your app client secret>
 API_BASE_URL=https://api.lucidtech.ai/v1
-BETA_API_BASE_URL=https://vuue1a2nqc.execute-api.eu-west-1.amazonaws.com/v1
 API_AUTH_URL=https://auth.cradl.ai/oauth2/token
-BETA_API_AUTH_URL=https://auth.lucidtech.io/oauth2/token
 TEST_ACTION_ID=<ID of the model you want to test with>
 TEST_AGENT_ID=<ID of the agent you want to test with>
 TEST_DOCUMENT_ID=<ID of the document you want to test with>
@@ -47,12 +45,10 @@ zapier-platform env:get <old version>
 zapier-platform env:get <new version>
 ```
 
-Set the API_BASE_URL, BETA_API_BASE_URL, API_AUTH_URL, and BETA_API_AUTH_URL values with 
+Set the API_BASE_URL and API_AUTH_URL values with 
 ```bash
 zapier-platform env:set x.y.z API_BASE_URL=<url>
 zapier-platform env:set x.y.z API_AUTH_URL=<url>
-zapier-platform env:set x.y.z BETA_API_BASE_URL=<url>
-zapier-platform env:set x.y.z BETA_API_AUTH_URL=<url>
 ```
 Promote your version with 
 ```bash
