@@ -64,7 +64,6 @@ async function getAction(z, actionId) {
   return makeGetRequest(z, '/actions/' + actionId)
 }
 
-
 async function listActions(z, nextToken) {
   return makeGetRequest(z, '/actions')
 }
@@ -94,9 +93,18 @@ async function createDocument(z, inputFileUrl, agentRunId, fileName) {
 
   const postDocumentsResponse = await makePostRequest(z, '/documents', body)
   // bundle.inputData.file will be a URL from which we download the file
-  fileResponse = await downloadFile(inputFileUrl, z)
-  const fileServerResponse = await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())
+  try {
+    fileResponse = await downloadFile(inputFileUrl, z)
+    await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())
+  } catch(error) {
+    await deleteDocument(z, postDocumentsResponse.json.documentId)
+    throw error
+  }
   return postDocumentsResponse.json.documentId
+}
+
+async function deleteDocument(z, documentId) {
+  return makeDeleteRequest(z, '/documents/' + documentId)
 }
 
 async function getSuccessfulAgentRuns(z, agentId) {
