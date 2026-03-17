@@ -18,58 +18,63 @@ public class Script : ScriptBase
 
     public override async Task<HttpResponseMessage> ExecuteAsync()
     {
-        var path = Uri.UnescapeDataString(this.Context.Request.RequestUri.AbsolutePath.ToString());
-        switch (path) {
-            case "/v1/validate":
-                return await Validate();
-                break;
-            case "/v1/agents":
-                if (this.Context.Request.Method == HttpMethod.Post) {
-                    return await CreateRun();
-                }
-                else {
-                    return await GetAgents();
-                };
-                break;
-            case "/v1/schema":
-                return await GetSchema();
-                break;
-            case "/v1/actions":
-                if (this.Context.Request.Method == HttpMethod.Get) {
-                    return await GetActions();
-                }
-                else if (this.Context.Request.Method == HttpMethod.Post) {
-                    return await SetupTrigger();
-                }
-                break;
-            case "/v1/models":
-                return await GetModelsDeprecated();
-                break;
-            case "/v1/workflows":
-                return await CreateExecutionDeprecated();
-                break;
-            case "/v1/documents":
-                return await CreateDocumentDeprecated();
-                break;
-            default:
-              if (path.StartsWith("/v1/documents/")){
-                  return await GetDocument();
-              }
-              else if (path.StartsWith("/v1/metadata/")){
-                  return await GetDocumentMetadata();
-              }
-              else if (path.StartsWith("/v1/actions/cradl:action:")){
-                  return await TeardownTrigger();
-              }
-              else if (path.StartsWith("/v1/agents/cradl:agent:")){
-                  return await PollAgentRun();
-              }
-              else {
-                throw new ArgumentException($"{path} is not assigned to any method");
-              }
-              break;
-
+        try {
+            var path = Uri.UnescapeDataString(this.Context.Request.RequestUri.AbsolutePath.ToString());
+            switch (path) {
+                case "/v1/validate":
+                    return await Validate();
+                    break;
+                case "/v1/agents":
+                    if (this.Context.Request.Method == HttpMethod.Post) {
+                        return await CreateRun();
+                    }
+                    else {
+                        return await GetAgents();
+                    };
+                    break;
+                case "/v1/schema":
+                    return await GetSchema();
+                    break;
+                case "/v1/actions":
+                    if (this.Context.Request.Method == HttpMethod.Get) {
+                        return await GetActions();
+                    }
+                    else if (this.Context.Request.Method == HttpMethod.Post) {
+                        return await SetupTrigger();
+                    }
+                    break;
+                case "/v1/models":
+                    return await GetModelsDeprecated();
+                    break;
+                case "/v1/workflows":
+                    return await CreateExecutionDeprecated();
+                    break;
+                case "/v1/documents":
+                    return await CreateDocumentDeprecated();
+                    break;
+                default:
+                  if (path.StartsWith("/v1/documents/")){
+                      return await GetDocument();
+                  }
+                  else if (path.StartsWith("/v1/metadata/")){
+                      return await GetDocumentMetadata();
+                  }
+                  else if (path.StartsWith("/v1/actions/cradl:action:")){
+                      return await TeardownTrigger();
+                  }
+                  else if (path.StartsWith("/v1/agents/cradl:agent:")){
+                      return await PollAgentRun();
+                  }
+                  else {
+                    throw new ArgumentException($"{path} is not assigned to any method");
+                  }
+                  break;
+            }
         }
+        catch (ArgumentException ex) {
+            return BadRequest($"Wrong Credentials, make sure the connection reference is correct: {ex.Message}");
+        }
+
         return null;
     }
 
@@ -1201,7 +1206,7 @@ public class Script : ScriptBase
                 errorMessage += "The authentication service is experiencing issues. Please try again later or contact support@cradl.ai.";
             }
 
-            throw new Exception(errorMessage);
+            throw new ArgumentException(errorMessage);
         }
 
         var jsonResponse = JObject.Parse(content);
@@ -1209,10 +1214,9 @@ public class Script : ScriptBase
 
         if (string.IsNullOrEmpty(token))
         {
-            throw new Exception($"Access token was not found in the authentication response. Response content: {content}");
+            throw new ArgumentException($"Access token was not found in the authentication response. Response content: {content}");
         }
 
         return token;
     }
 }
-
