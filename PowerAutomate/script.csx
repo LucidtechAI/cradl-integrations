@@ -167,36 +167,41 @@ public class Script : ScriptBase
         var request = this.Context.Request;
         string accessToken = await GetAccessToken();
 
-        // Get information from content and headers
+        // Get information from content and query parameters
         string agentId = request.Headers.GetValues("AgentId").First();
-        string variablesString = request.Headers.TryGetValues("variables", out var v) ? v.FirstOrDefault() : null;
         var fileContent = await this.Context.Request.Content.ReadAsByteArrayAsync();
+
+        // Parse query parameters
+        string variablesString = null;
+        string fileName = "Untitled";
+        var query = request.RequestUri.Query;
+        if (!string.IsNullOrEmpty(query))
+        {
+            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
+            variablesString = queryParams.Get("variables");
+            var titleValue = queryParams.Get("title");
+            if (!string.IsNullOrEmpty(titleValue))
+            {
+                fileName = titleValue;
+            }
+        }
 
         // Always add triggerSource to variables
         JObject variablesObj = new JObject();
-        if (!string.IsNullOrEmpty(variablesString)) {
-            try {
+        if (!string.IsNullOrEmpty(variablesString))
+        {
+            try
+            {
                 variablesObj = JObject.Parse(variablesString);
             }
-            catch (Exception ex) {
-                return BadRequest($"Could not parse \"variables\" from headers as JSON: {ex.Message}");
+            catch (Exception ex)
+            {
+                return BadRequest($"Could not parse \"variables\" from query parameters as JSON: {ex.Message}");
             }
-            request.Headers.Remove("variables");
         }
         // Add triggerSource regardless
         variablesObj["triggerSource"] = new JObject { ["value"] = "power-automate" };
         request.Content = CreateJsonContent(new JObject { ["variables"] = variablesObj }.ToString());
-
-        // Get title from query parameter
-        string fileName = "Untitled";
-        var query = request.RequestUri.Query;
-        if (!string.IsNullOrEmpty(query)) {
-            var queryParams = System.Web.HttpUtility.ParseQueryString(query);
-            var titleValue = queryParams.Get("title");
-            if (!string.IsNullOrEmpty(titleValue)) {
-                fileName = titleValue;
-            }
-        }
 
         // Redefine request and get response
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/agents/{agentId}/runs");

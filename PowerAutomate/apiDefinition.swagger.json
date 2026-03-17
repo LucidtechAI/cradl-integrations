@@ -363,7 +363,7 @@
             "x-ms-visibility": "advanced"
           },
           {
-            "in": "header",
+            "in": "query",
             "name": "variables",
             "required": false,
             "x-ms-summary": "Variables",
