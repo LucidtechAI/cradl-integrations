@@ -1054,20 +1054,10 @@ public class Script : ScriptBase
         messageBytes.AddRange(headerBytes);
         messageBytes.AddRange(body);
 
-        // Debug: throw to inspect the message bytes
-        var messageBytesArray = messageBytes.ToArray();
-        var messageString = Encoding.UTF8.GetString(messageBytesArray);
-        var messageHex = BitConverter.ToString(messageBytesArray).Replace("-", "");
         // Calculate HMAC-SHA256
         using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret))) {
-            byte[] hashBytes = hmac.ComputeHash(messageBytesArray);
-            var hmacSha256 = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            throw new Exception($"DEBUG MESSAGE BYTES:\n" +
-                $"Length: {messageBytesArray.Length}\n" +
-                $"As String: {messageString}\n" +
-                $"As Hex: {messageHex}\n" +
-                $"As hmac: {hmacSha256}\n");
-
+            byte[] hashBytes = hmac.ComputeHash(messageBytes.ToArray());
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
         }
     }
 
