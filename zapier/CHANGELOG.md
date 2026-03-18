@@ -1,3 +1,7 @@
+## 1.1.2
+* Enable actions when doing performSubscribe.
+* Delete agent run if file upload fails.
+
 ## 1.1.1
 
 * Update agentRunComplete trigger to status changes from Cradl API.

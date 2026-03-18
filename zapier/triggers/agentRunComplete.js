@@ -6,6 +6,7 @@ const setWebhookUrl = async(z, bundle) => {
       config: {
         url: bundle.targetUrl,
       },
+      enabled: true,
     }
 
     await cradlApi.updateAction(z, bundle.inputData.actionId, body)
@@ -20,6 +21,7 @@ const setWebhookUrl = async(z, bundle) => {
       config: {
         url: null,
       },
+      enabled: false,
     }
 
     updateActionResponse = cradlApi.updateAction(z, bundle.subscribeData.actionId, body)
