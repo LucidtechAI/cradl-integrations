@@ -1,9 +1,120 @@
 #r "nuget: Newtonsoft.Json, 13.0.3"
 
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
+
+// Custom JSON writer that produces Python-style output: spaces after colons and commas
+public class PythonStyleJsonWriter : JsonTextWriter
+{
+    private bool _propertyNameJustWritten = false;
+
+    public PythonStyleJsonWriter(TextWriter writer) : base(writer)
+    {
+        // No special formatting needed
+    }
+
+    // Override to add space after comma between values
+    protected override void WriteValueDelimiter()
+    {
+        WriteRaw(", ");
+    }
+
+    public override void WritePropertyName(string name)
+    {
+        base.WritePropertyName(name);
+        _propertyNameJustWritten = true;
+    }
+
+    public override void WritePropertyName(string name, bool escape)
+    {
+        base.WritePropertyName(name, escape);
+        _propertyNameJustWritten = true;
+    }
+
+    private void WriteSpaceAfterColonIfNeeded()
+    {
+        if (_propertyNameJustWritten)
+        {
+            WriteRaw(" ");
+            _propertyNameJustWritten = false;
+        }
+    }
+
+    public override void WriteValue(string value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteValue(int value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteValue(long value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteValue(double value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteValue(decimal value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteValue(bool value)
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteValue(value);
+    }
+
+    public override void WriteNull()
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteNull();
+    }
+
+    public override void WriteStartObject()
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteStartObject();
+    }
+
+    public override void WriteStartArray()
+    {
+        WriteSpaceAfterColonIfNeeded();
+        base.WriteStartArray();
+    }
+
+    protected override void WriteIndent()
+    {
+        // Override to prevent any indentation/newlines
+    }
+}
+
+// Helper method to serialize with Python-style formatting
+static string SerializePythonStyle(JToken token)
+{
+    var sb = new StringBuilder();
+    using (var sw = new StringWriter(sb))
+    using (var writer = new PythonStyleJsonWriter(sw))
+    {
+        token.WriteTo(writer);
+    }
+    return sb.ToString();
+}
 
 // Test objects - add more test cases here
 var testCases = new Dictionary<string, JObject>
@@ -75,25 +186,22 @@ foreach (var testCase in testCases)
 
     // Using Newtonsoft.Json default (compact, no spaces)
     string compact = testCase.Value.ToString(Newtonsoft.Json.Formatting.None);
-    Console.WriteLine("Compact (no spaces):");
+    Console.WriteLine("Newtonsoft Compact (no spaces):");
     Console.WriteLine(compact);
     Console.WriteLine();
 
-    // What we want: Python-style (space after colon and comma)
-    // This is what Python's json.dumps() produces by default
-    Console.WriteLine("Expected Python-style (space after ':' and ','):");
-    string pythonStyle = Newtonsoft.Json.JsonConvert.SerializeObject(
-        testCase.Value,
-        Newtonsoft.Json.Formatting.None
-    );
-    // For now, just show what we're getting
+    // Using our custom Python-style writer
+    string pythonStyle = SerializePythonStyle(testCase.Value);
+    Console.WriteLine("Custom Python-style (space after ':' and ','):");
     Console.WriteLine(pythonStyle);
     Console.WriteLine();
 
     // Show byte representation for verification
-    byte[] bytes = Encoding.UTF8.GetBytes(pythonStyle);
-    Console.WriteLine($"Byte length: {bytes.Length}");
-    Console.WriteLine($"First 50 bytes as hex: {BitConverter.ToString(bytes, 0, Math.Min(50, bytes.Length)).Replace("-", " ")}");
+    byte[] compactBytes = Encoding.UTF8.GetBytes(compact);
+    byte[] pythonBytes = Encoding.UTF8.GetBytes(pythonStyle);
+    Console.WriteLine($"Compact byte length: {compactBytes.Length}");
+    Console.WriteLine($"Python-style byte length: {pythonBytes.Length}");
+    Console.WriteLine($"Difference: {pythonBytes.Length - compactBytes.Length} bytes (added spaces)");
     Console.WriteLine();
 
     Console.WriteLine("=".PadRight(80, '='));
@@ -117,5 +225,3 @@ Console.WriteLine("Python default output (what we need):");
 Console.WriteLine(@"{""a"": ""b"", ""c"": 123}");
 Console.WriteLine();
 
-Console.WriteLine("Press any key to exit...");
-Console.ReadKey();
