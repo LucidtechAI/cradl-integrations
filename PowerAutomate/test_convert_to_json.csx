@@ -12,96 +12,30 @@ public class PythonStyleJsonWriter : JsonTextWriter
 {
     private bool _propertyNameJustWritten = false;
 
-    public PythonStyleJsonWriter(TextWriter writer) : base(writer)
+    public PythonStyleJsonWriter(TextWriter writer) : base(writer) { }
+
+    protected override void WriteValueDelimiter() => WriteRaw(", ");
+
+    public override void WritePropertyName(string name) { base.WritePropertyName(name); _propertyNameJustWritten = true; }
+    public override void WritePropertyName(string name, bool escape) { base.WritePropertyName(name, escape); _propertyNameJustWritten = true; }
+
+    private void InjectSpaceAfterColon()
     {
-        // No special formatting needed
+        if (_propertyNameJustWritten) { WriteRaw(" "); _propertyNameJustWritten = false; }
     }
 
-    // Override to add space after comma between values
-    protected override void WriteValueDelimiter()
-    {
-        WriteRaw(", ");
-    }
+    public override void WriteValue(object value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(string value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(int value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(long value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(double value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(decimal value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteValue(bool value) { InjectSpaceAfterColon(); base.WriteValue(value); }
+    public override void WriteNull() { InjectSpaceAfterColon(); base.WriteNull(); }
+    public override void WriteStartObject() { InjectSpaceAfterColon(); base.WriteStartObject(); }
+    public override void WriteStartArray() { InjectSpaceAfterColon(); base.WriteStartArray(); }
 
-    public override void WritePropertyName(string name)
-    {
-        base.WritePropertyName(name);
-        _propertyNameJustWritten = true;
-    }
-
-    public override void WritePropertyName(string name, bool escape)
-    {
-        base.WritePropertyName(name, escape);
-        _propertyNameJustWritten = true;
-    }
-
-    private void WriteSpaceAfterColonIfNeeded()
-    {
-        if (_propertyNameJustWritten)
-        {
-            WriteRaw(" ");
-            _propertyNameJustWritten = false;
-        }
-    }
-
-    public override void WriteValue(string value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteValue(int value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteValue(long value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteValue(double value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteValue(decimal value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteValue(bool value)
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteValue(value);
-    }
-
-    public override void WriteNull()
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteNull();
-    }
-
-    public override void WriteStartObject()
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteStartObject();
-    }
-
-    public override void WriteStartArray()
-    {
-        WriteSpaceAfterColonIfNeeded();
-        base.WriteStartArray();
-    }
-
-    protected override void WriteIndent()
-    {
-        // Override to prevent any indentation/newlines
-    }
+    protected override void WriteIndent() { }
 }
 
 // Helper method to serialize with Python-style formatting
