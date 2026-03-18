@@ -12,8 +12,8 @@ using System.IO;
 
 public class Script : ScriptBase
 {
-    private const string API_ENDPOINT = "https://vuue1a2nqc.execute-api.eu-west-1.amazonaws.com/v1";
-    private const string AUTH_ENDPOINT = "https://auth.lucidtech.io/oauth2/token";
+    private const string API_ENDPOINT = "https://api.cradl.ai/v1";
+    private const string AUTH_ENDPOINT = "https://auth.cradl.ai/oauth2/token";
     private const int MIN_RETRY_TIME_SECONDS = 20;
     private const int MAX_RETRY_TIME_SECONDS = 900;
 
