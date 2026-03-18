@@ -10,7 +10,7 @@ const downloadFile = async (url, z) => {
 }
 
 async function makePostRequest(z, endpoint, body) {
-  return await z.request({
+  return z.request({
     url: process.env.API_BASE_URL + endpoint,
     method: 'POST',
     body: body,
@@ -18,7 +18,7 @@ async function makePostRequest(z, endpoint, body) {
   }
 
 async function makePatchRequest(z, endpoint, body) {
-  return await z.request({
+  return z.request({
     url: process.env.API_BASE_URL + endpoint,
     method: 'PATCH',
     body: body,
@@ -26,14 +26,14 @@ async function makePatchRequest(z, endpoint, body) {
 }
 
 async function makeGetRequest(z, endpoint) {
-  return await z.request({
+  return z.request({
     url: process.env.API_BASE_URL + endpoint,
     method: 'GET',
   });
 }
 
 async function makeDeleteRequest(z, endpoint) {
-  return await z.request({
+  return z.request({
     url: process.env.API_BASE_URL + endpoint,
     method: 'DELETE',
   });
@@ -94,8 +94,8 @@ async function createDocument(z, inputFileUrl, agentRunId, fileName) {
   const postDocumentsResponse = await makePostRequest(z, '/documents', body)
   // bundle.inputData.file will be a URL from which we download the file
   try {
-    fileResponse = await downloadFile(inputFileUrl, z)
-    await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())
+  fileResponse = await downloadFile(inputFileUrl, z)
+  await putToFileServer(z, postDocumentsResponse.json.fileUrl, fileResponse.buffer())
   } catch(error) {
     await deleteDocument(z, postDocumentsResponse.json.documentId)
     throw error

@@ -53,7 +53,7 @@ describe('creates', () => {
         bundle
       );
     }
-    await expect(functionToThrow()).rejects.toThrow('Invalid document data. Ensure your document is in PDF, JPEG, PNG, WEBP or TIFF format.');
+    await expect(functionToThrow()).rejects.toThrow('Invalid document data. Ensure your document is in PDF, JPEG, PNG or WEBP format.');
   }, 60000);
 
   test('createAgentRunWithVariables', async () => {
