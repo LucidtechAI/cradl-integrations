@@ -17,24 +17,100 @@ public class Script : ScriptBase
     private const int MIN_RETRY_TIME_SECONDS = 20;
     private const int MAX_RETRY_TIME_SECONDS = 900;
 
-    // Custom JSON writer that formats with spaces after colons (matching Python's json.dumps())
+    // Custom JSON writer that formats with spaces after colons and commas (matching Python's json.dumps())
     private class PythonStyleJsonWriter : Newtonsoft.Json.JsonTextWriter
     {
+        private bool _propertyNameJustWritten = false;
+
         public PythonStyleJsonWriter(TextWriter textWriter) : base(textWriter)
         {
-            // No indentation or formatting
+            // No special formatting needed
+        }
+
+        // Override to add space after comma between values
+        protected override void WriteValueDelimiter()
+        {
+            WriteRaw(", ");
         }
 
         public override void WritePropertyName(string name)
         {
             base.WritePropertyName(name);
+            _propertyNameJustWritten = true;
         }
 
         public override void WritePropertyName(string name, bool escape)
         {
             base.WritePropertyName(name, escape);
-            // After writing property name and colon, add a space
-            WriteWhitespace(" ");
+            _propertyNameJustWritten = true;
+        }
+
+        private void WriteSpaceAfterColonIfNeeded()
+        {
+            if (_propertyNameJustWritten)
+            {
+                WriteRaw(" ");
+                _propertyNameJustWritten = false;
+            }
+        }
+
+        public override void WriteValue(string value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteValue(int value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteValue(long value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteValue(double value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteValue(decimal value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteValue(bool value)
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteValue(value);
+        }
+
+        public override void WriteNull()
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteNull();
+        }
+
+        public override void WriteStartObject()
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteStartObject();
+        }
+
+        public override void WriteStartArray()
+        {
+            WriteSpaceAfterColonIfNeeded();
+            base.WriteStartArray();
+        }
+
+        protected override void WriteIndent()
+        {
+            // Override to prevent any indentation/newlines
         }
     }
 
@@ -967,15 +1043,17 @@ public class Script : ScriptBase
                 return BadRequest("Missing x-cradl-signedheaders header.");
             }
 
-            // Serialize the body using Python-style formatting (space after colon)
+            // Serialize the body using Python-style formatting (space after colon and comma)
             string bodyString = SerializeJsonPythonStyle(body);
+            byte[] bodyBytes = Encoding.UTF8.GetBytes(bodyString);
+
             // Calculate the HMAC signature
             string calculatedSignature = CalculateHmacSignature(
                 httpMethod,
                 webhookUrl,
                 headers,
                 signedHeadersStr,
-                bodyString,
+                bodyBytes,
                 hmacSecret
             );
 
@@ -1011,7 +1089,7 @@ public class Script : ScriptBase
         return null;
     }
 
-    private string CalculateHmacSignature(string httpMethod, string url, JObject headers, string signedHeadersStr, string bodyString, string secret)
+    private string CalculateHmacSignature(string httpMethod, string url, JObject headers, string signedHeadersStr, byte[] body, string secret)
     {
         // Parse the comma-separated list of signed headers
         var signedHeadersList = signedHeadersStr.Split(',').Select(h => h.Trim().ToLower()).ToList();
@@ -1040,23 +1118,22 @@ public class Script : ScriptBase
         messageBytes.AddRange(Encoding.UTF8.GetBytes(httpMethod.ToUpper()));
         messageBytes.AddRange(Encoding.UTF8.GetBytes(url));
         messageBytes.AddRange(headerBytes);
-        messageBytes.AddRange(Encoding.UTF8.GetBytes(bodyString));
+        messageBytes.AddRange(body);
 
         // Debug: throw to inspect the message bytes
         var messageBytesArray = messageBytes.ToArray();
         var messageString = Encoding.UTF8.GetString(messageBytesArray);
         var messageHex = BitConverter.ToString(messageBytesArray).Replace("-", "");
-        throw new Exception($"DEBUG MESSAGE BYTES:\n" +
-            $"Length: {messageBytesArray.Length}\n" +
-            $"As String: {messageString}\n" +
-            $"As Hex: {messageHex}\n" +
-            $"Body String Length: {bodyString.Length}\n" +
-            $"Body String: {bodyString}");
-
         // Calculate HMAC-SHA256
         using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret))) {
             byte[] hashBytes = hmac.ComputeHash(messageBytesArray);
-            return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            var hmacSha256 = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            throw new Exception($"DEBUG MESSAGE BYTES:\n" +
+                $"Length: {messageBytesArray.Length}\n" +
+                $"As String: {messageString}\n" +
+                $"As Hex: {messageHex}\n" +
+                $"As hmac: {hmacSha256}\n");
+
         }
     }
 
