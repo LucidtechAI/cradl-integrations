@@ -129,6 +129,9 @@ public class Script : ScriptBase
         request.RequestUri = new Uri(Uri.UnescapeDataString($"{request.RequestUri}"));
         var getDocumentResponse = await this.Context.SendAsync(request, this.CancellationToken);
 
+        if (!getDocumentResponse.IsSuccessStatusCode) {
+            return getDocumentResponse;
+        }
         // Get document metadata
         var metadata = await ToJson(getDocumentResponse);
         var fileUrl = (string)metadata["fileUrl"];
@@ -211,7 +214,10 @@ public class Script : ScriptBase
         string accessToken = await GetAccessToken();
 
         // Get information from content and query parameters
-        string agentId = request.Headers.GetValues("AgentId").First();
+        if (!request.Headers.TryGetValues("AgentId", out var agentIdValues) || !agentIdValues.Any()) {
+            return BadRequest("Missing required header: AgentId");
+        }
+        string agentId = agentIdValues.First();
         var fileContent = await this.Context.Request.Content.ReadAsByteArrayAsync();
 
         // Parse query parameters
@@ -250,6 +256,12 @@ public class Script : ScriptBase
         request.RequestUri = new Uri($"{Script.API_ENDPOINT}/agents/{agentId}/runs");
         request.Headers.Add("Authorization", $"Bearer {accessToken}");
         var response = await this.Context.SendAsync(request, this.CancellationToken);
+
+        if (!response.IsSuccessStatusCode) {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            return BadRequest($"Failed to create agent run: {errorContent}");
+        }
+
         var content = await ToJson(response);
         string fullAgentRunId = (string) content["id"];
 
@@ -1165,7 +1177,13 @@ public class Script : ScriptBase
 
     private static async Task<JObject> ToJson(HttpResponseMessage response)
     {
-        return JObject.Parse(await response.Content.ReadAsStringAsync());
+        var content = await response.Content.ReadAsStringAsync();
+        try {
+            return JObject.Parse(content);
+        }
+        catch (Exception ex) {
+            throw new Exception($"Failed to parse response as JSON. Status: {response.StatusCode}, Content: {content.Substring(0, Math.Min(200, content.Length))}...", ex);
+        }
     }
 
     private (string clientId, string clientSecret) GetClientIdAndSecret()
