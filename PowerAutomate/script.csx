@@ -115,7 +115,8 @@ public class Script : ScriptBase
             }
         }
         catch (ArgumentException ex) {
-            return BadRequest($"Wrong Credentials, make sure the connection reference is correct: {ex.Message}");
+            // An argumentException is thrown when something is wrong with the credentials
+            return BadRequest($"{ex.Message}");
         }
 
         return null;
@@ -659,7 +660,8 @@ public class Script : ScriptBase
         var responseJson = await ToJson(response);
 
         if (!response.IsSuccessStatusCode) {
-            throw new Exception($"Could not poll agentRun: {request.RequestUri}");
+            var errorContent = await response.Content.ReadAsStringAsync();
+            throw new Exception($"Could not poll agentRun: {errorContent}");
         }
 
         // Get actionId from query parameter
@@ -764,6 +766,7 @@ public class Script : ScriptBase
             JObject contentGetModel = await ToJson(responseGetModel);
 
             // Format and return variables according to the fieldConfig
+            //TODO: Add a try except block around this and throw a readable error message
             variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
 
             if (variables == null) {
@@ -942,14 +945,15 @@ public class Script : ScriptBase
             var headers = payload["headers"] as JObject;
             var body = payload["body"] as JObject;
 
+            string commonMessage = "This action has to be placed after the \"Extracted data from document\" trigger with the input being the expression \"triggerOutputs()\"."
             if (headers == null || body == null) {
-                return BadRequest("Invalid payload structure. Expected 'headers' and 'body' properties.");
+                return BadRequest($"Invalid payload structure, expected 'headers' and 'body' properties. {commonMessage}");
             }
 
             // Extract actionId from body.context.actionId
             string actionId = body["context"]?["actionId"]?.ToString();
             if (string.IsNullOrEmpty(actionId)) {
-                return BadRequest("Missing actionId in body.context.actionId.");
+                return BadRequest($"Missing actionId in body.context.actionId. {commonMessage}");
             }
 
             // Get the hmacSecret and webhook config from the action
@@ -960,6 +964,8 @@ public class Script : ScriptBase
             );
 
             var getActionResponse = await this.Context.SendAsync(request, this.CancellationToken);
+            // TODO: Missing error handling
+            
             var contentGetAction = await ToJson(getActionResponse);
 
             string hmacSecret = contentGetAction?["config"]?["hmacSecret"]?.ToString();
@@ -974,19 +980,19 @@ public class Script : ScriptBase
             string httpMethod = contentGetAction?["config"]?["httpMethod"]?.ToString() ?? "POST";
 
             if (string.IsNullOrEmpty(webhookUrl)) {
-                return BadRequest("The webhook URL is not configured in the action.");
+                return BadRequest("The webhook URL is not configured in the action. Make sure the \"Extracted data from document\" trigger is connected to Cradl.");
             }
 
             // Extract signature-related headers
             string receivedSignature = GetHeaderValue(headers, "x-cradl-signature");
             string signedHeadersStr = GetHeaderValue(headers, "x-cradl-signedheaders");
-
+            string commonOriginatedMessage = "The incoming request that triggered your flow does not originate from Cradl."
             if (string.IsNullOrEmpty(receivedSignature)) {
-                return BadRequest("Missing x-cradl-signature header.");
+                return BadRequest($"Missing x-cradl-signature header. {commonOriginatedMessage}");
             }
 
             if (string.IsNullOrEmpty(signedHeadersStr)) {
-                return BadRequest("Missing x-cradl-signedheaders header.");
+                return BadRequest($"Missing x-cradl-signedheaders header. {commonOriginatedMessage}");
             }
 
             // Serialize the body using Python-style formatting (space after colon and comma)
@@ -1005,7 +1011,7 @@ public class Script : ScriptBase
 
             // Compare signatures
             if (!string.Equals(calculatedSignature, receivedSignature, StringComparison.OrdinalIgnoreCase)) {
-                return BadRequest($"Invalid signature. Expected: {calculatedSignature}, Received: {receivedSignature}");
+                return BadRequest($"Invalid signature. {commonOriginatedMessage}. Expected: {calculatedSignature}, Received: {receivedSignature}");
             }
 
             // Return the original body if validation succeeds
@@ -1188,16 +1194,17 @@ public class Script : ScriptBase
 
     private (string clientId, string clientSecret) GetClientIdAndSecret()
     {
+        string commonMessage = "Please ensure your Cradl AI connection is properly configured with valid Client Credentials copied from a Power Automate trigger/export in Cradl.";
         // Decode apiKey (base64 encoded string "<clientId>:<clientSecret>")
         if (!this.Context.Request.Headers.TryGetValues("apiKey", out var apiKeyValues) || !apiKeyValues.Any())
         {
-            throw new ArgumentException("Missing apiKey header. Please ensure your Cradl AI connection is properly configured with valid credentials.");
+            throw new ArgumentException($"Missing apiKey header. {commonMessage}");
         }
 
         var apiKey = apiKeyValues.First();
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new ArgumentException("The apiKey header is empty. Please ensure your Cradl AI connection credentials are properly configured.");
+            throw new ArgumentException($"The apiKey header is empty. {commonMessage}");
         }
 
         string decoded;
@@ -1207,18 +1214,18 @@ public class Script : ScriptBase
         }
         catch (FormatException ex)
         {
-            throw new ArgumentException($"Failed to decode apiKey. The apiKey must be base64 encoded '<clientId>:<clientSecret>'. Error: {ex.Message}");
+            throw new ArgumentException($"Failed to decode apiKey. {commonMessage}");
         }
 
         var parts = decoded.Split(':');
         if (parts.Length != 2)
         {
-            throw new ArgumentException($"Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>', but got '{parts.Length}' parts after decoding. Please verify your Cradl AI credentials.");
+            throw new ArgumentException($"Invalid API key format, found {parts.Length} parts. {commonMessage}");
         }
 
         if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]))
         {
-            throw new ArgumentException($"Invalid API key format. Expected base64 encoded '<clientId>:<clientSecret>', but got '{parts.Length}' parts after decoding. Please verify your Cradl AI credentials.");
+            throw new ArgumentException($"Invalid API key format, empty credentials. {commonMessage}");
         }
 
         return (parts[0], parts[1]);
