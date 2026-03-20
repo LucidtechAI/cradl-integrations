@@ -766,8 +766,12 @@ public class Script : ScriptBase
             JObject contentGetModel = await ToJson(responseGetModel);
 
             // Format and return variables according to the fieldConfig
-            //TODO: Add a try except block around this and throw a readable error message
-            variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
+            try {
+                variables = FormatPredictions(variablesJson, (JObject) contentGetModel["fieldConfig"]);
+            }
+            catch (Exception ex) {
+                throw new Exception($"Failed to format predictions according to model field configuration: {ex.Message}. Please contact support@cradl.ai if this issue persists.", ex);
+            }
 
             if (variables == null) {
                 throw new Exception($"Could not find variables. please contact support@cradl.ai");
@@ -945,7 +949,7 @@ public class Script : ScriptBase
             var headers = payload["headers"] as JObject;
             var body = payload["body"] as JObject;
 
-            string commonMessage = "This action has to be placed after the \"Extracted data from document\" trigger with the input being the expression \"triggerOutputs()\"."
+            string commonMessage = "This action has to be placed after the \"Extracted data from document\" trigger with the input being the expression \"triggerOutputs()\".";
             if (headers == null || body == null) {
                 return BadRequest($"Invalid payload structure, expected 'headers' and 'body' properties. {commonMessage}");
             }
@@ -964,8 +968,11 @@ public class Script : ScriptBase
             );
 
             var getActionResponse = await this.Context.SendAsync(request, this.CancellationToken);
-            // TODO: Missing error handling
-            
+            if (!getActionResponse.IsSuccessStatusCode) {
+                var errorContent = await getActionResponse.Content.ReadAsStringAsync();
+                return BadRequest($"Failed to retrieve action configuration: {errorContent}. Please ensure the action exists and your credentials are correct.");
+            }
+
             var contentGetAction = await ToJson(getActionResponse);
 
             string hmacSecret = contentGetAction?["config"]?["hmacSecret"]?.ToString();
@@ -986,7 +993,7 @@ public class Script : ScriptBase
             // Extract signature-related headers
             string receivedSignature = GetHeaderValue(headers, "x-cradl-signature");
             string signedHeadersStr = GetHeaderValue(headers, "x-cradl-signedheaders");
-            string commonOriginatedMessage = "The incoming request that triggered your flow does not originate from Cradl."
+            string commonOriginatedMessage = "The incoming request that triggered your flow does not originate from Cradl.";
             if (string.IsNullOrEmpty(receivedSignature)) {
                 return BadRequest($"Missing x-cradl-signature header. {commonOriginatedMessage}");
             }
