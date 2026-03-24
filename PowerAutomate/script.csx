@@ -1209,13 +1209,13 @@ public class Script : ScriptBase
         // Decode apiKey (base64 encoded string "<clientId>:<clientSecret>")
         if (!this.Context.Request.Headers.TryGetValues("apiKey", out var apiKeyValues) || !apiKeyValues.Any())
         {
-            throw new ArgumentException($"Missing apiKey header. {commonMessage}");
+            throw new ArgumentException($"Missing Client Credentials header. {commonMessage}");
         }
 
         var apiKey = apiKeyValues.First();
         if (string.IsNullOrEmpty(apiKey))
         {
-            throw new ArgumentException($"The apiKey header is empty. {commonMessage}");
+            throw new ArgumentException($"The Client Credentials are missing. {commonMessage}");
         }
 
         string decoded;
@@ -1225,18 +1225,18 @@ public class Script : ScriptBase
         }
         catch (FormatException ex)
         {
-            throw new ArgumentException($"Failed to decode apiKey. {commonMessage}");
+            throw new ArgumentException($"Failed to decode Client Credentials. {commonMessage}");
         }
 
         var parts = decoded.Split(':');
         if (parts.Length != 2)
         {
-            throw new ArgumentException($"Invalid API key format, found {parts.Length} parts. {commonMessage}");
+            throw new ArgumentException($"Invalid Client Credentials, found {parts.Length} parts. {commonMessage}");
         }
 
         if (string.IsNullOrEmpty(parts[0]) || string.IsNullOrEmpty(parts[1]))
         {
-            throw new ArgumentException($"Invalid API key format, empty credentials. {commonMessage}");
+            throw new ArgumentException($"Invalid Client Credentials. {commonMessage}");
         }
 
         return (parts[0], parts[1]);
