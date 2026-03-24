@@ -414,7 +414,7 @@ public class Script : ScriptBase
         JArray exportActions = new JArray();
         var actions = content["actions"] as JArray;
         if (actions == null) {
-            throw new Exception("No actions defined in your organizations");
+            throw new Exception("No Cradl exports defined in your organizations");
         }
 
         foreach (var action in actions.OfType<JObject>())
@@ -821,7 +821,7 @@ public class Script : ScriptBase
                 throw new Exception($"{actionId} is not valid, try refreshing or contact support@cradl.ai");
             }
             else if (string.IsNullOrWhiteSpace(agentId)) {
-                throw new Exception($"agentId is missing in action {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
+                throw new Exception($"agentId is missing in Cradl export {actionId}. Create a new trigger/export in Cradl or contact support@cradl.ai");
             }
         }
 
@@ -955,13 +955,13 @@ public class Script : ScriptBase
 
             string commonMessage = "This action has to be placed after the \"Extracted data from document\" trigger with the input being the expression \"triggerOutputs()\".";
             if (headers == null || body == null) {
-                return BadRequest($"Invalid payload structure, expected 'headers' and 'body' properties. {commonMessage}");
+                return BadRequest($"{commonMessage} Invalid payload structure, expected 'headers' and 'body' properties.");
             }
 
             // Extract actionId from body.context.actionId
             string actionId = body["context"]?["actionId"]?.ToString();
             if (string.IsNullOrEmpty(actionId)) {
-                return BadRequest($"Missing actionId in body.context.actionId. {commonMessage}");
+                return BadRequest($"{commonMessage} Missing actionId in body.context.actionId.");
             }
 
             // Get the hmacSecret and webhook config from the action
@@ -974,7 +974,7 @@ public class Script : ScriptBase
             var getActionResponse = await this.Context.SendAsync(request, this.CancellationToken);
             if (!getActionResponse.IsSuccessStatusCode) {
                 var errorContent = await getActionResponse.Content.ReadAsStringAsync();
-                return BadRequest($"Failed to retrieve action configuration: {errorContent}. Please ensure the action exists and your credentials are correct.");
+                return BadRequest($"Failed to retrieve Cradl export configuration: {errorContent}.");
             }
 
             var contentGetAction = await ToJson(getActionResponse);
@@ -991,7 +991,7 @@ public class Script : ScriptBase
             string httpMethod = contentGetAction?["config"]?["httpMethod"]?.ToString() ?? "POST";
 
             if (string.IsNullOrEmpty(webhookUrl)) {
-                return BadRequest("The webhook URL is not configured in the action. Make sure the \"Extracted data from document\" trigger is connected to Cradl.");
+                return BadRequest("The webhook URL is not configured in the Cradl export. Make sure the \"Extracted data from document\" trigger is connected to Cradl.");
             }
 
             // Extract signature-related headers
