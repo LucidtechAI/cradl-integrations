@@ -402,7 +402,11 @@ public class Script : ScriptBase
             agents = new JObject();
             foreach (var agent in contentGetAgents["agents"])
             {
-                agents[agent["agentId"].ToString()] = agent["name"].ToString();
+                var id = agent["agentId"]?.ToString();
+                if(!string.IsNullOrEmpty(id)){
+                    var agentName = agent["name"]?.ToString() ?? $"Unknown name for {id}";
+                    agents[id] = agentName;
+                }
             }
         }
 
