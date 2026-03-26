@@ -12,7 +12,11 @@ public class PythonStyleJsonWriter : JsonTextWriter
 {
     private bool _propertyNameJustWritten = false;
 
-    public PythonStyleJsonWriter(TextWriter writer) : base(writer) { }
+    public PythonStyleJsonWriter(TextWriter writer) : base(writer)
+    {
+        // Escape non-ASCII characters as \uXXXX to match Python's json.dumps() behavior
+        this.StringEscapeHandling = StringEscapeHandling.EscapeNonAscii;
+    }
 
     protected override void WriteValueDelimiter() => WriteRaw(", ");
 
@@ -93,6 +97,12 @@ var testCases = new Dictionary<string, JObject>
         ""null_value"": null,
         ""empty_object"": {},
         ""empty_array"": []
+    }"),
+
+    ["Unicode characters"] = JObject.Parse(@"{
+        ""norwegian"": ""ÆØÅæøå"",
+        ""name"": ""Øyvind"",
+        ""city"": ""Oslo""
     }"),
 
     ["Webhook body example"] = JObject.Parse(@"{

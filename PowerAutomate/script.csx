@@ -22,7 +22,11 @@ public class Script : ScriptBase
     {
         private bool _propertyNameJustWritten = false;
 
-        public PythonStyleJsonWriter(TextWriter textWriter) : base(textWriter) { }
+        public PythonStyleJsonWriter(TextWriter textWriter) : base(textWriter)
+        {
+            // Escape non-ASCII characters as \uXXXX to match Python's json.dumps() behavior
+            this.StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeNonAscii;
+        }
 
         protected override void WriteValueDelimiter() => WriteRaw(", ");
 
@@ -1007,6 +1011,7 @@ public class Script : ScriptBase
             }
 
             // Serialize the body using Python-style formatting (space after colon and comma)
+            // Non-ASCII characters are escaped as \uXXXX to match Python's json.dumps()
             string bodyString = SerializeJsonPythonStyle(body);
             byte[] bodyBytes = Encoding.UTF8.GetBytes(bodyString);
 
@@ -1022,7 +1027,7 @@ public class Script : ScriptBase
 
             // Compare signatures
             if (!string.Equals(calculatedSignature, receivedSignature, StringComparison.OrdinalIgnoreCase)) {
-                return BadRequest($"Invalid signature. {commonOriginatedMessage}. Expected: {calculatedSignature}, Received: {receivedSignature}");
+                return BadRequest($"Invalid signature. {commonOriginatedMessage} Expected: {calculatedSignature}, Received: {receivedSignature}");
             }
 
             // Return the original body if validation succeeds
