@@ -333,7 +333,7 @@
             "required": false,
             "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Export action",
-            "description": "Select a synchronous power automate export from your agent in Cradl",
+            "description": "Select a Power Automate export from your Cradl agent where waitForResult is true",
             "type": "string",
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
@@ -638,8 +638,8 @@
             "name": "waitForResult",
             "required": false,
             "x-ms-skip-url-encoding": true,
-            "x-ms-summary": "Only Synchronous Exports",
-            "description": "Filter async or sync export actions",
+            "x-ms-summary": "Wait for result",
+            "description": "Set to true for polling exports and false for webhook exports",
             "x-ms-visibility": "internal",
             "type": "string"
           },
