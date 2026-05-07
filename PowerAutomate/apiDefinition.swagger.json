@@ -3,7 +3,7 @@
   "info": {
     "version": "2.0",
     "title": "Cradl AI",
-    "description": "Automate internal document workflows with no-code AI.",
+    "description": "Use Cradl AI to OCR and extract structured data from PDFs, images, scans, and handwriting. Build AI agents to automate document processing and integrate extracted data into your workflows. Requires a Cradl AI account and a configured AI agent.",
     "contact": {
       "name": "Cradl AI Support",
       "url": "https://www.cradl.ai",
@@ -24,7 +24,7 @@
       "propertyValue": "AI;Content and Files"
     }
   ],
-  "host": "api.lucidtech.ai",
+  "host": "api.cradl.ai",
   "basePath": "/v1",
   "schemes": [
     "https"
@@ -34,9 +34,9 @@
   "paths": {
     "/documents": {
       "post": {
-        "summary": "Create Document (deprecated)",
+        "summary": "Create document (deprecated)",
         "operationId": "CreateDocumentDeprecated",
-        "description": "Create a document.",
+        "description": "Create a new document.",
         "consumes": [
           "application/json"
         ],
@@ -78,9 +78,9 @@
     },
     "/metadata/{documentId}": {
       "get": {
-        "summary": "Get Document Metadata",
+        "summary": "Get document metadata",
         "operationId": "GetDocumentMetadata",
-        "description": "Get metadata like name and content-type from a document.",
+        "description": "Retrieve metadata such as name and content type for a document.",
         "x-ms-visibility": "important",
         "consumes": [
           "application/json"
@@ -91,7 +91,7 @@
             "name": "documentId",
             "required": true,
             "x-ms-summary": "Document Id",
-            "description": "Id of the document, on the form las:document:xxx.",
+            "description": "The document ID, in the format cradl:document:xxx.",
             "type": "string"
           }
         ],
@@ -108,12 +108,12 @@
                 },
                 "name": {
                   "type": "string",
-                  "x-ms-summary": "Document Name",
+                  "x-ms-summary": "Document name",
                   "description": "The name of the Document"
                 },
                 "contentType": {
                   "type": "string",
-                  "x-ms-summary": "Content Type",
+                  "x-ms-summary": "Content type",
                   "description": "Content Type of the Document"
                 }
               }
@@ -121,12 +121,12 @@
           }
         }
       }
-    }, 
+    },
     "/documents/{documentId}": {
       "get": {
-        "summary": "Get Document",
+        "summary": "Get document",
         "operationId": "GetDocument",
-        "description": "Get the content of the Document.",
+        "description": "Retrieve the content of a document.",
         "consumes": [
           "application/json"
         ],
@@ -136,7 +136,7 @@
             "name": "documentId",
             "required": true,
             "x-ms-summary": "Document Id",
-            "description": "Id of the document, on the form las:document:xxx.",
+            "description": "The document ID, in the format cradl:document:xxx.",
             "type": "string"
           }
         ],
@@ -154,9 +154,9 @@
     },
     "/predictions": {
       "post": {
-        "summary": "Parse Document (deprecated)",
+        "summary": "Parse document (deprecated)",
         "operationId": "ParseDocumentDeprecated",
-        "description": "Extract data from documents like invoices, receipts, order confirmations.",
+        "description": "Extract data from documents such as invoices, receipts, and order confirmations.",
         "consumes": [
           "application/json"
         ],
@@ -169,7 +169,7 @@
               "properties": {
                 "modelId": {
                   "x-ms-summary": "Model",
-                  "description": "Choose your model.",
+                  "description": "Select your model.",
                   "type": "string",
                   "x-ms-dynamic-values": {
                     "operationId": "GetModelsDeprecated",
@@ -190,7 +190,7 @@
                 },
                 "documentId": {
                   "x-ms-summary": "Document ID",
-                  "description": "Name of the file, e.g. Document.pdf.",
+                  "description": "The name of the file, e.g., Document.pdf.",
                   "type": "string",
                   "title": "Document ID",
                   "x-ms-visibility": "important"
@@ -271,10 +271,10 @@
     },
     "/models": {
       "get": {
-        "summary": "Get My Models (deprecated)",
+        "summary": "Get my models (deprecated)",
         "operationId": "GetModelsDeprecated",
         "x-ms-visibility": "internal",
-        "description": "Get a list of available models.",
+        "description": "Retrieve a list of available models.",
         "consumes": [
           "application/json"
         ],
@@ -294,12 +294,14 @@
     },
     "/agents": {
       "post": {
-        "summary": "Extract Data From Document",
+        "summary": "Extract data from document",
         "operationId": "CreateRun",
-        "description": "Extract data from documents like invoices, receipts, order confirmations.",
+        "description": "Extract data from documents such as invoices, receipts, and order confirmations.",
         "consumes": [
           "application/json"
         ],
+        "x-ms-long-running-operation": true,
+        "x-ms-long-running-operation-options": { "final-state-via": "location" },
         "parameters": [
           {
             "in": "header",
@@ -307,7 +309,7 @@
             "required": true,
             "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Agent",
-            "description": "Choose your agent.",
+            "description": "Select your agent.",
             "type": "string",
             "x-ms-dynamic-values": {
               "operationId": "GetAgents",
@@ -327,23 +329,58 @@
           },
           {
             "in": "header",
+            "name": "ActionId",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Export action",
+            "description": "Select a Power Automate export from your Cradl agent where waitForResult is true",
+            "type": "string",
+            "x-ms-dynamic-list": {
+              "operationId": "GetActions",
+              "itemsPath": "actions",
+              "itemValuePath": "actionId",
+              "itemTitlePath": "name",
+              "parameters": {
+                "waitForResult": {
+                  "value": "true"
+                },
+                "AgentId": {
+                  "parameterReference": "AgentId"
+                }
+              }
+            },
+            "x-ms-visibility": "important"
+          },
+          {
+            "in": "header",
+            "name": "maxWaitInterval",
+            "required": false,
+            "x-ms-summary": "Max wait interval",
+            "x-ms-skip-url-encoding": true,
+            "description": "The maximum number of minutes to wait before trying again.",
+            "type": "integer",
+            "format": "int32",
+            "x-ms-visibility": "advanced"
+          },
+          {
+            "in": "query",
             "name": "variables",
             "required": false,
             "x-ms-summary": "Variables",
             "x-ms-skip-url-encoding": true,
-            "description": "json-encoded key-value pairs, e.g. {\"origin\": \"PowerAutomate\"}",
+            "description": "JSON-encoded key-value pairs, e.g., {\"origin\": \"PowerAutomate\"}.",
             "type": "string",
             "x-ms-visibility": "advanced"
           },
           {
-            "in": "header",
+            "in": "query",
             "name": "title",
             "x-ms-summary": "Title",
-            "description": "Title of the document or run.",
+            "description": "The title of the document or run.",
             "required": false,
-            "x-ms-skip-url-encoding": true,
             "type": "string",
-            "x-ms-visibility": "important"
+            "x-ms-visibility": "important",
+            "x-ms-skip-url-encoding": true
           },
           {
             "in": "body",
@@ -359,20 +396,36 @@
           }
         ],
         "responses": {
+          "202": {
+            "description": "Document parsing started. Poll the URL in the Location header to get the result.",
+            "headers": {
+              "Location": {
+                "type": "string",
+                "description": "URL to poll for job status"
+              },
+              "Retry-After": {
+                "type": "string",
+                "description": "Number of seconds before polling again"
+              }
+            }
+          },
           "200": {
             "description": "Default response",
             "schema": {
-              "type": "object",
-              "properties": {
-                "runId": {
-                  "type": "string",
-                  "x-ms-summary": "AgentRunId",
-                  "description": "A unique ID for this run"
-                },
-                "status": {
-                  "type": "string",
-                  "x-ms-summary": "Status",
-                  "description": "A status indicator for this run"
+              "x-ms-dynamic-schema": {
+                "operationId": "GetSchema",
+                "parameters": {
+                  "AgentId": {
+                    "parameter": "AgentId"
+                  }
+                }
+              },
+              "x-ms-dynamic-properties": {
+                "operationId": "GetSchema",
+                "parameters": {
+                  "AgentId": {
+                    "parameterReference": "AgentId"
+                  }
                 }
               }
             }
@@ -380,9 +433,9 @@
         }
       },
       "get": {
-        "summary": "Get My Agents",
+        "summary": "Get my agents",
         "operationId": "GetAgents",
-        "description": "Get a list of available agents.",
+        "description": "Retrieve a list of available agents.",
         "x-ms-visibility": "internal",
         "consumes": [
           "application/json"
@@ -428,8 +481,8 @@
             "schema": {}
           }
         },
-        "summary": "Validate Trigger Output",
-        "description": "Validate output from trigger.",
+        "summary": "Validate trigger output",
+        "description": "Validate the output from a trigger.",
         "operationId": "Validate",
         "consumes": [
           "application/json"
@@ -439,43 +492,21 @@
         ],
         "parameters": [
           {
-            "name": "ActionId",
-            "in": "header",
-            "x-ms-summary": "ActionId",
+            "name": "Request",
+            "in": "body",
             "required": true,
-            "description": "Id of the Trigger Action (cradl:action:xxx).",
-            "type": "string",
-            "x-ms-dynamic-values": {
-              "operationId": "GetActions",
-              "value-path": "actionId",
-              "value-title": "name",
-              "value-collection": "actions",
-              "parameters": {}
-            },
-            "x-ms-dynamic-list": {
-              "operationId": "GetActions",
-              "itemsPath": "actions",
-              "itemValuePath": "actionId",
-              "itemTitlePath": "name",
-              "parameters": {}
+            "x-ms-visibility": "important",
+            "description": "triggerOutputs()",
+            "schema": {
+              "type": "object"
             }
-          },
-          {
-            "name": "X-Cradl-Shared-Secret",
-            "in": "header",
-            "x-ms-summary": "X-Cradl-Shared-Secret",
-            "required": true,
-            "description": "@{triggerOutputs()['headers']['X-Cradl-Shared-Secret']}",
-            "type": "string",
-            "default": "@{triggerOutputs()['headers']['X-Cradl-Shared-Secret']}"
           }
-        ],
-        "x-ms-visibility": "important"
+        ]
       }
     },
     "/actions": {
       "x-ms-notification-content": {
-        "description": "Completed Run from Cradl AI.",
+        "description": "Completed run from Cradl AI.",
         "schema": {
           "x-ms-dynamic-schema": {
             "operationId": "GetSchema",
@@ -484,18 +515,20 @@
                 "parameter": "ActionId"
               }
             }
-          }
-        },
-        "headers": {
-          "X-Cradl-Shared-Secret": {
-            "description": "Shared Secret to verify trigger event.",
-            "type": "string"
+          },
+          "x-ms-dynamic-properties": {
+            "operationId": "GetSchema",
+            "parameters": {
+              "ActionId": {
+                "parameterReference": "ActionId"
+              }
+            }
           }
         }
       },
       "post": {
         "x-ms-trigger": "single",
-        "summary": "Extracted Data From Document",
+        "summary": "Extracted data from document",
         "description": "This operation triggers when data is extracted from your document.",
         "operationId": "RunCompleted",
         "parameters": [
@@ -503,24 +536,21 @@
             "in": "header",
             "name": "ActionId",
             "required": true,
+            "description": "The ID of the action that defines the export.",
             "x-ms-skip-url-encoding": true,
-            "x-ms-summary": "Export Action",
-            "description": "Id of the action that defines the export.",
+            "x-ms-summary": "Export action",
             "type": "string",
             "x-ms-visibility": "important",
-            "x-ms-dynamic-values": {
-              "operationId": "GetActions",
-              "value-path": "actionId",
-              "value-title": "name",
-              "value-collection": "actions",
-              "parameters": {}
-            },
             "x-ms-dynamic-list": {
               "operationId": "GetActions",
               "itemsPath": "actions",
-              "itemValuePath": "actionId",
               "itemTitlePath": "name",
-              "parameters": {}
+              "itemValuePath": "actionId",
+              "parameters": {
+                "waitForResult": {
+                  "value": "false"
+                }
+              }
             }
           },
           {
@@ -565,7 +595,7 @@
                       "title": "Params"
                     }
                   },
-                  "description": "configuration of the trigger.",
+                  "description": "Configuration for the trigger.",
                   "required": [
                     "url",
                     "httpMethod"
@@ -595,14 +625,35 @@
         }
       },
       "get": {
-        "summary": "Get My Actions",
+        "summary": "Get my actions",
         "operationId": "GetActions",
-        "description": "Get a list of available actions.",
+        "description": "Retrieve a list of available actions.",
         "x-ms-visibility": "internal",
         "consumes": [
           "application/json"
         ],
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "waitForResult",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Wait for result",
+            "description": "Set to true for polling exports and false for webhook exports",
+            "x-ms-visibility": "internal",
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "AgentId",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Only show actions for this agent",
+            "description": "Agent Id to filter actions",
+            "x-ms-visibility": "internal",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -637,8 +688,8 @@
     },
     "/actions/{actionId}": {
       "delete": {
-        "summary": "Delete Trigger",
-        "description": "Don't act when a run completes.",
+        "summary": "Delete trigger",
+        "description": "Stop acting when a run completes.",
         "x-ms-visibility": "internal",
         "operationId": "DeleteTrigger",
         "parameters": [
@@ -669,20 +720,28 @@
     },
     "/schema": {
       "get": {
-        "summary": "Get Schema",
+        "summary": "Get schema",
         "operationId": "GetSchema",
         "x-ms-visibility": "internal",
-        "description": "Get the schema for the agent run output.",
+        "description": "Retrieve the schema for the agent run output.",
         "consumes": [
           "application/json"
         ],
         "parameters": [
           {
             "in": "header",
+            "name": "AgentId",
+            "required": false,
+            "x-ms-summary": "Agent",
+            "description": "The agent that defines the schema.",
+            "type": "string"
+          },
+          {
+            "in": "header",
             "name": "ActionId",
-            "required": true,
+            "required": false,
             "x-ms-summary": "Action",
-            "description": "Action that defines the schema.",
+            "description": "The action that defines the schema.",
             "type": "string"
           }
         ],
@@ -721,11 +780,65 @@
         }
       }
     },
+    "/agents/{agentId}/runs/{runId}": {
+      "get": {
+        "summary": "Get agent run info",
+        "description": "Retrieve information about a run, and return the full output if the run has completed.",
+        "operationId": "GetAgentRun",
+        "x-ms-visibility": "internal",
+        "x-ms-long-running-operation": true,
+        "parameters": [
+          {
+            "name": "agentId",
+            "in": "path",
+            "required": true,
+            "x-ms-summary": "AgentId",
+            "description": "The id of the agent.",
+            "type": "string"
+          },
+          {
+            "name": "runId",
+            "in": "path",
+            "x-ms-summary": "RunId",
+            "description": "The id of the agent run.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "query",
+            "name": "actionId",
+            "required": false,
+            "x-ms-skip-url-encoding": true,
+            "x-ms-summary": "Export Action",
+            "description": " Action that defines the export to Power Automate",
+            "x-ms-visibility": "internal",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Job still processing"
+          },
+          "200": {
+            "description": "Job completed successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "output": {"type": "object"},
+                "context": {"type": "object"}
+              }
+            }
+          },
+          "400": { "description": "Invalid job ID" },
+          "404": { "description": "Job not found" }
+        }
+      }
+    },
     "/workflows": {
       "post": {
-        "summary": "Parse Document With Human-in-the-Loop (deprecated)",
+        "summary": "Parse document with human-in-the-loop (deprecated)",
         "operationId": "CreateExecutionDeprecated",
-        "description": "Extract data from documents like invoices, receipts, order confirmations.",
+        "description": "Extract data from documents such as invoices, receipts, and order confirmations.",
         "consumes": [
           "application/json"
         ],
@@ -736,7 +849,7 @@
             "required": true,
             "x-ms-skip-url-encoding": true,
             "x-ms-summary": "Workflow",
-            "description": "Choose your workflow.",
+            "description": "Select your workflow.",
             "type": "string",
             "x-ms-dynamic-values": {
               "operationId": "GetWorkflowsDeprecated",
@@ -792,9 +905,9 @@
         }
       },
       "get": {
-        "summary": "Get My Workflows (deprecated)",
+        "summary": "Get my workflows (deprecated)",
         "operationId": "GetWorkflowsDeprecated",
-        "description": "Get a list of available workflows.",
+        "description": "Retrieve a list of available workflows.",
         "x-ms-visibility": "internal",
         "consumes": [
           "application/json"
@@ -850,7 +963,7 @@
       "properties": {
         "outputFormat": {
           "type": "string",
-          "description": "Output format.",
+          "description": "The output format.",
           "title": "Output format",
           "x-ms-summary": "The output format",
           "default": "v2",
@@ -861,7 +974,7 @@
         },
         "strategy": {
           "type": "string",
-          "description": "Prediction aggregation strategy.",
+          "description": "The strategy used to aggregate predictions.",
           "enum": [
             "BEST_N_PAGES",
             "BEST_FIRST"
@@ -878,16 +991,16 @@
       "properties": {
         "autoRotate": {
           "type": "boolean",
-          "description": "A flag indicating whether document orientation should be auto detected"
+          "description": "Flag indicating whether the document orientation should be auto-detected."
         },
         "maxPages": {
           "type": "integer",
           "format": "int32",
-          "description": "The maximum number of pages to process in a single request"
+          "description": "The maximum number of pages to process in a single request."
         },
         "imageQuality": {
           "type": "string",
-          "description": "The image quality used when processing this document"
+          "description": "The image quality used when processing this document."
         }
       }
     },
@@ -924,13 +1037,13 @@
           "x-ms-visibility": "important",
           "title": "Document ID",
           "type": "string",
-          "description": "The ID of the document which was submitted."
+          "description": "The ID of the document that was submitted."
         },
         "title": {
           "type": "string",
           "x-ms-summary": "Title",
           "x-ms-visibility": "important",
-          "description": "Title, e.g. Invoice.pdf."
+          "description": "The title, e.g., Invoice.pdf."
         },
         "predictions": {
           "type": "object",
